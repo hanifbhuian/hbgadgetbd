@@ -1,0 +1,63 @@
+backend:
+  name: git-gateway
+  branch: main
+
+local_backend: false
+
+media_folder: "assets/uploads"
+public_folder: "/assets/uploads"
+
+collections:
+  - name: "store"
+    label: "Store Management"
+    files:
+      - label: "Products"
+        name: "products"
+        file: "assets/data/products.json"
+        format: "json"
+        fields:
+          - label: "Products"
+            name: "products"
+            widget: "list"
+            summary: "{{fields.name}} - ৳{{fields.price}}"
+            fields:
+              - label: "ID"
+                name: "id"
+                widget: "number"
+                value_type: "int"
+                min: 1
+              - label: "Product Name"
+                name: "name"
+                widget: "string"
+              - label: "Category"
+                name: "category"
+                widget: "select"
+                options:
+                  - "Mini Speakers"
+                  - "Gift Box"
+                  - "Mobile Accessories"
+                  - "Desk Gadgets"
+                  - "Daily Use"
+              - label: "Price"
+                name: "price"
+                widget: "number"
+                value_type: "int"
+                min: 0
+              - label: "Icon or Emoji"
+                name: "icon"
+                widget: "string"
+                required: false
+                hint: "Example: 🔊, 🎁, 📱"
+              - label: "Product Image"
+                name: "image"
+                widget: "image"
+                required: false
+                hint: "Optional. Upload an image if you do not want to use an emoji icon."
+              - label: "Tag"
+                name: "tag"
+                widget: "string"
+                required: false
+                hint: "Example: Hot, New, Gift"
+              - label: "Description"
+                name: "description"
+                widget: "text"

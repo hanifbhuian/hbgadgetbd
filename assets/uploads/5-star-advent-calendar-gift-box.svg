@@ -1,0 +1,42 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 800 800" role="img" aria-labelledby="title desc">
+  <title id="title">5-Star Shaped Advent Calendar Small Gift Box</title>
+  <desc id="desc">Purple star-shaped advent calendar small gift box with numbered inner boxes.</desc>
+  <defs>
+    <linearGradient id="bg" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#f7f7f9"/><stop offset="1" stop-color="#dcdde1"/></linearGradient>
+    <linearGradient id="purple" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#d9b4ff"/><stop offset="0.45" stop-color="#8f5fb6"/><stop offset="1" stop-color="#51307d"/></linearGradient>
+    <linearGradient id="darkPurple" x1="0" x2="1" y1="0" y2="1"><stop offset="0" stop-color="#a77ad5"/><stop offset="1" stop-color="#4b2b73"/></linearGradient>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="140%"><feDropShadow dx="10" dy="18" stdDeviation="18" flood-color="#2d1b41" flood-opacity="0.25"/></filter>
+    <pattern id="sparkle" width="38" height="38" patternUnits="userSpaceOnUse"><circle cx="8" cy="7" r="1.5" fill="#ffffff" opacity="0.8"/><circle cx="26" cy="24" r="1.2" fill="#ffffff" opacity="0.65"/><path d="M18 9l2 5 5 2-5 2-2 5-2-5-5-2 5-2z" fill="#fff" opacity="0.28"/></pattern>
+  </defs>
+  <rect width="800" height="800" fill="url(#bg)"/>
+  <ellipse cx="410" cy="690" rx="300" ry="45" fill="#2a2330" opacity="0.15"/>
+
+  <g transform="translate(150 70) rotate(8 250 300)" filter="url(#shadow)">
+    <path d="M250 0l73 171 185 16-140 122 42 181-160-94-160 94 42-181-140-122 185-16z" fill="url(#darkPurple)"/>
+    <path d="M250 48l55 128 139 12-105 92 31 136-120-71-120 71 31-136-105-92 139-12z" fill="url(#purple)" opacity="0.95"/>
+    <path d="M250 0l73 171 185 16-34 30-169-15-55-129z" fill="#ffffff" opacity="0.17"/>
+    <path d="M410 490l-160-94v-71l120 71z" fill="#3d245e" opacity="0.5"/>
+    <rect width="520" height="520" fill="url(#sparkle)" clip-path="polygon(50% 0%, 64% 34%, 100% 37%, 73% 61%, 81% 96%, 50% 78%, 19% 96%, 27% 61%, 0% 37%, 36% 34%)" opacity="0.7"/>
+  </g>
+
+  <g transform="translate(75 210) rotate(-14 240 245)" filter="url(#shadow)">
+    <path d="M240 0l70 164 178 15-135 118 41 174-154-91-154 91 41-174-135-118 178-15z" fill="#6c408f"/>
+    <path d="M240 34l57 134 145 13-110 96 33 142-125-74-125 74 33-142-110-96 145-13z" fill="#f5eefb" stroke="#4b2b73" stroke-width="8"/>
+    <g stroke="#4b2b73" stroke-width="5" fill="none" opacity="0.9">
+      <path d="M240 34v311M183 168l57 177 57-177M38 181l202 164 202-164M148 277h184M115 419l125-74 125 74M148 277l-110-96M332 277l110-96"/>
+    </g>
+    <g font-family="Arial, Helvetica, sans-serif" font-weight="800" font-size="31" fill="#2d1b41" text-anchor="middle">
+      <text x="240" y="84">23</text><text x="206" y="143">19</text><text x="274" y="145">17</text>
+      <text x="152" y="198">15</text><text x="240" y="206">3</text><text x="331" y="198">8</text>
+      <text x="105" y="261">21</text><text x="188" y="269">13</text><text x="290" y="269">14</text><text x="376" y="261">11</text>
+      <text x="154" y="331">16</text><text x="240" y="335">22</text><text x="326" y="331">10</text>
+      <text x="136" y="406">5</text><text x="240" y="396">20</text><text x="344" y="406">9</text>
+    </g>
+    <g fill="#4b2b73" opacity="0.8">
+      <path d="M74 186l6 14 15 2-11 10 3 15-13-8-13 8 3-15-11-10 15-2z"/>
+      <path d="M408 187l5 12 13 2-10 9 3 13-11-7-12 7 3-13-10-9 13-2z"/>
+      <path d="M223 252l7 16 17 2-13 12 4 17-15-9-15 9 4-17-13-12 17-2z"/>
+      <path d="M285 357l5 11 12 2-9 8 2 12-10-6-11 6 3-12-9-8 12-2z"/>
+    </g>
+  </g>
+</svg>

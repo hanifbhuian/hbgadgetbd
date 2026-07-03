@@ -107,6 +107,30 @@
       "icon": "🎧",
       "tag": "Style",
       "description": "Protective and stylish case cover for everyday carry."
+    },
+    {
+      "id": 13,
+      "name": "5-Star Shaped Advent Calendar Small Gift Box",
+      "category": "Gift Box",
+      "price": 250,
+      "icon": "⭐",
+      "tag": "New",
+      "image": "assets/uploads/5-star-advent-calendar-gift-box.svg",
+      "description": "5-star shaped advent calendar small gift box. Price ৳250 plus shipping cost. Minimum order: 2 pieces.",
+      "details": [
+        "Model Number: XY-21102304",
+        "Material: frame 1200gsm cardboard; inner boxes 350gsm art paper",
+        "Technique: CMYK printing, hot stamping/gold foil, or UV printing",
+        "Size: 33 × 33 × 6 cm",
+        "Shape: Square",
+        "Printing Handling: Varnishing, stamping, embossing, gold foil",
+        "Printing: Solid color printing",
+        "Minimum Order: 2 pieces",
+        "Application: Gift box",
+        "Price: ৳250 + shipping cost",
+        "Packing: Standard packing carton",
+        "Place of Origin: Guangdong, China"
+      ]
     }
   ]
 }

@@ -1,42 +1,6 @@
 {
   "products": [
     {
-      "id": 1,
-      "name": "Pocket Mini Bluetooth Speaker",
-      "category": "Mini Speakers",
-      "price": 799,
-      "icon": "🔊",
-      "tag": "Hot",
-      "description": "Compact wireless speaker for room, travel, and gift use."
-    },
-    {
-      "id": 2,
-      "name": "RGB Mini Speaker with Strap",
-      "category": "Mini Speakers",
-      "price": 1190,
-      "icon": "🎵",
-      "tag": "New",
-      "description": "Portable speaker with colorful light effect and easy carrying strap."
-    },
-    {
-      "id": 3,
-      "name": "Smart Gadget Gift Box",
-      "category": "Gift Box",
-      "price": 1490,
-      "icon": "🎁",
-      "tag": "Gift",
-      "description": "Simple ready gift combo for birthday, friends, and office events."
-    },
-    {
-      "id": 4,
-      "name": "Premium Daily Gift Combo",
-      "category": "Gift Box",
-      "price": 2490,
-      "icon": "🛍️",
-      "tag": "Combo",
-      "description": "Curated gadget box with practical daily-use accessories."
-    },
-    {
       "id": 5,
       "name": "Fast Charging Type-C Cable",
       "category": "Mobile Accessories",

@@ -54,3 +54,4 @@ In `index.html`:
 ## Notes
 
 This starter site is static. It has product browsing, cart behavior using browser storage, and WhatsApp ordering. It does not include a real payment gateway, stock database, admin panel, or order-management backend.
+Site deployment trigger.

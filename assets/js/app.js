@@ -1,6 +1,8 @@
 const WHATSAPP_NUMBER = "8801XXXXXXXXX";
 
-const products = [
+let products = [];
+
+const fallbackProducts = [
   {
     id: 1,
     name: "Pocket Mini Bluetooth Speaker",
@@ -9,105 +11,6 @@ const products = [
     icon: "🔊",
     tag: "Hot",
     description: "Compact wireless speaker for room, travel, and gift use."
-  },
-  {
-    id: 2,
-    name: "RGB Mini Speaker with Strap",
-    category: "Mini Speakers",
-    price: 1190,
-    icon: "🎵",
-    tag: "New",
-    description: "Portable speaker with colorful light effect and easy carrying strap."
-  },
-  {
-    id: 3,
-    name: "Smart Gadget Gift Box",
-    category: "Gift Box",
-    price: 1490,
-    icon: "🎁",
-    tag: "Gift",
-    description: "Simple ready gift combo for birthday, friends, and office events."
-  },
-  {
-    id: 4,
-    name: "Premium Daily Gift Combo",
-    category: "Gift Box",
-    price: 2490,
-    icon: "🛍️",
-    tag: "Combo",
-    description: "Curated gadget box with practical daily-use accessories."
-  },
-  {
-    id: 5,
-    name: "Fast Charging Type-C Cable",
-    category: "Mobile Accessories",
-    price: 290,
-    icon: "🔌",
-    tag: "Value",
-    description: "Durable Type-C cable for daily charging and data transfer."
-  },
-  {
-    id: 6,
-    name: "Phone Stand for Desk",
-    category: "Mobile Accessories",
-    price: 350,
-    icon: "📱",
-    tag: "Useful",
-    description: "Foldable stand for video calls, study, and office desk setup."
-  },
-  {
-    id: 7,
-    name: "LED Desk Light Mini",
-    category: "Desk Gadgets",
-    price: 690,
-    icon: "💡",
-    tag: "Desk",
-    description: "Small LED light for study table, work desk, and bedside use."
-  },
-  {
-    id: 8,
-    name: "Cable Organizer Clips",
-    category: "Desk Gadgets",
-    price: 180,
-    icon: "🧲",
-    tag: "Clean",
-    description: "Keep charging cables, earphones, and desk wires organized."
-  },
-  {
-    id: 9,
-    name: "Mini Portable Fan",
-    category: "Daily Use",
-    price: 650,
-    icon: "🌀",
-    tag: "Daily",
-    description: "Rechargeable mini fan for travel, study, and hot weather."
-  },
-  {
-    id: 10,
-    name: "Multi-Use Travel Pouch",
-    category: "Daily Use",
-    price: 420,
-    icon: "🎒",
-    tag: "Travel",
-    description: "Useful pouch for chargers, cables, earphones, and small gadgets."
-  },
-  {
-    id: 11,
-    name: "Mini Digital Clock",
-    category: "Daily Use",
-    price: 520,
-    icon: "⏰",
-    tag: "Home",
-    description: "Clean-looking compact clock for desk, bedside, and gift use."
-  },
-  {
-    id: 12,
-    name: "Wireless Earbud Case Cover",
-    category: "Mobile Accessories",
-    price: 250,
-    icon: "🎧",
-    tag: "Style",
-    description: "Protective and stylish case cover for everyday carry."
   }
 ];
 
@@ -133,7 +36,7 @@ const whatsappOrder = document.getElementById("whatsappOrder");
 document.getElementById("year").textContent = new Date().getFullYear();
 
 function formatPrice(price) {
-  return `৳${price.toLocaleString("en-BD")}`;
+  return `৳${Number(price || 0).toLocaleString("en-BD")}`;
 }
 
 function saveCart() {
@@ -163,8 +66,8 @@ function renderProducts() {
   productGrid.innerHTML = filtered.map(product => `
     <article class="product-card">
       <div class="product-card__image">
-        <span class="product-card__tag">${product.tag}</span>
-        ${product.icon}
+        <span class="product-card__tag">${product.tag || "New"}</span>
+        ${product.image ? `<img src="${product.image}" alt="${product.name}" loading="lazy">` : (product.icon || "🛒")}
       </div>
       <div class="product-card__body">
         <span class="product-card__category">${product.category}</span>
@@ -208,7 +111,7 @@ function getCartDetails() {
   return state.cart
     .map(item => {
       const product = products.find(productItem => productItem.id === item.id);
-      return product ? { ...product, qty: item.qty, lineTotal: product.price * item.qty } : null;
+      return product ? { ...product, qty: item.qty, lineTotal: Number(product.price || 0) * item.qty } : null;
     })
     .filter(Boolean);
 }
@@ -229,7 +132,7 @@ function renderCart() {
 
   cartItems.innerHTML = details.map(item => `
     <div class="cart-item">
-      <div class="cart-item__icon">${item.icon}</div>
+      <div class="cart-item__icon">${item.icon || "🛒"}</div>
       <div>
         <h3>${item.name}</h3>
         <small>${formatPrice(item.price)} × ${item.qty}</small>
@@ -262,6 +165,21 @@ function closeCartPanel() {
   cartPanel.classList.remove("is-open");
   overlay.classList.remove("is-open");
   cartPanel.setAttribute("aria-hidden", "true");
+}
+
+async function loadProducts() {
+  productGrid.innerHTML = `<div class="empty">Loading products...</div>`;
+  try {
+    const response = await fetch("assets/data/products.json", { cache: "no-store" });
+    if (!response.ok) throw new Error("Product file could not be loaded.");
+    const data = await response.json();
+    products = Array.isArray(data.products) ? data.products : fallbackProducts;
+  } catch (error) {
+    console.error(error);
+    products = fallbackProducts;
+  }
+  renderProducts();
+  renderCart();
 }
 
 document.querySelector(".search").addEventListener("submit", event => {
@@ -311,5 +229,4 @@ document.addEventListener("keydown", event => {
   if (event.key === "Escape") closeCartPanel();
 });
 
-renderProducts();
-renderCart();
+loadProducts();

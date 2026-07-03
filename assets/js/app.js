@@ -23,6 +23,7 @@ const state = {
 const productGrid = document.getElementById("productGrid");
 const searchInput = document.getElementById("searchInput");
 const resultText = document.getElementById("resultText");
+const productSectionTitle = document.getElementById("productSectionTitle");
 const cartCount = document.getElementById("cartCount");
 const cartPanel = document.getElementById("cartPanel");
 const cartItems = document.getElementById("cartItems");
@@ -41,6 +42,35 @@ function formatPrice(price) {
 
 function saveCart() {
   localStorage.setItem("hbGadgetCart", JSON.stringify(state.cart));
+}
+
+function scrollToProducts() {
+  const productsSection = document.getElementById("products");
+  if (!productsSection) return;
+  const headerOffset = document.querySelector(".site-header")?.offsetHeight || 0;
+  const targetPosition = productsSection.getBoundingClientRect().top + window.scrollY - headerOffset - 12;
+  window.scrollTo({ top: targetPosition, behavior: "smooth" });
+}
+
+function setCategoryFilter(category, shouldScroll = true) {
+  state.filter = category || "All";
+  state.search = "";
+  searchInput.value = "";
+
+  document.querySelectorAll(".category-pill").forEach(item => {
+    item.classList.toggle("active", item.dataset.filter === state.filter);
+  });
+
+  document.querySelectorAll(".category-card-button").forEach(item => {
+    item.classList.toggle("active", item.dataset.filter === state.filter);
+  });
+
+  if (productSectionTitle) {
+    productSectionTitle.textContent = state.filter === "All" ? "All Products" : state.filter;
+  }
+
+  renderProducts();
+  if (shouldScroll) scrollToProducts();
 }
 
 function getFilteredProducts() {
@@ -72,9 +102,8 @@ function renderProductDetails(product) {
 
 function renderProducts() {
   const filtered = getFilteredProducts();
-  resultText.textContent = filtered.length === products.length
-    ? "Showing all products"
-    : `Showing ${filtered.length} product${filtered.length === 1 ? "" : "s"}`;
+  const categoryLabel = state.filter === "All" ? "all products" : state.filter;
+  resultText.textContent = `Showing ${filtered.length} ${categoryLabel} item${filtered.length === 1 ? "" : "s"}`;
 
   if (!filtered.length) {
     productGrid.innerHTML = `<div class="empty">No products found. Try another keyword or category.</div>`;
@@ -204,21 +233,29 @@ async function loadProducts() {
 document.querySelector(".search").addEventListener("submit", event => {
   event.preventDefault();
   state.search = searchInput.value;
+  state.filter = "All";
+  document.querySelectorAll(".category-pill").forEach(item => item.classList.toggle("active", item.dataset.filter === "All"));
+  document.querySelectorAll(".category-card-button").forEach(item => item.classList.remove("active"));
+  if (productSectionTitle) productSectionTitle.textContent = "Search Results";
   renderProducts();
-  document.getElementById("products").scrollIntoView({ behavior: "smooth" });
+  scrollToProducts();
 });
 
 searchInput.addEventListener("input", event => {
   state.search = event.target.value;
+  if (productSectionTitle) productSectionTitle.textContent = state.search ? "Search Results" : (state.filter === "All" ? "All Products" : state.filter);
   renderProducts();
 });
 
 document.querySelectorAll(".category-pill").forEach(button => {
   button.addEventListener("click", () => {
-    document.querySelectorAll(".category-pill").forEach(item => item.classList.remove("active"));
-    button.classList.add("active");
-    state.filter = button.dataset.filter;
-    renderProducts();
+    setCategoryFilter(button.dataset.filter, true);
+  });
+});
+
+document.querySelectorAll(".category-card-button").forEach(button => {
+  button.addEventListener("click", () => {
+    setCategoryFilter(button.dataset.filter, true);
   });
 });
 

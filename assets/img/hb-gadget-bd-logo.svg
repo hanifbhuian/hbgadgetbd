@@ -1,0 +1,66 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 820 220" role="img" aria-labelledby="title desc">
+  <title id="title">HB Gadget BD logo</title>
+  <desc id="desc">HB Gadget BD logo with HB monogram, circuit, power button, wireless signal, Bangladesh color cart accent, and wordmark.</desc>
+  <defs>
+    <linearGradient id="navy" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#0b3768" />
+      <stop offset="1" stop-color="#061c35" />
+    </linearGradient>
+    <linearGradient id="orange" x1="0" x2="1" y1="0" y2="1">
+      <stop offset="0" stop-color="#ff8a00" />
+      <stop offset="1" stop-color="#ff4d00" />
+    </linearGradient>
+  </defs>
+
+  <g transform="translate(44 18)">
+    <rect x="0" y="0" width="72" height="144" rx="18" fill="url(#navy)"/>
+    <rect x="66" y="58" width="112" height="50" rx="18" fill="url(#navy)"/>
+    <rect x="152" y="0" width="72" height="144" rx="18" fill="url(#navy)"/>
+    <path d="M224 0H336C382 0 414 30 414 70c0 26-13 46-35 58 29 11 46 36 46 67 0 50-39 82-96 82H224V0z" transform="scale(.52) translate(430 0)" fill="url(#orange)"/>
+
+    <g stroke="#ffffff" stroke-width="4" fill="none" stroke-linecap="round" stroke-linejoin="round" opacity=".95">
+      <path d="M22 26v48l35 36"/>
+      <path d="M42 38v45l28 29"/>
+      <path d="M62 52v35l24 23"/>
+      <circle cx="22" cy="22" r="7" fill="#0b3768"/>
+      <circle cx="42" cy="34" r="7" fill="#0b3768"/>
+      <circle cx="62" cy="48" r="7" fill="#0b3768"/>
+    </g>
+
+    <g transform="translate(140 52)">
+      <circle cx="42" cy="42" r="39" fill="#ffffff"/>
+      <circle cx="42" cy="42" r="31" fill="none" stroke="#0b3768" stroke-width="9" stroke-dasharray="112 84" stroke-linecap="round"/>
+      <circle cx="42" cy="42" r="31" fill="none" stroke="#ff6b00" stroke-width="9" stroke-dasharray="84 112" stroke-dashoffset="-112" stroke-linecap="round"/>
+      <line x1="42" y1="18" x2="42" y2="48" stroke="#ff6b00" stroke-width="12" stroke-linecap="round"/>
+    </g>
+
+    <g transform="translate(294 20)" fill="none" stroke="#07934b" stroke-width="8" stroke-linecap="round">
+      <path d="M0 22c28-25 68-25 96 0"/>
+      <path d="M18 44c18-15 42-15 60 0"/>
+      <path d="M35 65c8-6 18-6 26 0"/>
+    </g>
+
+    <g transform="translate(316 80)" fill="#ff6b00">
+      <circle cx="0" cy="0" r="4"/><circle cx="15" cy="0" r="4"/><circle cx="30" cy="0" r="4"/>
+      <circle cx="8" cy="13" r="4"/><circle cx="23" cy="13" r="4"/><circle cx="38" cy="13" r="4"/>
+      <circle cx="0" cy="26" r="4"/><circle cx="15" cy="26" r="4"/><circle cx="30" cy="26" r="4"/>
+    </g>
+  </g>
+
+  <g transform="translate(24 176)">
+    <text x="0" y="0" font-family="Arial, Helvetica, sans-serif" font-size="62" font-weight="900" fill="#082b52" letter-spacing="1">HB</text>
+    <text x="114" y="0" font-family="Arial, Helvetica, sans-serif" font-size="62" font-weight="900" fill="#ff6200" letter-spacing="1">Gadget</text>
+    <text x="388" y="0" font-family="Arial, Helvetica, sans-serif" font-size="62" font-weight="900" fill="#082b52" letter-spacing="1">BD</text>
+
+    <path d="M112 24h420" stroke="#082b52" stroke-width="5" stroke-linecap="round"/>
+    <circle cx="552" cy="24" r="5" fill="#ff6200"/><circle cx="570" cy="24" r="5" fill="#ff6200"/><circle cx="588" cy="24" r="5" fill="#ff6200"/>
+
+    <g transform="translate(638 -51)">
+      <path d="M0 0h28l10 46h78" fill="none" stroke="#082b52" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M34 14h92l-13 38H42" fill="none" stroke="#082b52" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>
+      <circle cx="54" cy="72" r="11" fill="#082b52"/><circle cx="110" cy="72" r="11" fill="#082b52"/>
+      <circle cx="82" cy="34" r="21" fill="#07934b"/><circle cx="82" cy="34" r="12" fill="#e81f1f"/>
+      <path d="M0 0h-12" stroke="#ff6200" stroke-width="8" stroke-linecap="round"/>
+    </g>
+  </g>
+</svg>

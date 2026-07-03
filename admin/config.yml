@@ -47,17 +47,22 @@ collections:
                 name: "icon"
                 widget: "string"
                 required: false
-                hint: "Example: 🔊, 🎁, 📱"
               - label: "Product Image"
                 name: "image"
                 widget: "image"
                 required: false
-                hint: "Optional. Upload an image if you do not want to use an emoji icon."
               - label: "Tag"
                 name: "tag"
                 widget: "string"
                 required: false
-                hint: "Example: Hot, New, Gift"
               - label: "Description"
                 name: "description"
                 widget: "text"
+              - label: "Product Details"
+                name: "details"
+                widget: "list"
+                required: false
+                field:
+                  label: "Detail"
+                  name: "detail"
+                  widget: "string"

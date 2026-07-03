@@ -1,4 +1,4 @@
-const WHATSAPP_NUMBER = "8801XXXXXXXXX";
+const WHATSAPP_NUMBER = "8801816569237";
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/hanifbhuian/hbgadgetbd/main/";
 const PRODUCT_DATA_URL = `${GITHUB_RAW_BASE}assets/data/products.json`;
 

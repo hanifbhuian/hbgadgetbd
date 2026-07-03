@@ -1,4 +1,6 @@
 const WHATSAPP_NUMBER = "8801XXXXXXXXX";
+const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/hanifbhuian/hbgadgetbd/main/";
+const PRODUCT_DATA_URL = `${GITHUB_RAW_BASE}assets/data/products.json`;
 
 let products = [];
 
@@ -38,6 +40,13 @@ document.getElementById("year").textContent = new Date().getFullYear();
 
 function formatPrice(price) {
   return `৳${Number(price || 0).toLocaleString("en-BD")}`;
+}
+
+function resolveAssetUrl(url) {
+  if (!url) return "";
+  if (/^https?:\/\//i.test(url) || url.startsWith("data:")) return url;
+  const cleanPath = url.replace(/^\/+/, "");
+  return `${GITHUB_RAW_BASE}${cleanPath}`;
 }
 
 function saveCart() {
@@ -114,7 +123,7 @@ function renderProducts() {
     <article class="product-card">
       <div class="product-card__image">
         <span class="product-card__tag">${product.tag || "New"}</span>
-        ${product.image ? `<img src="${product.image}" alt="${product.name}" loading="lazy">` : (product.icon || "🛒")}
+        ${product.image ? `<img src="${resolveAssetUrl(product.image)}" alt="${product.name}" loading="lazy">` : (product.icon || "🛒")}
       </div>
       <div class="product-card__body">
         <span class="product-card__category">${product.category}</span>
@@ -217,15 +226,26 @@ function closeCartPanel() {
 
 async function loadProducts() {
   productGrid.innerHTML = `<div class="empty">Loading products...</div>`;
-  try {
-    const response = await fetch("assets/data/products.json", { cache: "no-store" });
-    if (!response.ok) throw new Error("Product file could not be loaded.");
-    const data = await response.json();
-    products = Array.isArray(data.products) ? data.products : fallbackProducts;
-  } catch (error) {
-    console.error(error);
-    products = fallbackProducts;
+  const urls = [
+    `${PRODUCT_DATA_URL}?v=${Date.now()}`,
+    `assets/data/products.json?v=${Date.now()}`
+  ];
+
+  for (const url of urls) {
+    try {
+      const response = await fetch(url, { cache: "no-store" });
+      if (!response.ok) throw new Error("Product file could not be loaded.");
+      const data = await response.json();
+      products = Array.isArray(data.products) ? data.products : fallbackProducts;
+      renderProducts();
+      renderCart();
+      return;
+    } catch (error) {
+      console.warn(`Product source failed: ${url}`, error);
+    }
   }
+
+  products = fallbackProducts;
   renderProducts();
   renderCart();
 }

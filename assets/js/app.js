@@ -49,6 +49,12 @@ function resolveAssetUrl(url) {
   return `${GITHUB_RAW_BASE}${cleanPath}`;
 }
 
+function getProductImages(product) {
+  if (Array.isArray(product.images) && product.images.length) return product.images;
+  if (product.image) return [product.image];
+  return [];
+}
+
 function saveCart() {
   localStorage.setItem("hbGadgetCart", JSON.stringify(state.cart));
 }
@@ -109,6 +115,26 @@ function renderProductDetails(product) {
   `;
 }
 
+function renderProductImage(product) {
+  const images = getProductImages(product);
+  if (!images.length) return product.icon || "🛒";
+
+  const firstImage = resolveAssetUrl(images[0]);
+  const imageList = images.map(image => resolveAssetUrl(image)).join("|");
+  const controls = images.length > 1 ? `
+    <button class="gallery-arrow gallery-arrow--prev" type="button" data-gallery="prev" aria-label="Previous product photo">‹</button>
+    <button class="gallery-arrow gallery-arrow--next" type="button" data-gallery="next" aria-label="Next product photo">›</button>
+    <span class="gallery-count">1/${images.length}</span>
+  ` : "";
+
+  return `
+    <div class="product-gallery" data-images="${imageList}" data-index="0">
+      <img src="${firstImage}" alt="${product.name}" loading="lazy">
+      ${controls}
+    </div>
+  `;
+}
+
 function renderProducts() {
   const filtered = getFilteredProducts();
   const categoryLabel = state.filter === "All" ? "all products" : state.filter;
@@ -123,7 +149,7 @@ function renderProducts() {
     <article class="product-card">
       <div class="product-card__image">
         <span class="product-card__tag">${product.tag || "New"}</span>
-        ${product.image ? `<img src="${resolveAssetUrl(product.image)}" alt="${product.name}" loading="lazy">` : (product.icon || "🛒")}
+        ${renderProductImage(product)}
       </div>
       <div class="product-card__body">
         <span class="product-card__category">${product.category}</span>
@@ -212,6 +238,24 @@ function renderCart() {
   whatsappOrder.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
+function changeGalleryPhoto(button) {
+  const gallery = button.closest(".product-gallery");
+  if (!gallery) return;
+
+  const images = gallery.dataset.images.split("|").filter(Boolean);
+  if (images.length < 2) return;
+
+  const direction = button.dataset.gallery === "next" ? 1 : -1;
+  const currentIndex = Number(gallery.dataset.index || 0);
+  const nextIndex = (currentIndex + direction + images.length) % images.length;
+  const image = gallery.querySelector("img");
+  const count = gallery.querySelector(".gallery-count");
+
+  if (image) image.src = images[nextIndex];
+  if (count) count.textContent = `${nextIndex + 1}/${images.length}`;
+  gallery.dataset.index = String(nextIndex);
+}
+
 function openCartPanel() {
   cartPanel.classList.add("is-open");
   overlay.classList.add("is-open");
@@ -280,6 +324,14 @@ document.querySelectorAll(".category-card-button").forEach(button => {
 });
 
 productGrid.addEventListener("click", event => {
+  const galleryButton = event.target.closest("button[data-gallery]");
+  if (galleryButton) {
+    event.preventDefault();
+    event.stopPropagation();
+    changeGalleryPhoto(galleryButton);
+    return;
+  }
+
   const button = event.target.closest(".add-cart");
   if (!button) return;
   addToCart(button.dataset.id);

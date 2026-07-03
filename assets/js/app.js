@@ -3,6 +3,8 @@ const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/hanifbhuian/hbgadgetb
 const PRODUCT_DATA_URL = `${GITHUB_RAW_BASE}assets/data/products.json`;
 
 let products = [];
+let lightboxImages = [];
+let lightboxIndex = 0;
 
 const fallbackProducts = [
   {
@@ -116,22 +118,19 @@ function renderProductDetails(product) {
 }
 
 function renderProductImage(product) {
-  const images = getProductImages(product);
+  const images = getProductImages(product).map(image => resolveAssetUrl(image));
   if (!images.length) return product.icon || "🛒";
 
-  const firstImage = resolveAssetUrl(images[0]);
-  const imageList = images.map(image => resolveAssetUrl(image)).join("|");
-  const controls = images.length > 1 ? `
-    <button class="gallery-arrow gallery-arrow--prev" type="button" data-gallery="prev" aria-label="Previous product photo">‹</button>
-    <button class="gallery-arrow gallery-arrow--next" type="button" data-gallery="next" aria-label="Next product photo">›</button>
-    <span class="gallery-count">1/${images.length}</span>
-  ` : "";
+  const imageList = images.join("|");
+  const photoCount = images.length > 1 ? `<span class="gallery-count">1/${images.length}</span>` : "";
+  const hint = images.length > 1 ? `<span class="gallery-hint">Click photo to view more</span>` : `<span class="gallery-hint">Click photo to enlarge</span>`;
 
   return `
-    <div class="product-gallery" data-images="${imageList}" data-index="0">
-      <img src="${firstImage}" alt="${product.name}" loading="lazy">
-      ${controls}
-    </div>
+    <button class="product-gallery" type="button" data-images="${imageList}" data-index="0" data-title="${product.name}" aria-label="Open ${product.name} photo viewer">
+      <img src="${images[0]}" alt="${product.name}" loading="lazy">
+      ${photoCount}
+      ${hint}
+    </button>
   `;
 }
 
@@ -163,6 +162,73 @@ function renderProducts() {
       </div>
     </article>
   `).join("");
+}
+
+function ensureLightbox() {
+  let lightbox = document.getElementById("productLightbox");
+  if (lightbox) return lightbox;
+
+  lightbox = document.createElement("div");
+  lightbox.id = "productLightbox";
+  lightbox.className = "product-lightbox";
+  lightbox.setAttribute("aria-hidden", "true");
+  lightbox.innerHTML = `
+    <div class="product-lightbox__backdrop" data-lightbox="close"></div>
+    <div class="product-lightbox__dialog" role="dialog" aria-modal="true" aria-label="Product photo viewer">
+      <button class="product-lightbox__close" type="button" data-lightbox="close" aria-label="Close photo viewer">×</button>
+      <button class="product-lightbox__arrow product-lightbox__arrow--prev" type="button" data-lightbox="prev" aria-label="Previous photo">‹</button>
+      <img class="product-lightbox__image" src="" alt="Product photo">
+      <button class="product-lightbox__arrow product-lightbox__arrow--next" type="button" data-lightbox="next" aria-label="Next photo">›</button>
+      <div class="product-lightbox__footer">
+        <strong class="product-lightbox__title"></strong>
+        <span class="product-lightbox__count"></span>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(lightbox);
+  return lightbox;
+}
+
+function showLightboxImage() {
+  const lightbox = ensureLightbox();
+  const image = lightbox.querySelector(".product-lightbox__image");
+  const count = lightbox.querySelector(".product-lightbox__count");
+  const arrows = lightbox.querySelectorAll(".product-lightbox__arrow");
+
+  if (image) image.src = lightboxImages[lightboxIndex] || "";
+  if (count) count.textContent = lightboxImages.length > 1 ? `${lightboxIndex + 1}/${lightboxImages.length}` : "1/1";
+  arrows.forEach(arrow => {
+    arrow.hidden = lightboxImages.length < 2;
+  });
+}
+
+function openImageViewer(gallery) {
+  lightboxImages = (gallery.dataset.images || "").split("|").filter(Boolean);
+  if (!lightboxImages.length) return;
+  lightboxIndex = Number(gallery.dataset.index || 0);
+
+  const lightbox = ensureLightbox();
+  const title = lightbox.querySelector(".product-lightbox__title");
+  if (title) title.textContent = gallery.dataset.title || "Product photo";
+
+  showLightboxImage();
+  lightbox.classList.add("is-open");
+  lightbox.setAttribute("aria-hidden", "false");
+  document.body.classList.add("lightbox-open");
+}
+
+function closeImageViewer() {
+  const lightbox = document.getElementById("productLightbox");
+  if (!lightbox) return;
+  lightbox.classList.remove("is-open");
+  lightbox.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("lightbox-open");
+}
+
+function moveLightbox(direction) {
+  if (lightboxImages.length < 2) return;
+  lightboxIndex = (lightboxIndex + direction + lightboxImages.length) % lightboxImages.length;
+  showLightboxImage();
 }
 
 function addToCart(productId) {
@@ -238,24 +304,6 @@ function renderCart() {
   whatsappOrder.href = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`;
 }
 
-function changeGalleryPhoto(button) {
-  const gallery = button.closest(".product-gallery");
-  if (!gallery) return;
-
-  const images = gallery.dataset.images.split("|").filter(Boolean);
-  if (images.length < 2) return;
-
-  const direction = button.dataset.gallery === "next" ? 1 : -1;
-  const currentIndex = Number(gallery.dataset.index || 0);
-  const nextIndex = (currentIndex + direction + images.length) % images.length;
-  const image = gallery.querySelector("img");
-  const count = gallery.querySelector(".gallery-count");
-
-  if (image) image.src = images[nextIndex];
-  if (count) count.textContent = `${nextIndex + 1}/${images.length}`;
-  gallery.dataset.index = String(nextIndex);
-}
-
 function openCartPanel() {
   cartPanel.classList.add("is-open");
   overlay.classList.add("is-open");
@@ -324,11 +372,10 @@ document.querySelectorAll(".category-card-button").forEach(button => {
 });
 
 productGrid.addEventListener("click", event => {
-  const galleryButton = event.target.closest("button[data-gallery]");
-  if (galleryButton) {
+  const gallery = event.target.closest(".product-gallery");
+  if (gallery) {
     event.preventDefault();
-    event.stopPropagation();
-    changeGalleryPhoto(galleryButton);
+    openImageViewer(gallery);
     return;
   }
 
@@ -336,6 +383,15 @@ productGrid.addEventListener("click", event => {
   if (!button) return;
   addToCart(button.dataset.id);
   openCartPanel();
+});
+
+document.addEventListener("click", event => {
+  const action = event.target.closest("[data-lightbox]")?.dataset.lightbox;
+  if (!action) return;
+
+  if (action === "close") closeImageViewer();
+  if (action === "next") moveLightbox(1);
+  if (action === "prev") moveLightbox(-1);
 });
 
 cartItems.addEventListener("click", event => {
@@ -354,7 +410,12 @@ clearCart.addEventListener("click", () => {
 });
 
 document.addEventListener("keydown", event => {
-  if (event.key === "Escape") closeCartPanel();
+  if (event.key === "Escape") {
+    closeImageViewer();
+    closeCartPanel();
+  }
+  if (event.key === "ArrowRight") moveLightbox(1);
+  if (event.key === "ArrowLeft") moveLightbox(-1);
 });
 
 loadProducts();

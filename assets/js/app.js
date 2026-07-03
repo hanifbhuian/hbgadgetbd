@@ -47,9 +47,27 @@ function getFilteredProducts() {
   return products.filter(product => {
     const matchesCategory = state.filter === "All" || product.category === state.filter;
     const query = state.search.trim().toLowerCase();
-    const matchesSearch = !query || [product.name, product.category, product.description].join(" ").toLowerCase().includes(query);
+    const searchableText = [
+      product.name,
+      product.category,
+      product.description,
+      ...(Array.isArray(product.details) ? product.details : [])
+    ].join(" ").toLowerCase();
+    const matchesSearch = !query || searchableText.includes(query);
     return matchesCategory && matchesSearch;
   });
+}
+
+function renderProductDetails(product) {
+  if (!Array.isArray(product.details) || !product.details.length) return "";
+
+  const items = product.details.map(detail => `<li>${detail}</li>`).join("");
+  return `
+    <details class="product-specs">
+      <summary>View details</summary>
+      <ul>${items}</ul>
+    </details>
+  `;
 }
 
 function renderProducts() {
@@ -73,6 +91,7 @@ function renderProducts() {
         <span class="product-card__category">${product.category}</span>
         <h3>${product.name}</h3>
         <p>${product.description}</p>
+        ${renderProductDetails(product)}
         <div class="product-card__bottom">
           <span class="price">${formatPrice(product.price)}</span>
           <button class="add-cart" type="button" data-id="${product.id}">Add</button>

@@ -131,6 +131,29 @@
         "Packing: Standard packing carton",
         "Place of Origin: Guangdong, China"
       ]
+    },
+    {
+      "id": 14,
+      "name": "SH-309 Mini Wireless RGB Speaker",
+      "category": "Mini Speakers",
+      "price": 370,
+      "icon": "🔊",
+      "tag": "New",
+      "image": "assets/uploads/sh-309-mini-rgb-speaker.svg",
+      "description": "Mini wireless handsfree outdoor portable fabric subwoofer sound system speaker with colorful RGB night light.",
+      "details": [
+        "Model: SH-309",
+        "Product type: Mini wireless portable speaker",
+        "Features: handsfree support, outdoor portable sound, fabric body, subwoofer-style sound system, colorful RGB night light",
+        "Price from source: ৳370",
+        "Rating shown in source link: 4.63 out of 5",
+        "Reviews shown in source link: 27",
+        "Sales shown in source link: 160",
+        "Item ID: 564729955",
+        "SKU ID: 2606377946",
+        "Location shown in source link: Dhaka",
+        "Stock shown in source link: available"
+      ]
     }
   ]
 }

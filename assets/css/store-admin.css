@@ -5,6 +5,24 @@
   display: block;
 }
 
+.category-card-button {
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  font: inherit;
+  color: inherit;
+}
+
+.category-card-button:hover,
+.category-card-button.active {
+  border-color: var(--primary);
+  transform: translateY(-2px);
+}
+
+.category-card-button.active {
+  background: #fff7f3;
+}
+
 .product-specs {
   margin: 8px 0 14px;
   border: 1px solid var(--line);

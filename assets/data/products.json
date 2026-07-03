@@ -1,0 +1,110 @@
+[
+  {
+    "id": 1,
+    "name": "Pocket Mini Bluetooth Speaker",
+    "category": "Mini Speakers",
+    "price": 799,
+    "icon": "🔊",
+    "tag": "Hot",
+    "description": "Compact wireless speaker for room, travel, and gift use."
+  },
+  {
+    "id": 2,
+    "name": "RGB Mini Speaker with Strap",
+    "category": "Mini Speakers",
+    "price": 1190,
+    "icon": "🎵",
+    "tag": "New",
+    "description": "Portable speaker with colorful light effect and easy carrying strap."
+  },
+  {
+    "id": 3,
+    "name": "Smart Gadget Gift Box",
+    "category": "Gift Box",
+    "price": 1490,
+    "icon": "🎁",
+    "tag": "Gift",
+    "description": "Simple ready gift combo for birthday, friends, and office events."
+  },
+  {
+    "id": 4,
+    "name": "Premium Daily Gift Combo",
+    "category": "Gift Box",
+    "price": 2490,
+    "icon": "🛍️",
+    "tag": "Combo",
+    "description": "Curated gadget box with practical daily-use accessories."
+  },
+  {
+    "id": 5,
+    "name": "Fast Charging Type-C Cable",
+    "category": "Mobile Accessories",
+    "price": 290,
+    "icon": "🔌",
+    "tag": "Value",
+    "description": "Durable Type-C cable for daily charging and data transfer."
+  },
+  {
+    "id": 6,
+    "name": "Phone Stand for Desk",
+    "category": "Mobile Accessories",
+    "price": 350,
+    "icon": "📱",
+    "tag": "Useful",
+    "description": "Foldable stand for video calls, study, and office desk setup."
+  },
+  {
+    "id": 7,
+    "name": "LED Desk Light Mini",
+    "category": "Desk Gadgets",
+    "price": 690,
+    "icon": "💡",
+    "tag": "Desk",
+    "description": "Small LED light for study table, work desk, and bedside use."
+  },
+  {
+    "id": 8,
+    "name": "Cable Organizer Clips",
+    "category": "Desk Gadgets",
+    "price": 180,
+    "icon": "🧲",
+    "tag": "Clean",
+    "description": "Keep charging cables, earphones, and desk wires organized."
+  },
+  {
+    "id": 9,
+    "name": "Mini Portable Fan",
+    "category": "Daily Use",
+    "price": 650,
+    "icon": "🌀",
+    "tag": "Daily",
+    "description": "Rechargeable mini fan for travel, study, and hot weather."
+  },
+  {
+    "id": 10,
+    "name": "Multi-Use Travel Pouch",
+    "category": "Daily Use",
+    "price": 420,
+    "icon": "🎒",
+    "tag": "Travel",
+    "description": "Useful pouch for chargers, cables, earphones, and small gadgets."
+  },
+  {
+    "id": 11,
+    "name": "Mini Digital Clock",
+    "category": "Daily Use",
+    "price": 520,
+    "icon": "⏰",
+    "tag": "Home",
+    "description": "Clean-looking compact clock for desk, bedside, and gift use."
+  },
+  {
+    "id": 12,
+    "name": "Wireless Earbud Case Cover",
+    "category": "Mobile Accessories",
+    "price": 250,
+    "icon": "🎧",
+    "tag": "Style",
+    "description": "Protective and stylish case cover for everyday carry."
+  }
+]

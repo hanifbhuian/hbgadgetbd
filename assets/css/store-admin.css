@@ -5,6 +5,34 @@
   display: block;
 }
 
+.product-specs {
+  margin: 8px 0 14px;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  background: #fbfcff;
+  overflow: hidden;
+}
+
+.product-specs summary {
+  cursor: pointer;
+  padding: 10px 12px;
+  color: var(--accent);
+  font-weight: 800;
+  font-size: 13px;
+}
+
+.product-specs ul {
+  margin: 0;
+  padding: 0 14px 12px 28px;
+}
+
+.product-specs li {
+  color: var(--muted);
+  font-size: 13px;
+  line-height: 1.5;
+  margin: 4px 0;
+}
+
 .admin-note {
   display: none;
 }

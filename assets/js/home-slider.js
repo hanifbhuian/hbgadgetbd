@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (window.__hbOrderTrackingRequested) return;
     window.__hbOrderTrackingRequested = true;
     const orderScript = document.createElement("script");
-    orderScript.src = "assets/js/order-tracking.js?v=20260704-5";
+    orderScript.src = "assets/js/order-tracking.js?v=20260704-6";
     document.body.appendChild(orderScript);
   }
 

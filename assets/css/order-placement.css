@@ -17,7 +17,7 @@
 
 .checkout-modal__dialog {
   position: relative;
-  width: min(720px, calc(100% - 24px));
+  width: min(760px, calc(100% - 24px));
   max-height: calc(100vh - 32px);
   overflow: auto;
   margin: 16px auto;
@@ -76,6 +76,12 @@
   color: var(--primary);
 }
 
+.checkout-summary small {
+  display: block;
+  color: var(--muted);
+  margin-top: 6px;
+}
+
 .checkout-form {
   display: grid;
   gap: 12px;
@@ -121,10 +127,47 @@
   box-shadow: 0 0 0 4px rgba(239, 75, 35, 0.12);
 }
 
+.payment-proof {
+  border: 1px dashed rgba(239, 75, 35, 0.45);
+  background: #fff7f4;
+  border-radius: 18px;
+  padding: 14px;
+}
+
+.payment-proof__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 6px;
+}
+
+.payment-proof p,
+.payment-proof small {
+  margin: 0 0 8px;
+  color: var(--muted);
+}
+
+.payment-help {
+  border: 0;
+  width: 30px;
+  height: 30px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #ffffff;
+  font-weight: 900;
+  cursor: pointer;
+}
+
 .checkout-status {
   margin: 0;
   font-weight: 800;
   color: var(--accent);
+}
+
+.checkout-form button[disabled] {
+  opacity: 0.7;
+  cursor: wait;
 }
 
 .checkout-success-card {

@@ -1,0 +1,52 @@
+{
+  "orders": [
+    {
+      "orderId": "HBG-1001",
+      "phone": "01800000000",
+      "customerName": "Demo Customer",
+      "status": "Confirmed",
+      "statusBn": "অর্ডার কনফার্ম হয়েছে",
+      "orderDate": "2026-07-04",
+      "lastUpdated": "2026-07-04 2:30 PM",
+      "items": ["SH-309 Mini Wireless RGB Speaker"],
+      "subtotal": 370,
+      "deliveryCharge": "To be confirmed",
+      "paymentMethod": "Cash on Delivery",
+      "deliveryArea": "Dhaka",
+      "courier": "Not assigned yet",
+      "trackingNumber": "Pending",
+      "note": "This is a demo order for testing the tracking system.",
+      "timeline": [
+        { "step": "Order Received", "stepBn": "অর্ডার গ্রহণ করা হয়েছে", "done": true, "time": "2026-07-04 2:00 PM" },
+        { "step": "Order Confirmed", "stepBn": "অর্ডার কনফার্ম হয়েছে", "done": true, "time": "2026-07-04 2:30 PM" },
+        { "step": "Packed", "stepBn": "প্যাক করা হয়েছে", "done": false, "time": "Pending" },
+        { "step": "Shipped", "stepBn": "কুরিয়ারে পাঠানো হয়েছে", "done": false, "time": "Pending" },
+        { "step": "Delivered", "stepBn": "ডেলিভারি সম্পন্ন", "done": false, "time": "Pending" }
+      ]
+    },
+    {
+      "orderId": "HBG-1002",
+      "phone": "01900000000",
+      "customerName": "Demo Customer 2",
+      "status": "Shipped",
+      "statusBn": "কুরিয়ারে পাঠানো হয়েছে",
+      "orderDate": "2026-07-04",
+      "lastUpdated": "2026-07-04 5:45 PM",
+      "items": ["Height Adjustable Mobile Phone Stand Tripod", "Fast Charging Type-C Cable"],
+      "subtotal": 407,
+      "deliveryCharge": "80",
+      "paymentMethod": "Cash on Delivery",
+      "deliveryArea": "Dhaka",
+      "courier": "Local Courier",
+      "trackingNumber": "LC-78601",
+      "note": "Courier delivery is in progress.",
+      "timeline": [
+        { "step": "Order Received", "stepBn": "অর্ডার গ্রহণ করা হয়েছে", "done": true, "time": "2026-07-04 4:00 PM" },
+        { "step": "Order Confirmed", "stepBn": "অর্ডার কনফার্ম হয়েছে", "done": true, "time": "2026-07-04 4:20 PM" },
+        { "step": "Packed", "stepBn": "প্যাক করা হয়েছে", "done": true, "time": "2026-07-04 5:15 PM" },
+        { "step": "Shipped", "stepBn": "কুরিয়ারে পাঠানো হয়েছে", "done": true, "time": "2026-07-04 5:45 PM" },
+        { "step": "Delivered", "stepBn": "ডেলিভারি সম্পন্ন", "done": false, "time": "Pending" }
+      ]
+    }
+  ]
+}

@@ -1,11 +1,23 @@
 document.addEventListener("DOMContentLoaded", () => {
   const slider = document.querySelector(".homepage-slider");
 
+  function loadOrderPlacement() {
+    if (window.__hbOrderPlacementRequested) return;
+    window.__hbOrderPlacementRequested = true;
+    const placementScript = document.createElement("script");
+    placementScript.src = "assets/js/order-placement.js?v=20260704-7";
+    document.body.appendChild(placementScript);
+  }
+
   function loadOrderTracking() {
-    if (window.__hbOrderTrackingRequested) return;
+    if (window.__hbOrderTrackingRequested) {
+      loadOrderPlacement();
+      return;
+    }
     window.__hbOrderTrackingRequested = true;
     const orderScript = document.createElement("script");
     orderScript.src = "assets/js/order-tracking.js?v=20260704-6";
+    orderScript.onload = loadOrderPlacement;
     document.body.appendChild(orderScript);
   }
 

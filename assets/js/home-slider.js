@@ -1,13 +1,59 @@
 document.addEventListener("DOMContentLoaded", () => {
   const slider = document.querySelector(".homepage-slider");
-  if (!slider) return;
+
+  function loadShopUpgrade() {
+    if (!document.querySelector("link[href*='shop-upgrade.css']")) {
+      const style = document.createElement("link");
+      style.rel = "stylesheet";
+      style.href = "assets/css/shop-upgrade.css?v=20260704-3";
+      document.head.appendChild(style);
+    }
+
+    if (window.__hbShopUpgradeRequested) return;
+    window.__hbShopUpgradeRequested = true;
+
+    const script = document.createElement("script");
+    script.src = "assets/js/site-enhancements.js?v=20260704-3";
+    script.onload = () => {
+      if (window.__hbShopUpgradeLoaded) return;
+      window.__hbShopUpgradeLoaded = true;
+      if (typeof addPrimaryNavigation === "function") addPrimaryNavigation();
+      if (typeof upgradeCategoryNavigation === "function") upgradeCategoryNavigation();
+      if (typeof replaceHomeSections === "function") replaceHomeSections();
+      if (typeof upgradeFooterAndMobileNav === "function") upgradeFooterAndMobileNav();
+      if (typeof wireEvents === "function") wireEvents();
+      if (typeof startCountdown === "function") startCountdown();
+      if (typeof enhanceProductCards === "function") enhanceProductCards();
+      if (typeof updateCartLabels === "function") updateCartLabels();
+      const grid = document.getElementById("productGrid");
+      if (grid && typeof enhanceProductCards === "function") {
+        new MutationObserver(() => {
+          enhanceProductCards();
+          if (typeof updateCartLabels === "function") updateCartLabels();
+        }).observe(grid, { childList: true, subtree: true });
+      }
+      const cart = document.getElementById("cartItems");
+      if (cart && typeof updateCartLabels === "function") {
+        new MutationObserver(updateCartLabels).observe(cart, { childList: true, subtree: true });
+      }
+    };
+    document.body.appendChild(script);
+  }
+
+  if (!slider) {
+    loadShopUpgrade();
+    return;
+  }
 
   const slides = Array.from(slider.querySelectorAll(".slide"));
   const dots = Array.from(slider.querySelectorAll(".slider-dot"));
   const prevButton = slider.querySelector("[data-slide-action='prev']");
   const nextButton = slider.querySelector("[data-slide-action='next']");
 
-  if (!slides.length) return;
+  if (!slides.length) {
+    loadShopUpgrade();
+    return;
+  }
 
   let currentSlide = 0;
   let timerId = null;
@@ -84,4 +130,5 @@ document.addEventListener("DOMContentLoaded", () => {
 
   showSlide(0);
   startAutoSlide();
+  loadShopUpgrade();
 });

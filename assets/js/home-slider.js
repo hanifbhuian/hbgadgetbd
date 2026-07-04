@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (window.__hbOrderPlacementRequested) return;
     window.__hbOrderPlacementRequested = true;
     const placementScript = document.createElement("script");
-    placementScript.src = "assets/js/order-placement.js?v=20260704-7";
+    placementScript.src = "assets/js/order-placement.js?v=20260704-8";
     document.body.appendChild(placementScript);
   }
 

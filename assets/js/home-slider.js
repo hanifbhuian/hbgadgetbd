@@ -1,6 +1,14 @@
 document.addEventListener("DOMContentLoaded", () => {
   const slider = document.querySelector(".homepage-slider");
 
+  function loadOrderTracking() {
+    if (window.__hbOrderTrackingRequested) return;
+    window.__hbOrderTrackingRequested = true;
+    const orderScript = document.createElement("script");
+    orderScript.src = "assets/js/order-tracking.js?v=20260704-5";
+    document.body.appendChild(orderScript);
+  }
+
   function loadShopUpgrade() {
     if (!document.querySelector("link[href*='shop-upgrade.css']")) {
       const style = document.createElement("link");
@@ -9,7 +17,10 @@ document.addEventListener("DOMContentLoaded", () => {
       document.head.appendChild(style);
     }
 
-    if (window.__hbShopUpgradeRequested) return;
+    if (window.__hbShopUpgradeRequested) {
+      loadOrderTracking();
+      return;
+    }
     window.__hbShopUpgradeRequested = true;
 
     const script = document.createElement("script");
@@ -36,6 +47,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (cart && typeof updateCartLabels === "function") {
         new MutationObserver(updateCartLabels).observe(cart, { childList: true, subtree: true });
       }
+      loadOrderTracking();
     };
     document.body.appendChild(script);
   }

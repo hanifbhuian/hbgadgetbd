@@ -22,12 +22,7 @@ function safeText(value) {
 function getCartCheckoutItems() {
   try {
     if (typeof getCartDetails === "function") {
-      return getCartDetails().map(item => ({
-        name: item.name,
-        qty: item.qty,
-        price: Number(item.price || 0),
-        lineTotal: Number(item.lineTotal || 0)
-      }));
+      return getCartDetails().map(item => ({ name: item.name, qty: item.qty, price: Number(item.price || 0), lineTotal: Number(item.lineTotal || 0) }));
     }
   } catch (error) {
     console.warn("Cart details unavailable", error);
@@ -47,38 +42,11 @@ function getDirectCheckoutItem(button) {
 function ensureCheckoutModal() {
   let modal = document.getElementById("checkoutModal");
   if (modal) return modal;
-
   modal = document.createElement("div");
   modal.id = "checkoutModal";
   modal.className = "checkout-modal";
   modal.setAttribute("aria-hidden", "true");
-  modal.innerHTML = `
-    <div class="checkout-modal__backdrop" data-checkout-close></div>
-    <div class="checkout-modal__dialog" role="dialog" aria-modal="true" aria-label="Place order">
-      <div class="checkout-modal__header">
-        <div>
-          <p class="eyebrow">Place Order | অর্ডার করুন</p>
-          <h2>Confirm your order information</h2>
-        </div>
-        <button class="checkout-close" type="button" data-checkout-close aria-label="Close checkout">×</button>
-      </div>
-      <div class="checkout-summary" id="checkoutSummary"></div>
-      <form class="checkout-form" id="checkoutForm">
-        <div class="checkout-form__grid">
-          <label><span>Customer Name *</span><input id="checkoutName" name="customerName" type="text" placeholder="Your full name" required></label>
-          <label><span>Phone Number *</span><input id="checkoutPhone" name="phone" type="tel" placeholder="01800000000" required></label>
-        </div>
-        <div class="checkout-form__grid">
-          <label><span>Delivery Area *</span><input id="checkoutArea" name="deliveryArea" type="text" placeholder="Dhaka / Chattogram / etc." required></label>
-          <label><span>Payment Method</span><select id="checkoutPayment" name="paymentMethod"><option value="Cash on Delivery">Cash on Delivery</option><option value="Bkash/Nagad before delivery">Bkash/Nagad before delivery</option></select></label>
-        </div>
-        <label><span>Full Delivery Address *</span><textarea id="checkoutAddress" name="address" placeholder="House, road, area, district" required></textarea></label>
-        <label><span>Order Note</span><textarea id="checkoutNote" name="note" placeholder="Color, size, preferred delivery time, or other note"></textarea></label>
-        <p class="checkout-status" id="checkoutStatus" aria-live="polite"></p>
-        <button class="button button--primary button--full" type="submit">Finalize Order</button>
-      </form>
-    </div>
-  `;
+  modal.innerHTML = `<div class="checkout-modal__backdrop" data-checkout-close></div><div class="checkout-modal__dialog" role="dialog" aria-modal="true" aria-label="Place order"><div class="checkout-modal__header"><div><p class="eyebrow">Place Order | অর্ডার করুন</p><h2>Confirm your order information</h2></div><button class="checkout-close" type="button" data-checkout-close aria-label="Close checkout">×</button></div><div class="checkout-summary" id="checkoutSummary"></div><form class="checkout-form" id="checkoutForm"><div class="checkout-form__grid"><label><span>Customer Name *</span><input id="checkoutName" name="customerName" type="text" placeholder="Your full name" required></label><label><span>Phone Number *</span><input id="checkoutPhone" name="phone" type="tel" placeholder="01800000000" required></label></div><div class="checkout-form__grid"><label><span>Delivery Area *</span><input id="checkoutArea" name="deliveryArea" type="text" placeholder="Dhaka / Chattogram / etc." required></label><label><span>Payment Method</span><select id="checkoutPayment" name="paymentMethod"><option value="Cash on Delivery">Cash on Delivery</option><option value="Bkash/Nagad before delivery">Bkash/Nagad before delivery</option></select></label></div><label><span>Full Delivery Address *</span><textarea id="checkoutAddress" name="address" placeholder="House, road, area, district" required></textarea></label><label><span>Order Note</span><textarea id="checkoutNote" name="note" placeholder="Color, size, preferred delivery time, or other note"></textarea></label><p class="checkout-status" id="checkoutStatus" aria-live="polite"></p><button class="button button--primary button--full" type="submit">Finalize Order</button></form></div>`;
   document.body.appendChild(modal);
   return modal;
 }
@@ -94,12 +62,10 @@ function openCheckout(items) {
   loadCheckoutCss();
   checkoutItems = items.filter(Boolean);
   checkoutSubtotal = checkoutItems.reduce((sum, item) => sum + Number(item.lineTotal || 0), 0);
-
   if (!checkoutItems.length) {
     alert("Your cart is empty. Please add a product first.");
     return;
   }
-
   const modal = ensureCheckoutModal();
   renderCheckoutSummary();
   const status = document.getElementById("checkoutStatus");
@@ -127,31 +93,11 @@ function buildOrderPayload() {
   const note = document.getElementById("checkoutNote")?.value.trim() || "";
   const itemsText = checkoutItems.map(item => `${item.name} x ${item.qty} = ${formatCheckoutMoney(item.lineTotal)}`).join(", ");
   const finalNote = [`Address: ${address}`, note ? `Customer note: ${note}` : ""].filter(Boolean).join(" | ");
-
-  return {
-    action: "create",
-    customerName: name,
-    phone,
-    status: "Pending",
-    statusBn: "অর্ডার গ্রহণ করা হয়েছে",
-    items: itemsText,
-    subtotal: checkoutSubtotal,
-    deliveryCharge: "To be confirmed",
-    paymentMethod: payment,
-    deliveryArea: area,
-    courier: "Not assigned yet",
-    trackingNumber: "Pending",
-    note: finalNote
-  };
+  return { action: "create", customerName: name, phone, status: "Pending", statusBn: "অর্ডার গ্রহণ করা হয়েছে", items: itemsText, subtotal: checkoutSubtotal, deliveryCharge: "To be confirmed", paymentMethod: payment, deliveryArea: area, courier: "Not assigned yet", trackingNumber: "Pending", note: finalNote, address };
 }
 
 async function submitOrderToSheet(payload) {
-  const response = await fetch(ORDER_CREATE_WEB_APP_URL, {
-    method: "POST",
-    mode: "cors",
-    headers: { "Content-Type": "text/plain;charset=utf-8" },
-    body: JSON.stringify(payload)
-  });
+  const response = await fetch(ORDER_CREATE_WEB_APP_URL, { method: "POST", mode: "cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
   if (!response.ok) throw new Error("Order submission failed.");
   return response.json();
 }
@@ -160,21 +106,7 @@ function renderCheckoutSuccess(orderId, phone) {
   const modal = ensureCheckoutModal();
   const dialog = modal.querySelector(".checkout-modal__dialog");
   const message = `Hello HB Gadget BD, I placed order ${orderId}. Please confirm delivery charge and availability.`;
-  dialog.innerHTML = `
-    <div class="checkout-success-card">
-      <h3>Order placed successfully!</h3>
-      <p>Your Order ID is <strong>${safeText(orderId)}</strong>.</p>
-      <p>Please save this Order ID and your phone number to track the delivery status.</p>
-      <div class="order-meta-grid">
-        <div><small>Order ID</small><strong>${safeText(orderId)}</strong></div>
-        <div><small>Phone</small><strong>${safeText(phone)}</strong></div>
-      </div>
-      <div class="checkout-actions">
-        <a href="https://wa.me/${ORDER_CREATE_SUPPORT_NUMBER}?text=${encodeURIComponent(message)}" target="_blank" rel="noreferrer">Confirm on WhatsApp</a>
-        <button type="button" data-checkout-close>Close</button>
-      </div>
-    </div>
-  `;
+  dialog.innerHTML = `<div class="checkout-success-card"><h3>Order placed successfully!</h3><p>Your Order ID is <strong>${safeText(orderId)}</strong>.</p><p>Please save this Order ID and your phone number to track the delivery status.</p><div class="order-meta-grid"><div><small>Order ID</small><strong>${safeText(orderId)}</strong></div><div><small>Phone</small><strong>${safeText(phone)}</strong></div></div><div class="checkout-actions"><a href="https://wa.me/${ORDER_CREATE_SUPPORT_NUMBER}?text=${encodeURIComponent(message)}" target="_blank" rel="noreferrer">Confirm on WhatsApp</a><button type="button" data-checkout-close>Close</button></div></div>`;
 }
 
 async function handleCheckoutSubmit(event) {
@@ -182,16 +114,13 @@ async function handleCheckoutSubmit(event) {
   event.preventDefault();
   const status = document.getElementById("checkoutStatus");
   const submit = event.target.querySelector("button[type='submit']");
-
   const payload = buildOrderPayload();
-  if (!payload.customerName || !payload.phone || !payload.deliveryArea || !payload.note.includes("Address:")) {
+  if (!payload.customerName || !payload.phone || !payload.deliveryArea || !payload.address) {
     if (status) status.textContent = "Please fill in all required fields.";
     return;
   }
-
   if (status) status.textContent = "Submitting your order...";
   if (submit) submit.disabled = true;
-
   try {
     const result = await submitOrderToSheet(payload);
     if (!result.success) throw new Error(result.message || "Order could not be saved.");
@@ -206,34 +135,18 @@ async function handleCheckoutSubmit(event) {
 }
 
 function wireOrderPlacement() {
+  if (window.__hbOrderPlacementWired) return;
+  window.__hbOrderPlacementWired = true;
   loadCheckoutCss();
-
   document.addEventListener("click", event => {
-    if (event.target.closest("[data-checkout-close]")) {
-      closeCheckout();
-      return;
-    }
-
+    if (event.target.closest("[data-checkout-close]")) { closeCheckout(); return; }
     const cartCheckout = event.target.closest("#whatsappOrder");
-    if (cartCheckout) {
-      event.preventDefault();
-      openCheckout(getCartCheckoutItems());
-      return;
-    }
-
+    if (cartCheckout) { event.preventDefault(); openCheckout(getCartCheckoutItems()); return; }
     const orderNow = event.target.closest(".order-now");
-    if (orderNow) {
-      event.preventDefault();
-      event.stopImmediatePropagation();
-      const item = getDirectCheckoutItem(orderNow);
-      openCheckout(item ? [item] : getCartCheckoutItems());
-    }
+    if (orderNow) { event.preventDefault(); event.stopImmediatePropagation(); const item = getDirectCheckoutItem(orderNow); openCheckout(item ? [item] : getCartCheckoutItems()); }
   }, true);
-
   document.addEventListener("submit", handleCheckoutSubmit, true);
-  document.addEventListener("keydown", event => {
-    if (event.key === "Escape") closeCheckout();
-  });
+  document.addEventListener("keydown", event => { if (event.key === "Escape") closeCheckout(); });
 }
 
 document.addEventListener("DOMContentLoaded", wireOrderPlacement);

@@ -1,11 +1,12 @@
 const ORDER_DATA_URL = "assets/data/orders.json";
+const ORDER_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyTm7rIja7hfGy_BjKfDol425tTHbWYTkZyQIty6uerr2spZGeKouxFFInTsJt2K9_5/exec";
 const ORDER_SUPPORT_NUMBER = "8801816569237";
 
 function loadOrderTrackingCss() {
   if (document.querySelector("link[href*='order-tracking.css']")) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "assets/css/order-tracking.css?v=20260704-5";
+  link.href = "assets/css/order-tracking.css?v=20260704-6";
   document.head.appendChild(link);
 }
 
@@ -26,6 +27,31 @@ function formatOrderMoney(value) {
   return `৳${Number(value).toLocaleString("en-BD")}`;
 }
 
+function getOrderField(order, keys, fallback = "") {
+  for (const key of keys) {
+    if (order && order[key] !== undefined && order[key] !== null && order[key] !== "") return order[key];
+  }
+  return fallback;
+}
+
+function getOrderItems(order) {
+  const items = getOrderField(order, ["items", "item", "products"], []);
+  if (Array.isArray(items)) return items;
+  return String(items || "").split(/,|\n/).map(item => item.trim()).filter(Boolean);
+}
+
+function getOrderTimeline(order) {
+  if (Array.isArray(order.timeline)) return order.timeline;
+  const status = getOrderField(order, ["status"], "Processing");
+  const statusBn = getOrderField(order, ["statusBn", "banglaStatus"], "প্রসেসিং");
+  const lastUpdated = getOrderField(order, ["lastUpdated"], "Pending");
+  return [
+    { step: "Order Received", stepBn: "অর্ডার গ্রহণ করা হয়েছে", done: true, time: getOrderField(order, ["orderDate"], "" ) },
+    { step: status, stepBn: statusBn, done: true, time: lastUpdated },
+    { step: "Delivered", stepBn: "ডেলিভারি সম্পন্ন", done: String(status).toLowerCase() === "delivered", time: String(status).toLowerCase() === "delivered" ? lastUpdated : "Pending" }
+  ];
+}
+
 function enhanceTrackOrderForm() {
   const form = document.getElementById("trackOrderForm");
   if (!form || form.dataset.trackingReady === "true") return false;
@@ -37,50 +63,81 @@ function enhanceTrackOrderForm() {
   orderInput.placeholder = "Order ID, e.g. HBG-1001";
   orderInput.autocomplete = "off";
 
-  const phoneInput = document.createElement("input");
-  phoneInput.id = "trackPhoneInput";
-  phoneInput.className = "phone-field";
-  phoneInput.type = "tel";
-  phoneInput.placeholder = "Phone number, e.g. 01800000000";
-  phoneInput.autocomplete = "tel";
-  phoneInput.required = true;
-  orderInput.insertAdjacentElement("afterend", phoneInput);
+  if (!document.getElementById("trackPhoneInput")) {
+    const phoneInput = document.createElement("input");
+    phoneInput.id = "trackPhoneInput";
+    phoneInput.className = "phone-field";
+    phoneInput.type = "tel";
+    phoneInput.placeholder = "Phone number, e.g. 01800000000";
+    phoneInput.autocomplete = "tel";
+    phoneInput.required = true;
+    orderInput.insertAdjacentElement("afterend", phoneInput);
 
-  const help = document.createElement("p");
-  help.className = "track-order-help";
-  help.textContent = "For testing: use HBG-1001 with 01800000000 or HBG-1002 with 01900000000.";
-  phoneInput.insertAdjacentElement("afterend", help);
+    const help = document.createElement("p");
+    help.className = "track-order-help";
+    help.textContent = "Enter the Order ID and phone number used when placing the order.";
+    phoneInput.insertAdjacentElement("afterend", help);
+  }
 
   form.dataset.trackingReady = "true";
   return true;
 }
 
-async function fetchOrders() {
-  const response = await fetch(`${ORDER_DATA_URL}?v=${Date.now()}`, { cache: "no-store" });
-  if (!response.ok) throw new Error("Order data could not be loaded.");
+async function fetchOrderFromGoogleSheet(orderId, phone) {
+  const url = new URL(ORDER_WEB_APP_URL);
+  url.searchParams.set("action", "track");
+  url.searchParams.set("orderId", orderId);
+  url.searchParams.set("phone", phone);
+  url.searchParams.set("v", Date.now());
+
+  const response = await fetch(url.toString(), { method: "GET", cache: "no-store" });
+  if (!response.ok) throw new Error("Google Sheet order data could not be loaded.");
   const data = await response.json();
-  return Array.isArray(data.orders) ? data.orders : [];
+  if (!data.success) return null;
+  return data.order || null;
+}
+
+async function fetchOrderFromLocalFile(orderId, phone) {
+  const response = await fetch(`${ORDER_DATA_URL}?v=${Date.now()}`, { cache: "no-store" });
+  if (!response.ok) throw new Error("Local order data could not be loaded.");
+  const data = await response.json();
+  const orders = Array.isArray(data.orders) ? data.orders : [];
+  return orders.find(order => normalizeValue(order.orderId) === normalizeValue(orderId) && normalizePhone(order.phone) === normalizePhone(phone)) || null;
+}
+
+async function findOrder(orderId, phone) {
+  try {
+    const googleOrder = await fetchOrderFromGoogleSheet(orderId, phone);
+    if (googleOrder) return googleOrder;
+  } catch (error) {
+    console.warn("Google Sheet tracking failed. Trying local fallback.", error);
+  }
+
+  return fetchOrderFromLocalFile(orderId, phone);
 }
 
 function renderOrder(order) {
-  const timeline = Array.isArray(order.timeline) ? order.timeline : [];
-  const items = Array.isArray(order.items) ? order.items : [];
-  const supportMessage = `Hello HB Gadget BD, I need an update for order ${order.orderId}.`;
+  const orderId = getOrderField(order, ["orderId", "orderID"], "Unknown");
+  const status = getOrderField(order, ["status"], "Processing");
+  const statusBn = getOrderField(order, ["statusBn", "banglaStatus"], "প্রসেসিং");
+  const timeline = getOrderTimeline(order);
+  const items = getOrderItems(order);
+  const supportMessage = `Hello HB Gadget BD, I need an update for order ${orderId}.`;
 
   return `
     <div class="order-result-card">
-      <span class="order-status-badge">● ${order.status || "Processing"} / ${order.statusBn || "প্রসেসিং"}</span>
-      <h3>Order ${order.orderId}</h3>
-      <p>${order.note || "Your order information is shown below."}</p>
+      <span class="order-status-badge">● ${status} / ${statusBn}</span>
+      <h3>Order ${orderId}</h3>
+      <p>${getOrderField(order, ["note"], "Your order information is shown below.")}</p>
       <div class="order-meta-grid">
-        <div><small>Customer</small><strong>${order.customerName || "Customer"}</strong></div>
-        <div><small>Last Updated</small><strong>${order.lastUpdated || "Not updated"}</strong></div>
-        <div><small>Payment</small><strong>${order.paymentMethod || "To be confirmed"}</strong></div>
-        <div><small>Subtotal</small><strong>${formatOrderMoney(order.subtotal)}</strong></div>
-        <div><small>Delivery Charge</small><strong>${formatOrderMoney(order.deliveryCharge)}</strong></div>
-        <div><small>Delivery Area</small><strong>${order.deliveryArea || "To be confirmed"}</strong></div>
-        <div><small>Courier</small><strong>${order.courier || "Not assigned"}</strong></div>
-        <div><small>Tracking No.</small><strong>${order.trackingNumber || "Pending"}</strong></div>
+        <div><small>Customer</small><strong>${getOrderField(order, ["customerName"], "Customer")}</strong></div>
+        <div><small>Last Updated</small><strong>${getOrderField(order, ["lastUpdated"], "Not updated")}</strong></div>
+        <div><small>Payment</small><strong>${getOrderField(order, ["paymentMethod"], "To be confirmed")}</strong></div>
+        <div><small>Subtotal</small><strong>${formatOrderMoney(getOrderField(order, ["subtotal"]))}</strong></div>
+        <div><small>Delivery Charge</small><strong>${formatOrderMoney(getOrderField(order, ["deliveryCharge"]))}</strong></div>
+        <div><small>Delivery Area</small><strong>${getOrderField(order, ["deliveryArea"], "To be confirmed")}</strong></div>
+        <div><small>Courier</small><strong>${getOrderField(order, ["courier"], "Not assigned")}</strong></div>
+        <div><small>Tracking No.</small><strong>${getOrderField(order, ["trackingNumber"], "Pending")}</strong></div>
       </div>
       <h4>Items</h4>
       <ul class="order-items">${items.map(item => `<li>${item}</li>`).join("") || "<li>Product details will be confirmed soon.</li>"}</ul>
@@ -132,8 +189,7 @@ async function handleTrackOrderSubmit(event) {
   result.innerHTML = `<div class="order-result-card"><p>Checking order status...</p></div>`;
 
   try {
-    const orders = await fetchOrders();
-    const match = orders.find(order => normalizeValue(order.orderId) === normalizeValue(orderId) && normalizePhone(order.phone) === normalizePhone(phone));
+    const match = await findOrder(orderId, phone);
 
     if (!match) {
       result.innerHTML = renderOrderError("Please check your Order ID and phone number. If the order was placed recently, contact support for a live update.");

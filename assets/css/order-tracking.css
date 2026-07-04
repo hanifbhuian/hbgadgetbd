@@ -1,0 +1,148 @@
+.track-order-form .phone-field {
+  width: 100%;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 14px 16px;
+  outline: 0;
+}
+
+.track-order-help {
+  color: var(--muted);
+  font-size: 13px;
+  margin: 0;
+}
+
+.track-order-result {
+  display: block;
+  margin-top: 10px;
+}
+
+.order-result-card {
+  margin-top: 14px;
+  background: #ffffff;
+  border: 1px solid var(--line);
+  border-radius: 20px;
+  padding: 18px;
+  box-shadow: 0 12px 32px rgba(24, 32, 51, 0.08);
+}
+
+.order-result-card.is-error {
+  border-color: rgba(239, 75, 35, 0.45);
+  background: #fff7f4;
+}
+
+.order-result-card h3 {
+  margin: 0 0 8px;
+  color: var(--ink);
+}
+
+.order-status-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  border-radius: 999px;
+  padding: 8px 12px;
+  background: #ecfdf5;
+  color: #047857;
+  font-weight: 900;
+  margin-bottom: 12px;
+}
+
+.order-meta-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 10px;
+  margin: 14px 0;
+}
+
+.order-meta-grid div {
+  background: #f8fafc;
+  border: 1px solid var(--line);
+  border-radius: 14px;
+  padding: 10px 12px;
+}
+
+.order-meta-grid small {
+  display: block;
+  color: var(--muted);
+  font-weight: 800;
+  margin-bottom: 4px;
+}
+
+.order-items {
+  margin: 10px 0 14px;
+  padding-left: 18px;
+}
+
+.order-timeline {
+  display: grid;
+  gap: 10px;
+  margin-top: 12px;
+}
+
+.order-timeline-step {
+  display: grid;
+  grid-template-columns: 28px 1fr;
+  gap: 10px;
+  align-items: start;
+}
+
+.order-timeline-dot {
+  width: 24px;
+  height: 24px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  background: #e5e7eb;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 900;
+}
+
+.order-timeline-step.is-done .order-timeline-dot {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.order-timeline-step strong {
+  display: block;
+  color: var(--ink);
+}
+
+.order-timeline-step small {
+  color: var(--muted);
+}
+
+.order-support-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin-top: 16px;
+}
+
+.order-support-actions a {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  padding: 10px 14px;
+  font-weight: 900;
+  text-decoration: none;
+}
+
+.order-support-actions a:first-child {
+  background: var(--primary);
+  color: #ffffff;
+}
+
+.order-support-actions a:last-child {
+  background: #f8fafc;
+  color: var(--ink);
+  border: 1px solid var(--line);
+}
+
+@media (max-width: 640px) {
+  .order-meta-grid {
+    grid-template-columns: 1fr;
+  }
+}

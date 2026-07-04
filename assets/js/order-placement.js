@@ -8,7 +8,7 @@ function loadCheckoutCss() {
   if (document.querySelector("link[href*='order-placement.css']")) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "assets/css/order-placement.css?v=20260704-8";
+  link.href = "assets/css/order-placement.css?v=20260704-9";
   document.head.appendChild(link);
 }
 
@@ -18,6 +18,12 @@ function setCheckoutButtonLabel() {
     checkoutButton.textContent = "Checkout";
     checkoutButton.setAttribute("aria-label", "Checkout and place order");
   }
+}
+
+function generateClientOrderId() {
+  const timePart = Date.now().toString().slice(-6);
+  const randomPart = Math.floor(Math.random() * 90 + 10).toString();
+  return `HBG-${timePart}${randomPart}`;
 }
 
 function formatCheckoutMoney(value) {
@@ -78,10 +84,7 @@ function ensureCheckoutModal() {
         <label><span>Full Delivery Address *</span><textarea id="checkoutAddress" name="address" placeholder="House, road, area, district" required></textarea></label>
         <label><span>Payment Method</span><select id="checkoutPayment" name="paymentMethod"><option value="Cash on Delivery">Cash on Delivery</option><option value="Bkash/Nagad before delivery">Bkash/Nagad before delivery</option><option value="Bank transfer before delivery">Bank transfer before delivery</option></select></label>
         <div class="payment-proof" id="paymentProofBox" hidden>
-          <div class="payment-proof__header">
-            <strong>Payment proof / screenshot *</strong>
-            <button class="payment-help" type="button" data-payment-help aria-label="Payment help">?</button>
-          </div>
+          <div class="payment-proof__header"><strong>Payment proof / screenshot *</strong><button class="payment-help" type="button" data-payment-help aria-label="Payment help">?</button></div>
           <p>Attach a payment screenshot, image, or PDF after completing mobile banking/bank payment.</p>
           <input id="paymentProofFile" type="file" accept="image/*,.pdf">
           <small>Maximum file size: 5 MB.</small>
@@ -166,20 +169,51 @@ async function buildOrderPayload() {
   const itemsText = checkoutItems.map(item => `${item.name} x ${item.qty} = ${formatCheckoutMoney(item.lineTotal)}`).join(", ");
   const finalNote = [note ? `Customer note: ${note}` : ""].filter(Boolean).join(" | ");
   const paymentProof = await readPaymentProofFile();
-  return { action: "create", customerName: name, phone, customerEmail: email, email, status: "Pending", statusBn: "অর্ডার গ্রহণ করা হয়েছে", items: itemsText, subtotal: checkoutSubtotal, deliveryCharge: "To be confirmed", paymentMethod: payment, deliveryArea: area, address, courier: "Not assigned yet", trackingNumber: "Pending", note: finalNote, paymentProof };
+  return { orderId: generateClientOrderId(), action: "create", customerName: name, phone, customerEmail: email, email, status: "Pending", statusBn: "অর্ডার গ্রহণ করা হয়েছে", items: itemsText, subtotal: checkoutSubtotal, deliveryCharge: "To be confirmed", paymentMethod: payment, deliveryArea: area, address, courier: "Not assigned yet", trackingNumber: "Pending", note: finalNote, paymentProof };
+}
+
+function submitOrderByHiddenForm(payload) {
+  return new Promise(resolve => {
+    const frameName = `hbOrderFrame${Date.now()}`;
+    const iframe = document.createElement("iframe");
+    iframe.name = frameName;
+    iframe.style.display = "none";
+    const form = document.createElement("form");
+    form.method = "POST";
+    form.action = ORDER_CREATE_WEB_APP_URL;
+    form.target = frameName;
+    form.style.display = "none";
+    const field = document.createElement("textarea");
+    field.name = "payload";
+    field.value = JSON.stringify(payload);
+    form.appendChild(field);
+    document.body.appendChild(iframe);
+    document.body.appendChild(form);
+    form.submit();
+    window.setTimeout(() => {
+      form.remove();
+      window.setTimeout(() => iframe.remove(), 8000);
+      resolve({ success: true, orderId: payload.orderId, receiptLink: "" });
+    }, 2500);
+  });
 }
 
 async function submitOrderToSheet(payload) {
-  const response = await fetch(ORDER_CREATE_WEB_APP_URL, { method: "POST", mode: "cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
-  if (!response.ok) throw new Error("Order submission failed.");
-  return response.json();
+  try {
+    const response = await fetch(ORDER_CREATE_WEB_APP_URL, { method: "POST", mode: "cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
+    if (!response.ok) throw new Error("Order submission failed.");
+    return await response.json();
+  } catch (error) {
+    console.warn("Fetch submission failed; using form submission fallback.", error);
+    return submitOrderByHiddenForm(payload);
+  }
 }
 
 function renderCheckoutSuccess(orderId, phone, receiptLink) {
   const modal = ensureCheckoutModal();
   const dialog = modal.querySelector(".checkout-modal__dialog");
   const message = `Hello HB Gadget BD, I placed order ${orderId}. Please confirm delivery charge and availability.`;
-  dialog.innerHTML = `<div class="checkout-success-card"><h3>Order placed successfully!</h3><p>Your Order ID is <strong>${safeText(orderId)}</strong>.</p><p>A receipt has been sent to your email if the email address was valid.</p><div class="order-meta-grid"><div><small>Order ID</small><strong>${safeText(orderId)}</strong></div><div><small>Phone</small><strong>${safeText(phone)}</strong></div></div>${receiptLink ? `<p><a href="${safeText(receiptLink)}" target="_blank" rel="noreferrer">View receipt</a></p>` : ""}<div class="checkout-actions"><a href="https://wa.me/${ORDER_CREATE_SUPPORT_NUMBER}?text=${encodeURIComponent(message)}" target="_blank" rel="noreferrer">Confirm on WhatsApp</a><button type="button" data-checkout-close>Close</button></div></div>`;
+  dialog.innerHTML = `<div class="checkout-success-card"><h3>Order submitted successfully!</h3><p>Your Order ID is <strong>${safeText(orderId)}</strong>.</p><p>Please save this Order ID and your phone number to track the delivery status. A receipt email will be sent after Google Sheet processing is complete.</p><div class="order-meta-grid"><div><small>Order ID</small><strong>${safeText(orderId)}</strong></div><div><small>Phone</small><strong>${safeText(phone)}</strong></div></div>${receiptLink ? `<p><a href="${safeText(receiptLink)}" target="_blank" rel="noreferrer">View receipt</a></p>` : ""}<div class="checkout-actions"><a href="https://wa.me/${ORDER_CREATE_SUPPORT_NUMBER}?text=${encodeURIComponent(message)}" target="_blank" rel="noreferrer">Confirm on WhatsApp</a><button type="button" data-checkout-close>Close</button></div></div>`;
 }
 
 async function handleCheckoutSubmit(event) {
@@ -187,7 +221,7 @@ async function handleCheckoutSubmit(event) {
   event.preventDefault();
   const status = document.getElementById("checkoutStatus");
   const submit = event.target.querySelector("button[type='submit']");
-  if (status) status.textContent = "Submitting your order...";
+  if (status) status.textContent = "Submitting your order... Please do not close this window.";
   if (submit) submit.disabled = true;
   try {
     const payload = await buildOrderPayload();
@@ -195,7 +229,7 @@ async function handleCheckoutSubmit(event) {
     const result = await submitOrderToSheet(payload);
     if (!result.success) throw new Error(result.message || "Order could not be saved.");
     document.getElementById("clearCart")?.click();
-    renderCheckoutSuccess(result.orderId || "Pending", payload.phone, result.receiptLink || "");
+    renderCheckoutSuccess(result.orderId || payload.orderId, payload.phone, result.receiptLink || "");
   } catch (error) {
     console.error(error);
     if (status) status.textContent = error.message || "Order could not be submitted automatically. Please contact WhatsApp support.";
@@ -213,12 +247,8 @@ function wireOrderPlacement() {
   window.__hbOrderPlacementWired = true;
   loadCheckoutCss();
   setCheckoutButtonLabel();
-  window.addEventListener("storage", event => {
-    if (event.key === "hbGadgetCart" && typeof renderCart === "function") renderCart();
-  });
-  document.addEventListener("change", event => {
-    if (event.target?.id === "checkoutPayment") updatePaymentProofVisibility();
-  });
+  window.addEventListener("storage", event => { if (event.key === "hbGadgetCart" && typeof renderCart === "function") renderCart(); });
+  document.addEventListener("change", event => { if (event.target?.id === "checkoutPayment") updatePaymentProofVisibility(); });
   document.addEventListener("click", event => {
     if (event.target.closest("[data-payment-help]")) { showPaymentHelp(); return; }
     if (event.target.closest("[data-checkout-close]")) { closeCheckout(); return; }

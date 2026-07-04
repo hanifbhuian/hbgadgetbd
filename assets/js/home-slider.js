@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!document.querySelector("link[href*='shop-upgrade.css']")) {
       const style = document.createElement("link");
       style.rel = "stylesheet";
-      style.href = "assets/css/shop-upgrade.css?v=20260704-3";
+      style.href = "assets/css/shop-upgrade.css?v=20260704-4";
       document.head.appendChild(style);
     }
 
@@ -13,7 +13,7 @@ document.addEventListener("DOMContentLoaded", () => {
     window.__hbShopUpgradeRequested = true;
 
     const script = document.createElement("script");
-    script.src = "assets/js/site-enhancements.js?v=20260704-3";
+    script.src = "assets/js/site-enhancements.js?v=20260704-4";
     script.onload = () => {
       if (window.__hbShopUpgradeLoaded) return;
       window.__hbShopUpgradeLoaded = true;

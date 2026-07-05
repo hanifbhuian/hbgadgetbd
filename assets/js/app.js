@@ -5,6 +5,9 @@ const PRODUCT_DATA_URL = `${GITHUB_RAW_BASE}assets/data/products.json`;
 let products = [];
 let lightboxImages = [];
 let lightboxIndex = 0;
+let productDrawerImages = [];
+let productDrawerIndex = 0;
+let activeDetailProduct = null;
 
 const fallbackProducts = [
   {
@@ -37,6 +40,23 @@ const clearCart = document.getElementById("clearCart");
 const whatsappOrder = document.getElementById("whatsappOrder");
 
 document.getElementById("year").textContent = new Date().getFullYear();
+
+function loadProductDetailCss() {
+  if (document.querySelector("link[href*='product-detail-drawer.css']")) return;
+  const link = document.createElement("link");
+  link.rel = "stylesheet";
+  link.href = "assets/css/product-detail-drawer.css?v=20260705-1";
+  document.head.appendChild(link);
+}
+
+function htmlEscape(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
 
 function formatPrice(price) {
   return `৳${Number(price || 0).toLocaleString("en-BD")}`;
@@ -124,16 +144,35 @@ function getFilteredProducts() {
   });
 }
 
-function renderProductDetails(product) {
-  if (!Array.isArray(product.details) || !product.details.length) return "";
+function getDetailValue(product, keywords, fallback = "") {
+  for (const key of keywords) {
+    if (product[key] !== undefined && product[key] !== null && product[key] !== "") return product[key];
+  }
 
-  const items = product.details.map(detail => `<li>${detail}</li>`).join("");
-  return `
-    <details class="product-specs">
-      <summary>View details</summary>
-      <ul>${items}</ul>
-    </details>
-  `;
+  const details = Array.isArray(product.details) ? product.details : [];
+  for (const detail of details) {
+    const text = String(detail || "");
+    const matchKey = keywords.find(key => text.toLowerCase().includes(String(key).toLowerCase()));
+    if (!matchKey) continue;
+    const parts = text.split(":");
+    return parts.length > 1 ? parts.slice(1).join(":").trim() : text;
+  }
+
+  return fallback;
+}
+
+function getProductStats(product) {
+  return {
+    rating: getDetailValue(product, ["rating"], "Not rated yet"),
+    reviews: getDetailValue(product, ["reviews", "reviewCount"], "0"),
+    sold: getDetailValue(product, ["sales", "sold", "soldCount"], "0"),
+    stock: getDetailValue(product, ["stock", "availability"], "Available"),
+    location: getDetailValue(product, ["location"], "Bangladesh")
+  };
+}
+
+function renderProductDetails(product) {
+  return `<button class="view-detail-button" type="button" data-detail-id="${product.id}">View product details</button>`;
 }
 
 function renderProductImage(product) {
@@ -142,11 +181,11 @@ function renderProductImage(product) {
 
   const imageList = images.join("|");
   const photoCount = images.length > 1 ? `<span class="gallery-count">1/${images.length}</span>` : "";
-  const hint = images.length > 1 ? `<span class="gallery-hint">Click photo to view more</span>` : `<span class="gallery-hint">Click photo to enlarge</span>`;
+  const hint = images.length > 1 ? `<span class="gallery-hint">Click product to view details</span>` : `<span class="gallery-hint">Click product to view details</span>`;
 
   return `
-    <button class="product-gallery" type="button" data-images="${imageList}" data-index="0" data-title="${product.name}" aria-label="Open ${product.name} photo viewer">
-      <img src="${images[0]}" alt="${product.name}" loading="lazy">
+    <button class="product-gallery" type="button" data-images="${imageList}" data-index="0" data-title="${htmlEscape(product.name)}" aria-label="Open ${htmlEscape(product.name)} details">
+      <img src="${images[0]}" alt="${htmlEscape(product.name)}" loading="lazy">
       ${photoCount}
       ${hint}
     </button>
@@ -164,15 +203,15 @@ function renderProducts() {
   }
 
   productGrid.innerHTML = filtered.map(product => `
-    <article class="product-card">
+    <article class="product-card" data-product-id="${product.id}">
       <div class="product-card__image">
-        <span class="product-card__tag">${product.tag || "New"}</span>
+        <span class="product-card__tag">${htmlEscape(product.tag || "New")}</span>
         ${renderProductImage(product)}
       </div>
       <div class="product-card__body">
-        <span class="product-card__category">${product.category}</span>
-        <h3>${product.name}</h3>
-        <p>${product.description}</p>
+        <span class="product-card__category">${htmlEscape(product.category)}</span>
+        <h3>${htmlEscape(product.name)}</h3>
+        <p>${htmlEscape(product.description)}</p>
         ${renderProductDetails(product)}
         <div class="product-card__bottom">
           <span class="price">${formatPrice(product.price)}</span>
@@ -181,6 +220,127 @@ function renderProducts() {
       </div>
     </article>
   `).join("");
+}
+
+function ensureProductDrawer() {
+  loadProductDetailCss();
+  let drawer = document.getElementById("productDetailDrawer");
+  if (drawer) return drawer;
+
+  drawer = document.createElement("aside");
+  drawer.id = "productDetailDrawer";
+  drawer.className = "product-detail-drawer";
+  drawer.setAttribute("aria-hidden", "true");
+  drawer.innerHTML = `
+    <div class="product-detail-drawer__backdrop" data-product-detail-close></div>
+    <div class="product-detail-drawer__panel" role="dialog" aria-modal="true" aria-label="Product details">
+      <div class="product-detail-drawer__header">
+        <strong>Product Details</strong>
+        <button class="product-detail-close" type="button" data-product-detail-close aria-label="Close product details">×</button>
+      </div>
+      <div class="product-detail-body" id="productDetailBody"></div>
+      <div class="product-detail-actions">
+        <button class="add-detail-cart" type="button">Add to Cart</button>
+        <button class="order-detail-now" type="button">Order Now</button>
+      </div>
+    </div>
+  `;
+  document.body.appendChild(drawer);
+  return drawer;
+}
+
+function updateProductDrawerImage() {
+  const drawer = ensureProductDrawer();
+  const image = drawer.querySelector(".product-detail-main-image");
+  const arrows = drawer.querySelectorAll(".product-detail-arrow");
+  const thumbs = drawer.querySelectorAll(".product-detail-thumbs button");
+
+  if (image) image.src = productDrawerImages[productDrawerIndex] || "";
+  arrows.forEach(arrow => {
+    arrow.hidden = productDrawerImages.length < 2;
+  });
+  thumbs.forEach((thumb, index) => {
+    thumb.classList.toggle("is-active", index === productDrawerIndex);
+  });
+}
+
+function moveProductDrawerImage(direction) {
+  if (productDrawerImages.length < 2) return;
+  productDrawerIndex = (productDrawerIndex + direction + productDrawerImages.length) % productDrawerImages.length;
+  updateProductDrawerImage();
+}
+
+function renderProductDrawer(product) {
+  const drawer = ensureProductDrawer();
+  const body = drawer.querySelector("#productDetailBody");
+  const stats = getProductStats(product);
+  const rawImages = getProductImages(product);
+  productDrawerImages = rawImages.length ? rawImages.map(image => resolveAssetUrl(image)) : [];
+  productDrawerIndex = 0;
+
+  const imageMarkup = productDrawerImages.length ? `
+    <div class="product-detail-image">
+      <button class="product-detail-arrow product-detail-arrow--prev" type="button" data-product-slide="prev" aria-label="Previous product photo">‹</button>
+      <img class="product-detail-main-image" src="${productDrawerImages[0]}" alt="${htmlEscape(product.name)}">
+      <button class="product-detail-arrow product-detail-arrow--next" type="button" data-product-slide="next" aria-label="Next product photo">›</button>
+    </div>
+    <div class="product-detail-thumbs">
+      ${productDrawerImages.map((image, index) => `<button type="button" data-product-thumb="${index}" class="${index === 0 ? "is-active" : ""}"><img src="${image}" alt="${htmlEscape(product.name)} photo ${index + 1}"></button>`).join("")}
+    </div>
+  ` : `<div class="product-detail-image"><span style="font-size:72px">${product.icon || "🛒"}</span></div>`;
+
+  const details = Array.isArray(product.details) ? product.details : [];
+  body.innerHTML = `
+    ${imageMarkup}
+    <div class="product-detail-meta">
+      <span>⭐ ${htmlEscape(stats.rating)}</span>
+      <span>💬 ${htmlEscape(stats.reviews)} reviews</span>
+      <span>🛍️ ${htmlEscape(stats.sold)} sold</span>
+      <span>📦 ${htmlEscape(stats.stock)}</span>
+      <span>📍 ${htmlEscape(stats.location)}</span>
+    </div>
+    <span class="product-card__category">${htmlEscape(product.category)}</span>
+    <h2>${htmlEscape(product.name)}</h2>
+    <div class="product-detail-price"><span>${formatPrice(product.price)}</span><small>Delivery charge added at checkout</small></div>
+    <p class="product-detail-description">${htmlEscape(product.description || "")}</p>
+    <div class="product-detail-section">
+      <h3>Product Information</h3>
+      <ul class="product-detail-list">
+        ${details.length ? details.map(detail => `<li>${htmlEscape(detail)}</li>`).join("") : "<li>More product details will be added soon.</li>"}
+      </ul>
+    </div>
+    <div class="product-detail-section">
+      <h3>Customer Review</h3>
+      <ul class="product-detail-list">
+        <li>Rating: ${htmlEscape(stats.rating)}</li>
+        <li>Reviews: ${htmlEscape(stats.reviews)}</li>
+        <li>Sold: ${htmlEscape(stats.sold)}</li>
+      </ul>
+    </div>
+  `;
+
+  drawer.querySelector(".add-detail-cart").dataset.id = product.id;
+  drawer.querySelector(".order-detail-now").dataset.id = product.id;
+  updateProductDrawerImage();
+}
+
+function openProductDetails(productId) {
+  const product = products.find(item => item.id === Number(productId));
+  if (!product) return;
+  activeDetailProduct = product;
+  const drawer = ensureProductDrawer();
+  renderProductDrawer(product);
+  drawer.classList.add("is-open");
+  drawer.setAttribute("aria-hidden", "false");
+  document.body.classList.add("product-detail-open");
+}
+
+function closeProductDetails() {
+  const drawer = document.getElementById("productDetailDrawer");
+  if (!drawer) return;
+  drawer.classList.remove("is-open");
+  drawer.setAttribute("aria-hidden", "true");
+  document.body.classList.remove("product-detail-open");
 }
 
 function ensureLightbox() {
@@ -264,6 +424,19 @@ function addToCart(productId) {
   renderCart();
 }
 
+function orderProductNow(productId) {
+  const product = products.find(item => item.id === Number(productId));
+  if (!product) return;
+
+  if (typeof openCheckout === "function") {
+    openCheckout([{ name: product.name, qty: 1, price: Number(product.price || 0), lineTotal: Number(product.price || 0) }]);
+    return;
+  }
+
+  const message = `Hello HB Gadget BD, I want to order: ${product.name}. Please confirm stock and delivery.`;
+  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank");
+}
+
 function updateQuantity(productId, change) {
   const item = state.cart.find(cartItem => cartItem.id === Number(productId));
   if (!item) return;
@@ -301,7 +474,7 @@ function renderCart() {
     <div class="cart-item">
       <div class="cart-item__icon">${item.icon || "🛒"}</div>
       <div>
-        <h3>${item.name}</h3>
+        <h3>${htmlEscape(item.name)}</h3>
         <small>${formatPrice(item.price)} × ${item.qty}</small>
       </div>
       <div class="qty">
@@ -390,17 +563,27 @@ document.querySelectorAll(".category-card-button").forEach(button => {
 });
 
 productGrid.addEventListener("click", event => {
-  const gallery = event.target.closest(".product-gallery");
-  if (gallery) {
+  const addButton = event.target.closest(".add-cart");
+  if (addButton) {
     event.preventDefault();
-    openImageViewer(gallery);
+    event.stopPropagation();
+    addToCart(addButton.dataset.id);
+    openCartPanel();
     return;
   }
 
-  const button = event.target.closest(".add-cart");
-  if (!button) return;
-  addToCart(button.dataset.id);
-  openCartPanel();
+  const detailButton = event.target.closest("[data-detail-id]");
+  if (detailButton) {
+    event.preventDefault();
+    openProductDetails(detailButton.dataset.detailId);
+    return;
+  }
+
+  const card = event.target.closest(".product-card");
+  if (card) {
+    event.preventDefault();
+    openProductDetails(card.dataset.productId);
+  }
 });
 
 document.addEventListener("click", event => {
@@ -410,6 +593,36 @@ document.addEventListener("click", event => {
   if (action === "close") closeImageViewer();
   if (action === "next") moveLightbox(1);
   if (action === "prev") moveLightbox(-1);
+});
+
+document.addEventListener("click", event => {
+  if (event.target.closest("[data-product-detail-close]")) {
+    closeProductDetails();
+    return;
+  }
+
+  const slideAction = event.target.closest("[data-product-slide]")?.dataset.productSlide;
+  if (slideAction === "next") moveProductDrawerImage(1);
+  if (slideAction === "prev") moveProductDrawerImage(-1);
+
+  const thumb = event.target.closest("[data-product-thumb]");
+  if (thumb) {
+    productDrawerIndex = Number(thumb.dataset.productThumb || 0);
+    updateProductDrawerImage();
+  }
+
+  const addDetail = event.target.closest(".add-detail-cart");
+  if (addDetail) {
+    addToCart(addDetail.dataset.id);
+    closeProductDetails();
+    openCartPanel();
+  }
+
+  const orderDetail = event.target.closest(".order-detail-now");
+  if (orderDetail) {
+    closeProductDetails();
+    orderProductNow(orderDetail.dataset.id);
+  }
 });
 
 cartItems.addEventListener("click", event => {
@@ -431,9 +644,17 @@ document.addEventListener("keydown", event => {
   if (event.key === "Escape") {
     closeImageViewer();
     closeCartPanel();
+    closeProductDetails();
   }
-  if (event.key === "ArrowRight") moveLightbox(1);
-  if (event.key === "ArrowLeft") moveLightbox(-1);
+  if (event.key === "ArrowRight") {
+    if (document.getElementById("productDetailDrawer")?.classList.contains("is-open")) moveProductDrawerImage(1);
+    else moveLightbox(1);
+  }
+  if (event.key === "ArrowLeft") {
+    if (document.getElementById("productDetailDrawer")?.classList.contains("is-open")) moveProductDrawerImage(-1);
+    else moveLightbox(-1);
+  }
 });
 
+loadProductDetailCss();
 loadProducts();

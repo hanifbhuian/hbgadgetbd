@@ -1,4 +1,4 @@
-const ORDER_CREATE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyTm7rIja7hfGy_BjKfDol425tTHbWYTkZyQIty6uerr2spZGeKouxFFInTsJt2K9_5/exec";
+const ORDER_CREATE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzva7OB4SqKgN51v66okHgb8LdiAmzJuEjVixpvs_gL4f0L6fRrqRnxbx-yDYWaSxtjnw/exec";
 const ORDER_CREATE_SUPPORT_NUMBER = "8801816569237";
 const MAX_PAYMENT_FILE_SIZE = 5 * 1024 * 1024;
 let checkoutItems = [];
@@ -8,16 +8,15 @@ function loadCheckoutCss() {
   if (document.querySelector("link[href*='order-placement.css']")) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "assets/css/order-placement.css?v=20260704-9";
+  link.href = "assets/css/order-placement.css?v=20260704-10";
   document.head.appendChild(link);
 }
 
 function setCheckoutButtonLabel() {
   const checkoutButton = document.getElementById("whatsappOrder");
-  if (checkoutButton) {
-    checkoutButton.textContent = "Checkout";
-    checkoutButton.setAttribute("aria-label", "Checkout and place order");
-  }
+  if (!checkoutButton) return;
+  checkoutButton.textContent = "Checkout";
+  checkoutButton.setAttribute("aria-label", "Checkout and place order");
 }
 
 function generateClientOrderId() {
@@ -37,7 +36,12 @@ function safeText(value) {
 function getCartCheckoutItems() {
   try {
     if (typeof getCartDetails === "function") {
-      return getCartDetails().map(item => ({ name: item.name, qty: item.qty, price: Number(item.price || 0), lineTotal: Number(item.lineTotal || 0) }));
+      return getCartDetails().map(item => ({
+        name: item.name,
+        qty: item.qty,
+        price: Number(item.price || 0),
+        lineTotal: Number(item.lineTotal || 0)
+      }));
     }
   } catch (error) {
     console.warn("Cart details unavailable", error);
@@ -57,6 +61,7 @@ function getDirectCheckoutItem(button) {
 function ensureCheckoutModal() {
   let modal = document.getElementById("checkoutModal");
   if (modal) return modal;
+
   modal = document.createElement("div");
   modal.id = "checkoutModal";
   modal.className = "checkout-modal";
@@ -65,10 +70,7 @@ function ensureCheckoutModal() {
     <div class="checkout-modal__backdrop" data-checkout-close></div>
     <div class="checkout-modal__dialog" role="dialog" aria-modal="true" aria-label="Place order">
       <div class="checkout-modal__header">
-        <div>
-          <p class="eyebrow">Place Order | অর্ডার করুন</p>
-          <h2>Confirm your order information</h2>
-        </div>
+        <div><p class="eyebrow">Place Order | অর্ডার করুন</p><h2>Confirm your order information</h2></div>
         <button class="checkout-close" type="button" data-checkout-close aria-label="Close checkout">×</button>
       </div>
       <div class="checkout-summary" id="checkoutSummary"></div>
@@ -147,11 +149,16 @@ function readPaymentProofFile() {
   if (payment === "Cash on Delivery") return Promise.resolve(null);
   if (!file) return Promise.reject(new Error("Please attach your payment screenshot or document."));
   if (file.size > MAX_PAYMENT_FILE_SIZE) return Promise.reject(new Error("Payment file is too large. Maximum size is 5 MB."));
+
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
     reader.onload = () => {
       const dataUrl = String(reader.result || "");
-      resolve({ fileName: file.name, mimeType: file.type || "application/octet-stream", data: dataUrl.split(",")[1] || "" });
+      resolve({
+        fileName: file.name,
+        mimeType: file.type || "application/octet-stream",
+        data: dataUrl.split(",")[1] || ""
+      });
     };
     reader.onerror = () => reject(new Error("Payment file could not be read."));
     reader.readAsDataURL(file);
@@ -169,7 +176,26 @@ async function buildOrderPayload() {
   const itemsText = checkoutItems.map(item => `${item.name} x ${item.qty} = ${formatCheckoutMoney(item.lineTotal)}`).join(", ");
   const finalNote = [note ? `Customer note: ${note}` : ""].filter(Boolean).join(" | ");
   const paymentProof = await readPaymentProofFile();
-  return { orderId: generateClientOrderId(), action: "create", customerName: name, phone, customerEmail: email, email, status: "Pending", statusBn: "অর্ডার গ্রহণ করা হয়েছে", items: itemsText, subtotal: checkoutSubtotal, deliveryCharge: "To be confirmed", paymentMethod: payment, deliveryArea: area, address, courier: "Not assigned yet", trackingNumber: "Pending", note: finalNote, paymentProof };
+  return {
+    orderId: generateClientOrderId(),
+    action: "create",
+    customerName: name,
+    phone,
+    customerEmail: email,
+    email,
+    status: "Pending",
+    statusBn: "অর্ডার গ্রহণ করা হয়েছে",
+    items: itemsText,
+    subtotal: checkoutSubtotal,
+    deliveryCharge: "To be confirmed",
+    paymentMethod: payment,
+    deliveryArea: area,
+    address,
+    courier: "Not assigned yet",
+    trackingNumber: "Pending",
+    note: finalNote,
+    paymentProof
+  };
 }
 
 function submitOrderByHiddenForm(payload) {
@@ -194,13 +220,18 @@ function submitOrderByHiddenForm(payload) {
       form.remove();
       window.setTimeout(() => iframe.remove(), 8000);
       resolve({ success: true, orderId: payload.orderId, receiptLink: "" });
-    }, 2500);
+    }, 3000);
   });
 }
 
 async function submitOrderToSheet(payload) {
   try {
-    const response = await fetch(ORDER_CREATE_WEB_APP_URL, { method: "POST", mode: "cors", headers: { "Content-Type": "text/plain;charset=utf-8" }, body: JSON.stringify(payload) });
+    const response = await fetch(ORDER_CREATE_WEB_APP_URL, {
+      method: "POST",
+      mode: "cors",
+      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      body: JSON.stringify(payload)
+    });
     if (!response.ok) throw new Error("Order submission failed.");
     return await response.json();
   } catch (error) {
@@ -223,9 +254,12 @@ async function handleCheckoutSubmit(event) {
   const submit = event.target.querySelector("button[type='submit']");
   if (status) status.textContent = "Submitting your order... Please do not close this window.";
   if (submit) submit.disabled = true;
+
   try {
     const payload = await buildOrderPayload();
-    if (!payload.customerName || !payload.phone || !payload.customerEmail || !payload.deliveryArea || !payload.address) throw new Error("Please fill in all required fields.");
+    if (!payload.customerName || !payload.phone || !payload.customerEmail || !payload.deliveryArea || !payload.address) {
+      throw new Error("Please fill in all required fields.");
+    }
     const result = await submitOrderToSheet(payload);
     if (!result.success) throw new Error(result.message || "Order could not be saved.");
     document.getElementById("clearCart")?.click();

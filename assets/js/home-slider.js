@@ -29,6 +29,13 @@ document.addEventListener("DOMContentLoaded", () => {
       document.head.appendChild(style);
     }
 
+    if (!document.querySelector("link[href*='mobile-header-fix.css']")) {
+      const mobileFix = document.createElement("link");
+      mobileFix.rel = "stylesheet";
+      mobileFix.href = "assets/css/mobile-header-fix.css?v=20260704-1";
+      document.head.appendChild(mobileFix);
+    }
+
     if (window.__hbShopUpgradeRequested) {
       loadOrderTracking();
       return;

@@ -2,11 +2,28 @@ const ORDER_DATA_URL = "assets/data/orders.json";
 const ORDER_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzva7OB4SqKgN51v66okHgb8LdiAmzJuEjVixpvs_gL4f0L6fRrqRnxbx-yDYWaSxtjnw/exec";
 const ORDER_SUPPORT_NUMBER = "8801816569237";
 
+const ORDER_STATUS_FLOW = [
+  { key: "pending", label: "Order Received", bn: "অর্ডার গ্রহণ করা হয়েছে" },
+  { key: "confirmed", label: "Confirmed", bn: "অর্ডার কনফার্ম হয়েছে" },
+  { key: "processing", label: "Processing", bn: "অর্ডার প্রস্তুত করা হচ্ছে" },
+  { key: "shipped", label: "Shipped", bn: "অর্ডার কুরিয়ারে পাঠানো হয়েছে" },
+  { key: "delivered", label: "Delivered", bn: "অর্ডার ডেলিভারি সম্পন্ন হয়েছে" }
+];
+
+const ORDER_STATUS_MAP = {
+  pending: { label: "Pending", bn: "অর্ডার গ্রহণ করা হয়েছে", level: 0 },
+  confirmed: { label: "Confirmed", bn: "অর্ডার কনফার্ম হয়েছে", level: 1 },
+  processing: { label: "Processing", bn: "অর্ডার প্রস্তুত করা হচ্ছে", level: 2 },
+  shipped: { label: "Shipped", bn: "অর্ডার কুরিয়ারে পাঠানো হয়েছে", level: 3 },
+  delivered: { label: "Delivered", bn: "অর্ডার ডেলিভারি সম্পন্ন হয়েছে", level: 4 },
+  cancelled: { label: "Cancelled", bn: "অর্ডার বাতিল করা হয়েছে", level: -1 }
+};
+
 function loadOrderTrackingCss() {
   if (document.querySelector("link[href*='order-tracking.css']")) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "assets/css/order-tracking.css?v=20260704-7";
+  link.href = "assets/css/order-tracking.css?v=20260705-1";
   document.head.appendChild(link);
 }
 
@@ -21,10 +38,42 @@ function normalizePhone(value) {
   return phone;
 }
 
+function normalizeStatus(value) {
+  const status = String(value || "pending").trim().toLowerCase();
+  if (status.includes("cancel")) return "cancelled";
+  if (status.includes("deliver")) return "delivered";
+  if (status.includes("ship") || status.includes("courier")) return "shipped";
+  if (status.includes("process") || status.includes("prepar")) return "processing";
+  if (status.includes("confirm")) return "confirmed";
+  if (status.includes("pending") || status.includes("received") || status.includes("receive")) return "pending";
+  return "pending";
+}
+
+function getStatusInfo(order) {
+  const rawStatus = getOrderField(order, ["status"], "Pending");
+  const key = normalizeStatus(rawStatus);
+  return ORDER_STATUS_MAP[key] || ORDER_STATUS_MAP.pending;
+}
+
 function formatOrderMoney(value) {
   if (value === undefined || value === null || value === "") return "To be confirmed";
   if (Number.isNaN(Number(value))) return String(value);
   return `৳${Number(value).toLocaleString("en-BD")}`;
+}
+
+function formatTrackingTime(value) {
+  if (!value || value === "Pending") return "Pending";
+
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return String(value);
+
+  return date.toLocaleString("en-BD", {
+    year: "numeric",
+    month: "short",
+    day: "numeric",
+    hour: "numeric",
+    minute: "2-digit"
+  });
 }
 
 function getOrderField(order, keys, fallback = "") {
@@ -42,14 +91,24 @@ function getOrderItems(order) {
 
 function getOrderTimeline(order) {
   if (Array.isArray(order.timeline)) return order.timeline;
-  const status = getOrderField(order, ["status"], "Processing");
-  const statusBn = getOrderField(order, ["statusBn", "banglaStatus"], "প্রসেসিং");
-  const lastUpdated = getOrderField(order, ["lastUpdated"], "Pending");
-  return [
-    { step: "Order Received", stepBn: "অর্ডার গ্রহণ করা হয়েছে", done: true, time: getOrderField(order, ["orderDate"], "") },
-    { step: status, stepBn: statusBn, done: true, time: lastUpdated },
-    { step: "Delivered", stepBn: "ডেলিভারি সম্পন্ন", done: String(status).toLowerCase() === "delivered", time: String(status).toLowerCase() === "delivered" ? lastUpdated : "Pending" }
-  ];
+
+  const statusInfo = getStatusInfo(order);
+  const orderDate = formatTrackingTime(getOrderField(order, ["orderDate"], ""));
+  const lastUpdated = formatTrackingTime(getOrderField(order, ["lastUpdated"], ""));
+
+  if (statusInfo.label === "Cancelled") {
+    return [
+      { step: "Order Received", stepBn: ORDER_STATUS_MAP.pending.bn, done: true, time: orderDate },
+      { step: "Cancelled", stepBn: ORDER_STATUS_MAP.cancelled.bn, done: true, time: lastUpdated }
+    ];
+  }
+
+  return ORDER_STATUS_FLOW.map((step, index) => ({
+    step: step.label,
+    stepBn: step.bn,
+    done: index <= statusInfo.level,
+    time: index === 0 ? orderDate : (index <= statusInfo.level ? lastUpdated : "Pending")
+  }));
 }
 
 function enhanceTrackOrderForm() {
@@ -116,20 +175,19 @@ async function findOrder(orderId, phone) {
 
 function renderOrder(order) {
   const orderId = getOrderField(order, ["orderId", "orderID"], "Unknown");
-  const status = getOrderField(order, ["status"], "Processing");
-  const statusBn = getOrderField(order, ["statusBn", "banglaStatus"], "প্রসেসিং");
+  const statusInfo = getStatusInfo(order);
   const timeline = getOrderTimeline(order);
   const items = getOrderItems(order);
   const supportMessage = `Hello HB Gadget BD, I need an update for order ${orderId}.`;
 
   return `
     <div class="order-result-card">
-      <span class="order-status-badge">● ${status} / ${statusBn}</span>
+      <span class="order-status-badge">● ${statusInfo.label} / ${statusInfo.bn}</span>
       <h3>Order ${orderId}</h3>
       <p>${getOrderField(order, ["note"], "Your order information is shown below.")}</p>
       <div class="order-meta-grid">
         <div><small>Customer</small><strong>${getOrderField(order, ["customerName"], "Customer")}</strong></div>
-        <div><small>Last Updated</small><strong>${getOrderField(order, ["lastUpdated"], "Not updated")}</strong></div>
+        <div><small>Last Updated</small><strong>${formatTrackingTime(getOrderField(order, ["lastUpdated"], "Not updated"))}</strong></div>
         <div><small>Payment</small><strong>${getOrderField(order, ["paymentMethod"], "To be confirmed")}</strong></div>
         <div><small>Subtotal</small><strong>${formatOrderMoney(getOrderField(order, ["subtotal"]))}</strong></div>
         <div><small>Delivery Charge</small><strong>${formatOrderMoney(getOrderField(order, ["deliveryCharge"]))}</strong></div>

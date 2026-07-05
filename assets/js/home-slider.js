@@ -21,6 +21,18 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.appendChild(orderScript);
   }
 
+  function loadMobileCategoryMenu() {
+    if (window.__hbMobileCategoryRequested) {
+      loadOrderTracking();
+      return;
+    }
+    window.__hbMobileCategoryRequested = true;
+    const mobileMenuScript = document.createElement("script");
+    mobileMenuScript.src = "assets/js/mobile-category-menu.js?v=20260704-1";
+    mobileMenuScript.onload = loadOrderTracking;
+    document.body.appendChild(mobileMenuScript);
+  }
+
   function loadShopUpgrade() {
     if (!document.querySelector("link[href*='shop-upgrade.css']")) {
       const style = document.createElement("link");
@@ -32,12 +44,12 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!document.querySelector("link[href*='mobile-header-fix.css']")) {
       const mobileFix = document.createElement("link");
       mobileFix.rel = "stylesheet";
-      mobileFix.href = "assets/css/mobile-header-fix.css?v=20260704-1";
+      mobileFix.href = "assets/css/mobile-header-fix.css?v=20260704-2";
       document.head.appendChild(mobileFix);
     }
 
     if (window.__hbShopUpgradeRequested) {
-      loadOrderTracking();
+      loadMobileCategoryMenu();
       return;
     }
     window.__hbShopUpgradeRequested = true;
@@ -66,7 +78,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (cart && typeof updateCartLabels === "function") {
         new MutationObserver(updateCartLabels).observe(cart, { childList: true, subtree: true });
       }
-      loadOrderTracking();
+      loadMobileCategoryMenu();
     };
     document.body.appendChild(script);
   }

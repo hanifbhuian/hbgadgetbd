@@ -33,6 +33,18 @@ document.addEventListener("DOMContentLoaded", () => {
     document.body.appendChild(mobileMenuScript);
   }
 
+  function loadHomeLayoutFix() {
+    if (window.__hbHomeLayoutFixRequested) {
+      loadMobileCategoryMenu();
+      return;
+    }
+    window.__hbHomeLayoutFixRequested = true;
+    const layoutScript = document.createElement("script");
+    layoutScript.src = "assets/js/home-layout-fix.js?v=20260704-1";
+    layoutScript.onload = loadMobileCategoryMenu;
+    document.body.appendChild(layoutScript);
+  }
+
   function loadShopUpgrade() {
     if (!document.querySelector("link[href*='shop-upgrade.css']")) {
       const style = document.createElement("link");
@@ -49,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     if (window.__hbShopUpgradeRequested) {
-      loadMobileCategoryMenu();
+      loadHomeLayoutFix();
       return;
     }
     window.__hbShopUpgradeRequested = true;
@@ -78,7 +90,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (cart && typeof updateCartLabels === "function") {
         new MutationObserver(updateCartLabels).observe(cart, { childList: true, subtree: true });
       }
-      loadMobileCategoryMenu();
+      loadHomeLayoutFix();
     };
     document.body.appendChild(script);
   }

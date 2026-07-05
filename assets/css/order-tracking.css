@@ -31,6 +31,11 @@
   background: #fff7f4;
 }
 
+.order-result-card.is-cancelled {
+  border-color: rgba(220, 38, 38, 0.35);
+  background: #fffafa;
+}
+
 .order-result-card h3 {
   margin: 0 0 8px;
   color: var(--ink);
@@ -46,6 +51,31 @@
   color: #047857;
   font-weight: 900;
   margin-bottom: 12px;
+}
+
+.order-status-badge.is-cancelled {
+  background: #fef2f2;
+  color: #dc2626;
+}
+
+.cancel-reason-box {
+  margin: 12px 0 14px;
+  border: 1px solid rgba(220, 38, 38, 0.28);
+  background: #fff1f2;
+  border-radius: 16px;
+  padding: 12px 14px;
+}
+
+.cancel-reason-box strong {
+  display: block;
+  color: #991b1b;
+  margin-bottom: 4px;
+}
+
+.cancel-reason-box p {
+  margin: 0;
+  color: #7f1d1d;
+  font-weight: 700;
 }
 
 .order-meta-grid {
@@ -101,6 +131,11 @@
 
 .order-timeline-step.is-done .order-timeline-dot {
   background: var(--primary);
+  color: #ffffff;
+}
+
+.order-timeline-step.is-cancelled .order-timeline-dot {
+  background: #dc2626;
   color: #ffffff;
 }
 

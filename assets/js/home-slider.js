@@ -36,7 +36,7 @@ document.addEventListener("DOMContentLoaded", () => {
     window.__hbShopUpgradeRequested = true;
 
     const script = document.createElement("script");
-    script.src = "assets/js/site-enhancements.js?v=20260704-4";
+    script.src = "assets/js/site-enhancements.js?v=20260704-5";
     script.onload = () => {
       if (window.__hbShopUpgradeLoaded) return;
       window.__hbShopUpgradeLoaded = true;

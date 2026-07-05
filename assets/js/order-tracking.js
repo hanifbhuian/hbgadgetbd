@@ -1,12 +1,12 @@
 const ORDER_DATA_URL = "assets/data/orders.json";
-const ORDER_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyTm7rIja7hfGy_BjKfDol425tTHbWYTkZyQIty6uerr2spZGeKouxFFInTsJt2K9_5/exec";
+const ORDER_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzva7OB4SqKgN51v66okHgb8LdiAmzJuEjVixpvs_gL4f0L6fRrqRnxbx-yDYWaSxtjnw/exec";
 const ORDER_SUPPORT_NUMBER = "8801816569237";
 
 function loadOrderTrackingCss() {
   if (document.querySelector("link[href*='order-tracking.css']")) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "assets/css/order-tracking.css?v=20260704-6";
+  link.href = "assets/css/order-tracking.css?v=20260704-7";
   document.head.appendChild(link);
 }
 
@@ -46,7 +46,7 @@ function getOrderTimeline(order) {
   const statusBn = getOrderField(order, ["statusBn", "banglaStatus"], "প্রসেসিং");
   const lastUpdated = getOrderField(order, ["lastUpdated"], "Pending");
   return [
-    { step: "Order Received", stepBn: "অর্ডার গ্রহণ করা হয়েছে", done: true, time: getOrderField(order, ["orderDate"], "" ) },
+    { step: "Order Received", stepBn: "অর্ডার গ্রহণ করা হয়েছে", done: true, time: getOrderField(order, ["orderDate"], "") },
     { step: status, stepBn: statusBn, done: true, time: lastUpdated },
     { step: "Delivered", stepBn: "ডেলিভারি সম্পন্ন", done: String(status).toLowerCase() === "delivered", time: String(status).toLowerCase() === "delivered" ? lastUpdated : "Pending" }
   ];
@@ -55,7 +55,6 @@ function getOrderTimeline(order) {
 function enhanceTrackOrderForm() {
   const form = document.getElementById("trackOrderForm");
   if (!form || form.dataset.trackingReady === "true") return false;
-
   const orderInput = document.getElementById("trackOrderInput");
   const result = document.getElementById("trackOrderResult");
   if (!orderInput || !result) return false;
@@ -112,7 +111,6 @@ async function findOrder(orderId, phone) {
   } catch (error) {
     console.warn("Google Sheet tracking failed. Trying local fallback.", error);
   }
-
   return fetchOrderFromLocalFile(orderId, phone);
 }
 
@@ -190,12 +188,10 @@ async function handleTrackOrderSubmit(event) {
 
   try {
     const match = await findOrder(orderId, phone);
-
     if (!match) {
       result.innerHTML = renderOrderError("Please check your Order ID and phone number. If the order was placed recently, contact support for a live update.");
       return;
     }
-
     result.innerHTML = renderOrder(match);
   } catch (error) {
     console.error(error);

@@ -20,8 +20,8 @@
 
   .header__inner.marketplace-header {
     min-height: auto;
-    gap: 8px;
-    padding: 8px 0 10px;
+    gap: 10px;
+    padding: 10px 0 12px;
     grid-template-columns: 1fr;
   }
 
@@ -38,7 +38,7 @@
   .header-actions {
     width: 100%;
     display: grid;
-    grid-template-columns: 1fr 1.3fr 1fr;
+    grid-template-columns: 1fr 1.15fr 1fr;
     gap: 8px;
     align-items: stretch;
     justify-content: stretch;
@@ -48,13 +48,29 @@
   .cart-button,
   .account-button {
     width: 100%;
-    min-height: 42px;
+    min-height: 58px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
     padding: 8px 10px;
-    font-size: 14px;
+    font-size: 18px;
     text-align: center;
+    white-space: nowrap;
+    border-radius: 999px;
+  }
+
+  .cart-button {
+    gap: 6px;
+    flex-wrap: nowrap;
+  }
+
+  .cart-button strong {
+    display: inline-block;
+    max-width: 74px;
+    margin-left: 0;
+    white-space: normal;
+    line-height: 1.05;
+    overflow-wrap: anywhere;
   }
 
   .account-button {
@@ -63,13 +79,13 @@
   }
 
   .account-button small {
-    font-size: 9px;
+    font-size: 11px;
   }
 
   .cart-button span {
-    min-width: 20px;
-    height: 20px;
-    font-size: 11px;
+    min-width: 24px;
+    height: 24px;
+    font-size: 12px;
   }
 
   .search {

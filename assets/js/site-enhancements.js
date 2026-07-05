@@ -1,11 +1,161 @@
-const SHOP_VERSION = "20260704-4";
-function money(v){return `৳${Number(v||0).toLocaleString("en-BD")}`;}
-function addPrimaryNavigation(){const inner=document.querySelector(".header__inner");const cart=document.getElementById("openCart");document.querySelectorAll(".primary-menu").forEach(menu=>menu.remove());if(!inner)return;inner.classList.add("marketplace-header");const search=document.getElementById("searchInput");if(search)search.placeholder="Search gadgets, gift box, leather bag, projector...";if(!document.querySelector(".header-actions")){const wrap=document.createElement("div");wrap.className="header-actions";wrap.innerHTML=`<a class="hotline-chip" href="tel:+8801816569237">Hotline</a><button class="account-button" type="button" data-account>Account <small>Login/Register</small></button>`;if(cart){cart.innerHTML=`Cart <span id="cartCount">0</span> <strong id="cartSummaryLabel">৳0 Cart</strong>`;wrap.insertBefore(cart,wrap.firstChild.nextSibling);}inner.appendChild(wrap);}}
-function upgradeCategoryNavigation(){const nav=document.querySelector(".category-nav");const inner=document.querySelector(".category-nav__inner");if(!nav||!inner)return;nav.classList.add("category-nav--nested");inner.classList.add("category-menu");inner.dataset.upgraded="true";inner.innerHTML=`<a class="category-pill nav-pill" href="https://hbgadgetbd.com/">Home</a><button class="category-pill active" data-filter="All">All Products</button><a class="category-pill nav-pill" href="#offer-zone">Offer Zone</a><div class="category-dropdown"><button class="category-pill" data-filter="Electronics">Electronics</button><div class="category-dropdown__menu"><button data-filter="Mobile Accessories">Mobile gadgets</button><button data-filter="Desk Gadgets">PC Gadgets</button><button data-filter="Mini Speakers">Speakers</button><button data-filter="Electronics">Others</button></div></div><div class="category-dropdown"><button class="category-pill" data-filter="Gift Box">Gift & Boxes</button><div class="category-dropdown__menu"><button data-filter="Gift Box">Gift Box</button><button data-filter="Envelope">Envelope</button><button data-filter="Gift Items">Gift Items</button></div></div><div class="category-dropdown"><button class="category-pill" data-filter="Cards">Cards</button><div class="category-dropdown__menu category-dropdown__menu--wide"><button data-filter="Birthday">Birthday</button><button data-filter="Family Cards">Family</button><button data-filter="Wedding">Wedding</button><button data-filter="Cards">Others</button></div></div><div class="category-dropdown"><button class="category-pill" data-filter="Others">Others</button><div class="category-dropdown__menu"><button data-filter="Kids Toys">Kids Toys</button><button data-filter="Bag and Travel">Bag and Travel</button><button data-filter="Leather Bags">Leather Bags</button></div></div><div class="category-dropdown"><button class="category-pill" data-filter="Seasonal">Seasonal</button><div class="category-dropdown__menu"><button data-filter="Summer">Summer</button><button data-filter="Winter">Winter</button><button data-filter="Rainy">Rainy</button><button data-filter="Seasonal">Others</button></div></div><a class="category-pill nav-pill" href="#track-order">Track Order</a>`;}
-function replaceHomeSections(){const overview=document.querySelector(".store-overview");if(overview&&!document.querySelector(".store-welcome")){overview.outerHTML=`<section class="store-welcome"><div class="container store-welcome__grid"><article class="welcome-card welcome-card--main"><p class="eyebrow">Welcome | স্বাগতম</p><h1>Welcome to HB Gadget BD, your ultimate destination for gadgets and lifestyle products.</h1><p>We carefully source useful tech deals, gift-ready items, mobile accessories, seasonal products, and lifestyle essentials so customers can shop with confidence and satisfaction.</p><div class="welcome-actions"><a class="button button--primary" href="#products">Shop All Products</a><a class="button button--ghost" href="https://wa.me/8801816569237" target="_blank" rel="noreferrer">WhatsApp Support</a></div></article><article class="support-card"><span>☎</span><h3>Hot Line Support</h3><p>Call or message us for price, stock, and delivery confirmation.</p><a href="tel:+8801816569237">+8801816569237</a></article><article class="support-card"><span>✓</span><h3>Safe Shopping Platform</h3><p>Explore tech deals, combo offers, and sourced products with confidence.</p><a href="#support">Learn More</a></article></div></section>`;}const cat=document.getElementById("categories");if(cat){cat.innerHTML=`<div class="section__heading section__heading--row"><div><p class="eyebrow">Featured Categories | ফিচার্ড ক্যাটাগরি</p><h2>Browse popular categories</h2></div><a class="text-link" href="#products" data-filter="All">View all products</a></div><div class="category-grid featured-category-grid"><button class="category-card category-card-button" type="button" data-filter="Electronics"><span>📱</span><h3>Electronics</h3><p>Mobile gadgets, PC gadgets, speakers, and accessories.</p></button><button class="category-card category-card-button" type="button" data-filter="Gift Box"><span>🎁</span><h3>Gift & Boxes</h3><p>Gift boxes, envelopes, and premium gift collections.</p></button><button class="category-card category-card-button" type="button" data-filter="Cards"><span>💌</span><h3>Cards</h3><p>Birthday, family, wedding, and occasion cards.</p></button><button class="category-card category-card-button" type="button" data-filter="Leather Bags"><span>👜</span><h3>Leather Bags</h3><p>Bag and travel items with a focus on leather bags.</p></button><button class="category-card category-card-button" type="button" data-filter="Kids Toys"><span>🧸</span><h3>Kids Toys</h3><p>Fun toys and gifting items for families.</p></button><button class="category-card category-card-button" type="button" data-filter="Seasonal"><span>☔</span><h3>Seasonal</h3><p>Summer, winter, rainy-season, and daily-use products.</p></button></div>`;}const products=document.getElementById("products");if(products&&!document.getElementById("offer-zone")){products.insertAdjacentHTML("beforebegin",`<section class="offer-zone" id="offer-zone"><div class="container offer-zone__grid"><article class="dhamaka-offer"><p class="eyebrow">Dhamaka Offer | ধামাকা অফার</p><h2>Limited-time combo deals are coming soon.</h2><p>Order fast when offers are live. Stock, price, and delivery charge will be confirmed before final order.</p><div class="countdown-box" id="offerCountdown">12h 00m 00s left</div><a class="button button--primary" href="#products">Shop Trending Products</a></article><article class="sponsored-box"><span>Sponsored Ad</span><h3>Premium Android Projectors</h3><p>Upcoming projector listings will show lumens, resolution, ports, and connectivity.</p></article><article class="sponsored-box"><span>Sponsored Ad</span><h3>Premium Leather Bags</h3><p>Upcoming bag listings will show material quality, stitching, compartments, and durability.</p></article></div></section><section class="container section" id="top-selling"><div class="section__heading"><p class="eyebrow">Top Selling Products | টপ সেলিং</p><h2>Popular picks customers look for</h2></div><div class="spotlight-grid"><article class="spotlight-card"><span>📽️</span><h3>Android Projectors</h3><p>Home theater and presentation use. Specs may include lumens, resolution, and connectivity.</p></article><article class="spotlight-card"><span>👜</span><h3>Leather Bags</h3><p>Premium material, storage, stitching, and travel durability.</p></article><article class="spotlight-card"><span>🔊</span><h3>Mini Speakers</h3><p>Portable speakers for music, travel, gifts, and daily use.</p></article><article class="spotlight-card"><span>🎁</span><h3>Gift Boxes</h3><p>Gift-ready packaging and combo items for special occasions.</p></article></div></section>`);const eyebrow=products.querySelector(".eyebrow");if(eyebrow)eyebrow.textContent="All Trending Products | সব ট্রেন্ডিং পণ্য";}const promo=document.querySelector(".promo-section");if(promo){promo.outerHTML=`<section class="container section" id="combo-offers"><div class="section__heading"><p class="eyebrow">Combo Offers | কম্বো অফার</p><h2>Build your own gift or gadget combo</h2></div><div class="combo-grid"><article class="combo-card"><h3>Birthday Gift Combo</h3><p>Gift box, card, and small gadget.</p><a href="https://wa.me/8801816569237?text=Hello%20HB%20Gadget%20BD%2C%20I%20need%20a%20birthday%20combo%20offer." target="_blank" rel="noreferrer">Ask for combo</a></article><article class="combo-card"><h3>Mobile Accessories Combo</h3><p>Phone stand, cable, and useful accessory.</p><a href="https://wa.me/8801816569237?text=Hello%20HB%20Gadget%20BD%2C%20I%20need%20a%20mobile%20accessories%20combo." target="_blank" rel="noreferrer">Ask for combo</a></article><article class="combo-card"><h3>Travel Essentials Combo</h3><p>Bag and travel accessories for daily use.</p><a href="https://wa.me/8801816569237?text=Hello%20HB%20Gadget%20BD%2C%20I%20need%20a%20travel%20combo%20offer." target="_blank" rel="noreferrer">Ask for combo</a></article></div></section><section class="track-order-section" id="track-order"><div class="container track-order-card"><div><p class="eyebrow">Track Order | অর্ডার ট্র্যাক করুন</p><h2>Enter your order ID to check delivery status.</h2><p>Use the order ID shared by our support team after order confirmation.</p></div><form class="track-order-form" id="trackOrderForm"><input id="trackOrderInput" type="text" placeholder="Example: HBG-1001" required /><button class="button button--primary" type="submit">Track Order</button><p class="track-order-result" id="trackOrderResult" aria-live="polite"></p></form></div></section>`;}}
-function upgradeFooterAndMobileNav(){const footer=document.querySelector(".footer__grid");if(footer){footer.classList.add("marketplace-footer");footer.innerHTML=`<div><a class="brand brand-logo-link brand--footer" href="#top" aria-label="HB Gadget BD home"><img class="brand-logo-image" src="assets/img/hb-gadget-bd-logo.svg?v=${SHOP_VERSION}" alt="HB Gadget BD logo" /></a><p>Welcome to HB Gadget BD, your online destination for gadgets and lifestyle products.</p><div class="social-icons"><a href="#" aria-label="Facebook">f</a><a href="#" aria-label="X">X</a><a href="#" aria-label="YouTube">▶</a><a href="#" aria-label="Instagram">◎</a></div></div><div><h3>Quick Links</h3><a href="#about">About Us</a><a href="#contact">Contact Us</a><a href="#privacy">Privacy Policy</a><a href="#track-order">Track Order</a></div><div><h3>Help / Support</h3><a href="#support">FAQ</a><a href="#support">Disclaimer</a><a href="https://wa.me/8801816569237" target="_blank" rel="noreferrer">WhatsApp Support</a><a href="#">Facebook Support</a></div><div><h3>Contact Info</h3><p>Address: Bangladesh</p><p>Hotline: +8801816569237</p><p>Email: hello@hbgadgetbd.com</p></div>`;}if(!document.querySelector(".mobile-bottom-nav")){document.body.insertAdjacentHTML("beforeend",`<nav class="mobile-bottom-nav" aria-label="Mobile quick navigation"><a href="https://hbgadgetbd.com/">🏠<span>Home</span></a><a href="#categories">🧭<span>Browse</span></a><button type="button" data-cart-trigger>🛒<span id="cartMobileLabel">Cart</span></button><button type="button" data-account>👤<span>Account</span></button></nav>`);}}
-function enhanceProductCards(){document.querySelectorAll(".product-card").forEach(card=>{if(card.dataset.enhanced)return;const price=card.querySelector(".price");const add=card.querySelector(".add-cart");if(!price||!add)return;const n=Number(price.textContent.replace(/[^0-9]/g,""))||0;price.insertAdjacentHTML("beforebegin",`<span class="old-price">${money(Math.ceil((n*1.35)/10)*10)}</span>`);const wrap=document.createElement("div");wrap.className="product-card__actions";add.textContent="Add to Cart";add.parentNode.insertBefore(wrap,add);wrap.appendChild(add);wrap.insertAdjacentHTML("beforeend",`<button class="order-now" type="button">এখনি অর্ডার করুন</button>`);card.dataset.enhanced="true";});}
-function wireEvents(){document.addEventListener("click",e=>{const f=e.target.closest("[data-filter]");if(f&&!f.classList.contains("add-cart")&&typeof setCategoryFilter==="function")setCategoryFilter(f.dataset.filter||"All",true);if(e.target.closest("[data-account]"))alert("Account login/register is coming soon. For now, please order through WhatsApp or hotline support.");if(e.target.closest("[data-cart-trigger]"))document.getElementById("openCart")?.click();const order=e.target.closest(".order-now");if(order){const title=order.closest(".product-card")?.querySelector("h3")?.textContent||"this product";const msg=`Hello HB Gadget BD, I want to order: ${title}. Please confirm price, stock, and delivery charge.`;window.open(`https://wa.me/8801816569237?text=${encodeURIComponent(msg)}`,"_blank");}});document.addEventListener("submit",e=>{if(e.target?.id!=="trackOrderForm")return;e.preventDefault();const value=document.getElementById("trackOrderInput")?.value.trim();const result=document.getElementById("trackOrderResult");if(result)result.textContent=value?`Order ID ${value} received. Please contact hotline/WhatsApp for the latest live delivery update.`:"Please enter a valid order ID.";});}
-function updateCartLabels(){const total=document.getElementById("cartTotal")?.textContent||"৳0";const count=document.getElementById("cartCount")?.textContent||"0";const label=document.getElementById("cartSummaryLabel");const mobile=document.getElementById("cartMobileLabel");if(label)label.textContent=`${total} Cart`;if(mobile)mobile.textContent=`Cart ${count}`;}
-function startCountdown(){const box=document.getElementById("offerCountdown");if(!box)return;const end=Date.now()+12*60*60*1000;setInterval(()=>{const d=Math.max(0,end-Date.now());const h=String(Math.floor(d/3600000)).padStart(2,"0");const m=String(Math.floor((d%3600000)/60000)).padStart(2,"0");const s=String(Math.floor((d%60000)/1000)).padStart(2,"0");box.textContent=`${h}h ${m}m ${s}s left`;},1000);}
-document.addEventListener("DOMContentLoaded",()=>{addPrimaryNavigation();upgradeCategoryNavigation();replaceHomeSections();upgradeFooterAndMobileNav();wireEvents();startCountdown();const grid=document.getElementById("productGrid");if(grid)new MutationObserver(()=>{enhanceProductCards();updateCartLabels();}).observe(grid,{childList:true,subtree:true});const cart=document.getElementById("cartItems");if(cart)new MutationObserver(updateCartLabels).observe(cart,{childList:true,subtree:true});setInterval(updateCartLabels,800);});
+const SHOP_VERSION = "20260704-5";
+
+function money(v) {
+  return `৳${Number(v || 0).toLocaleString("en-BD")}`;
+}
+
+function addPrimaryNavigation() {
+  const inner = document.querySelector(".header__inner");
+  const cart = document.getElementById("openCart");
+  document.querySelectorAll(".primary-menu").forEach(menu => menu.remove());
+  if (!inner) return;
+
+  inner.classList.add("marketplace-header");
+  const search = document.getElementById("searchInput");
+  if (search) search.placeholder = "Search gadgets, gift box, leather bag, projector...";
+
+  if (!document.querySelector(".header-actions")) {
+    const wrap = document.createElement("div");
+    wrap.className = "header-actions";
+    wrap.innerHTML = `<a class="hotline-chip" href="tel:+8801816569237">Hotline</a><button class="account-button" type="button" data-account>Account <small>Login/Register</small></button>`;
+
+    if (cart) {
+      cart.innerHTML = `Cart <span id="cartCount">0</span> <strong id="cartSummaryLabel">৳0 Cart</strong>`;
+      wrap.insertBefore(cart, wrap.firstChild.nextSibling);
+    }
+
+    inner.appendChild(wrap);
+  }
+}
+
+function upgradeCategoryNavigation() {
+  const nav = document.querySelector(".category-nav");
+  const inner = document.querySelector(".category-nav__inner");
+  if (!nav || !inner) return;
+
+  nav.classList.add("category-nav--nested");
+  inner.classList.add("category-menu");
+  inner.dataset.upgraded = "true";
+  inner.innerHTML = `<a class="category-pill nav-pill" href="https://hbgadgetbd.com/">Home</a><button class="category-pill active" data-filter="All">All Products</button><a class="category-pill nav-pill" href="#offer-zone">Offer Zone</a><div class="category-dropdown"><button class="category-pill" data-filter="Electronics">Electronics</button><div class="category-dropdown__menu"><button data-filter="Mobile Accessories">Mobile gadgets</button><button data-filter="Desk Gadgets">PC Gadgets</button><button data-filter="Mini Speakers">Speakers</button><button data-filter="Electronics">Others</button></div></div><div class="category-dropdown"><button class="category-pill" data-filter="Gift Box">Gift & Boxes</button><div class="category-dropdown__menu"><button data-filter="Gift Box">Gift Box</button><button data-filter="Envelope">Envelope</button><button data-filter="Gift Items">Gift Items</button></div></div><div class="category-dropdown"><button class="category-pill" data-filter="Cards">Cards</button><div class="category-dropdown__menu category-dropdown__menu--wide"><button data-filter="Birthday">Birthday</button><button data-filter="Family Cards">Family</button><button data-filter="Wedding">Wedding</button><button data-filter="Cards">Others</button></div></div><div class="category-dropdown"><button class="category-pill" data-filter="Others">Others</button><div class="category-dropdown__menu"><button data-filter="Kids Toys">Kids Toys</button><button data-filter="Bag and Travel">Bag and Travel</button><button data-filter="Leather Bags">Leather Bags</button></div></div><div class="category-dropdown"><button class="category-pill" data-filter="Seasonal">Seasonal</button><div class="category-dropdown__menu"><button data-filter="Summer">Summer</button><button data-filter="Winter">Winter</button><button data-filter="Rainy">Rainy</button><button data-filter="Seasonal">Others</button></div></div><a class="category-pill nav-pill" href="#track-order">Track Order</a>`;
+}
+
+function replaceHomeSections() {
+  document.querySelectorAll(".store-welcome").forEach(section => section.remove());
+
+  const overview = document.querySelector(".store-overview");
+  if (overview) overview.remove();
+
+  const cat = document.getElementById("categories");
+  if (cat) {
+    cat.innerHTML = `<div class="section__heading section__heading--row"><div><p class="eyebrow">Featured Categories | ফিচার্ড ক্যাটাগরি</p><h2>Browse popular categories</h2></div><a class="text-link" href="#products" data-filter="All">View all products</a></div><div class="category-grid featured-category-grid"><button class="category-card category-card-button" type="button" data-filter="Electronics"><span>📱</span><h3>Electronics</h3><p>Mobile gadgets, PC gadgets, speakers, and accessories.</p></button><button class="category-card category-card-button" type="button" data-filter="Gift Box"><span>🎁</span><h3>Gift & Boxes</h3><p>Gift boxes, envelopes, and premium gift collections.</p></button><button class="category-card category-card-button" type="button" data-filter="Cards"><span>💌</span><h3>Cards</h3><p>Birthday, family, wedding, and occasion cards.</p></button><button class="category-card category-card-button" type="button" data-filter="Leather Bags"><span>👜</span><h3>Leather Bags</h3><p>Bag and travel items with a focus on leather bags.</p></button><button class="category-card category-card-button" type="button" data-filter="Kids Toys"><span>🧸</span><h3>Kids Toys</h3><p>Fun toys and gifting items for families.</p></button><button class="category-card category-card-button" type="button" data-filter="Seasonal"><span>☔</span><h3>Seasonal</h3><p>Summer, winter, rainy-season, and daily-use products.</p></button></div>`;
+  }
+
+  const products = document.getElementById("products");
+  if (products && !document.getElementById("offer-zone")) {
+    products.insertAdjacentHTML("beforebegin", `<section class="offer-zone" id="offer-zone"><div class="container offer-zone__grid"><article class="dhamaka-offer"><p class="eyebrow">Dhamaka Offer | ধামাকা অফার</p><h2>Limited-time combo deals are coming soon.</h2><p>Order fast when offers are live. Stock, price, and delivery charge will be confirmed before final order.</p><div class="countdown-box" id="offerCountdown">12h 00m 00s left</div><a class="button button--primary" href="#products">Shop Trending Products</a></article><article class="sponsored-box"><span>Sponsored Ad</span><h3>Premium Android Projectors</h3><p>Upcoming projector listings will show lumens, resolution, ports, and connectivity.</p></article><article class="sponsored-box"><span>Sponsored Ad</span><h3>Premium Leather Bags</h3><p>Upcoming bag listings will show material quality, stitching, compartments, and durability.</p></article></div></section><section class="container section" id="top-selling"><div class="section__heading"><p class="eyebrow">Top Selling Products | টপ সেলিং</p><h2>Popular picks customers look for</h2></div><div class="spotlight-grid"><article class="spotlight-card"><span>📽️</span><h3>Android Projectors</h3><p>Home theater and presentation use. Specs may include lumens, resolution, and connectivity.</p></article><article class="spotlight-card"><span>👜</span><h3>Leather Bags</h3><p>Premium material, storage, stitching, and travel durability.</p></article><article class="spotlight-card"><span>🔊</span><h3>Mini Speakers</h3><p>Portable speakers for music, travel, gifts, and daily use.</p></article><article class="spotlight-card"><span>🎁</span><h3>Gift Boxes</h3><p>Gift-ready packaging and combo items for special occasions.</p></article></div></section>`);
+
+    const eyebrow = products.querySelector(".eyebrow");
+    if (eyebrow) eyebrow.textContent = "All Trending Products | সব ট্রেন্ডিং পণ্য";
+  }
+
+  const promo = document.querySelector(".promo-section");
+  if (promo) {
+    promo.outerHTML = `<section class="container section" id="combo-offers"><div class="section__heading"><p class="eyebrow">Combo Offers | কম্বো অফার</p><h2>Build your own gift or gadget combo</h2></div><div class="combo-grid"><article class="combo-card"><h3>Birthday Gift Combo</h3><p>Gift box, card, and small gadget.</p><a href="https://wa.me/8801816569237?text=Hello%20HB%20Gadget%20BD%2C%20I%20need%20a%20birthday%20combo%20offer." target="_blank" rel="noreferrer">Ask for combo</a></article><article class="combo-card"><h3>Mobile Accessories Combo</h3><p>Phone stand, cable, and useful accessory.</p><a href="https://wa.me/8801816569237?text=Hello%20HB%20Gadget%20BD%2C%20I%20need%20a%20mobile%20accessories%20combo." target="_blank" rel="noreferrer">Ask for combo</a></article><article class="combo-card"><h3>Travel Essentials Combo</h3><p>Bag and travel accessories for daily use.</p><a href="https://wa.me/8801816569237?text=Hello%20HB%20Gadget%20BD%2C%20I%20need%20a%20travel%20combo%20offer." target="_blank" rel="noreferrer">Ask for combo</a></article></div></section><section class="track-order-section" id="track-order"><div class="container track-order-card"><div><p class="eyebrow">Track Order | অর্ডার ট্র্যাক করুন</p><h2>Enter your order ID to check delivery status.</h2><p>Use the order ID shared by our support team after order confirmation.</p></div><form class="track-order-form" id="trackOrderForm"><input id="trackOrderInput" type="text" placeholder="Example: HBG-1001" required /><button class="button button--primary" type="submit">Track Order</button><p class="track-order-result" id="trackOrderResult" aria-live="polite"></p></form></div></section>`;
+  }
+}
+
+function upgradeFooterAndMobileNav() {
+  const footer = document.querySelector(".footer__grid");
+  if (footer) {
+    footer.classList.add("marketplace-footer");
+    footer.innerHTML = `<div><a class="brand brand-logo-link brand--footer" href="#top" aria-label="HB Gadget BD home"><img class="brand-logo-image" src="assets/img/hb-gadget-bd-logo.svg?v=${SHOP_VERSION}" alt="HB Gadget BD logo" /></a><p>Welcome to HB Gadget BD, your online destination for gadgets and lifestyle products.</p><div class="social-icons"><a href="#" aria-label="Facebook">f</a><a href="#" aria-label="X">X</a><a href="#" aria-label="YouTube">▶</a><a href="#" aria-label="Instagram">◎</a></div></div><div><h3>Quick Links</h3><a href="#about">About Us</a><a href="#contact">Contact Us</a><a href="#privacy">Privacy Policy</a><a href="#track-order">Track Order</a></div><div><h3>Help / Support</h3><a href="#support">FAQ</a><a href="#support">Disclaimer</a><a href="https://wa.me/8801816569237" target="_blank" rel="noreferrer">WhatsApp Support</a><a href="#">Facebook Support</a></div><div><h3>Contact Info</h3><p>Address: Bangladesh</p><p>Hotline: +8801816569237</p><p>Email: hello@hbgadgetbd.com</p></div>`;
+  }
+
+  if (!document.querySelector(".mobile-bottom-nav")) {
+    document.body.insertAdjacentHTML("beforeend", `<nav class="mobile-bottom-nav" aria-label="Mobile quick navigation"><a href="https://hbgadgetbd.com/">🏠<span>Home</span></a><a href="#categories">🧭<span>Browse</span></a><button type="button" data-cart-trigger>🛒<span id="cartMobileLabel">Cart</span></button><button type="button" data-account>👤<span>Account</span></button></nav>`);
+  }
+}
+
+function enhanceProductCards() {
+  document.querySelectorAll(".product-card").forEach(card => {
+    if (card.dataset.enhanced) return;
+    const price = card.querySelector(".price");
+    const add = card.querySelector(".add-cart");
+    if (!price || !add) return;
+
+    const n = Number(price.textContent.replace(/[^0-9]/g, "")) || 0;
+    price.insertAdjacentHTML("beforebegin", `<span class="old-price">${money(Math.ceil((n * 1.35) / 10) * 10)}</span>`);
+
+    const wrap = document.createElement("div");
+    wrap.className = "product-card__actions";
+    add.textContent = "Add to Cart";
+    add.parentNode.insertBefore(wrap, add);
+    wrap.appendChild(add);
+    wrap.insertAdjacentHTML("beforeend", `<button class="order-now" type="button">এখনি অর্ডার করুন</button>`);
+    card.dataset.enhanced = "true";
+  });
+}
+
+function wireEvents() {
+  document.addEventListener("click", e => {
+    const f = e.target.closest("[data-filter]");
+    if (f && !f.classList.contains("add-cart") && typeof setCategoryFilter === "function") setCategoryFilter(f.dataset.filter || "All", true);
+    if (e.target.closest("[data-account]")) alert("Account login/register is coming soon. For now, please order through WhatsApp or hotline support.");
+    if (e.target.closest("[data-cart-trigger]")) document.getElementById("openCart")?.click();
+
+    const order = e.target.closest(".order-now");
+    if (order) {
+      const title = order.closest(".product-card")?.querySelector("h3")?.textContent || "this product";
+      const msg = `Hello HB Gadget BD, I want to order: ${title}. Please confirm price, stock, and delivery charge.`;
+      window.open(`https://wa.me/8801816569237?text=${encodeURIComponent(msg)}`, "_blank");
+    }
+  });
+
+  document.addEventListener("submit", e => {
+    if (e.target?.id !== "trackOrderForm") return;
+    e.preventDefault();
+    const value = document.getElementById("trackOrderInput")?.value.trim();
+    const result = document.getElementById("trackOrderResult");
+    if (result) result.textContent = value ? `Order ID ${value} received. Please contact hotline/WhatsApp for the latest live delivery update.` : "Please enter a valid order ID.";
+  });
+}
+
+function updateCartLabels() {
+  const total = document.getElementById("cartTotal")?.textContent || "৳0";
+  const count = document.getElementById("cartCount")?.textContent || "0";
+  const label = document.getElementById("cartSummaryLabel");
+  const mobile = document.getElementById("cartMobileLabel");
+  if (label) label.textContent = `${total} Cart`;
+  if (mobile) mobile.textContent = `Cart ${count}`;
+}
+
+function startCountdown() {
+  const box = document.getElementById("offerCountdown");
+  if (!box) return;
+
+  const end = Date.now() + 12 * 60 * 60 * 1000;
+  setInterval(() => {
+    const d = Math.max(0, end - Date.now());
+    const h = String(Math.floor(d / 3600000)).padStart(2, "0");
+    const m = String(Math.floor((d % 3600000) / 60000)).padStart(2, "0");
+    const s = String(Math.floor((d % 60000) / 1000)).padStart(2, "0");
+    box.textContent = `${h}h ${m}m ${s}s left`;
+  }, 1000);
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  addPrimaryNavigation();
+  upgradeCategoryNavigation();
+  replaceHomeSections();
+  upgradeFooterAndMobileNav();
+  wireEvents();
+  startCountdown();
+
+  const grid = document.getElementById("productGrid");
+  if (grid) new MutationObserver(() => { enhanceProductCards(); updateCartLabels(); }).observe(grid, { childList: true, subtree: true });
+
+  const cart = document.getElementById("cartItems");
+  if (cart) new MutationObserver(updateCartLabels).observe(cart, { childList: true, subtree: true });
+
+  setInterval(updateCartLabels, 800);
+});

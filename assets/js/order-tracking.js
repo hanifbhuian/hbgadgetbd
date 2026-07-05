@@ -23,7 +23,7 @@ function loadOrderTrackingCss() {
   if (document.querySelector("link[href*='order-tracking.css']")) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "assets/css/order-tracking.css?v=20260705-1";
+  link.href = "assets/css/order-tracking.css?v=20260705-2";
   document.head.appendChild(link);
 }
 
@@ -76,11 +76,24 @@ function formatTrackingTime(value) {
   });
 }
 
+function safeHtml(value) {
+  return String(value || "")
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
 function getOrderField(order, keys, fallback = "") {
   for (const key of keys) {
     if (order && order[key] !== undefined && order[key] !== null && order[key] !== "") return order[key];
   }
   return fallback;
+}
+
+function getCancelReason(order) {
+  return getOrderField(order, ["cancelReason", "cancellationReason", "cancelNote", "cancelledReason", "reasonForCancellation"], "");
 }
 
 function getOrderItems(order) {
@@ -178,31 +191,34 @@ function renderOrder(order) {
   const statusInfo = getStatusInfo(order);
   const timeline = getOrderTimeline(order);
   const items = getOrderItems(order);
+  const cancelReason = getCancelReason(order);
+  const isCancelled = statusInfo.label === "Cancelled";
   const supportMessage = `Hello HB Gadget BD, I need an update for order ${orderId}.`;
 
   return `
-    <div class="order-result-card">
-      <span class="order-status-badge">● ${statusInfo.label} / ${statusInfo.bn}</span>
-      <h3>Order ${orderId}</h3>
-      <p>${getOrderField(order, ["note"], "Your order information is shown below.")}</p>
+    <div class="order-result-card ${isCancelled ? "is-cancelled" : ""}">
+      <span class="order-status-badge ${isCancelled ? "is-cancelled" : ""}">● ${statusInfo.label} / ${statusInfo.bn}</span>
+      <h3>Order ${safeHtml(orderId)}</h3>
+      <p>${safeHtml(getOrderField(order, ["note"], "Your order information is shown below."))}</p>
+      ${isCancelled ? `<div class="cancel-reason-box"><strong>Cancellation Reason</strong><p>${safeHtml(cancelReason || "No cancellation reason has been added yet. Please contact support for details.")}</p></div>` : ""}
       <div class="order-meta-grid">
-        <div><small>Customer</small><strong>${getOrderField(order, ["customerName"], "Customer")}</strong></div>
-        <div><small>Last Updated</small><strong>${formatTrackingTime(getOrderField(order, ["lastUpdated"], "Not updated"))}</strong></div>
-        <div><small>Payment</small><strong>${getOrderField(order, ["paymentMethod"], "To be confirmed")}</strong></div>
-        <div><small>Subtotal</small><strong>${formatOrderMoney(getOrderField(order, ["subtotal"]))}</strong></div>
-        <div><small>Delivery Charge</small><strong>${formatOrderMoney(getOrderField(order, ["deliveryCharge"]))}</strong></div>
-        <div><small>Delivery Area</small><strong>${getOrderField(order, ["deliveryArea"], "To be confirmed")}</strong></div>
-        <div><small>Courier</small><strong>${getOrderField(order, ["courier"], "Not assigned")}</strong></div>
-        <div><small>Tracking No.</small><strong>${getOrderField(order, ["trackingNumber"], "Pending")}</strong></div>
+        <div><small>Customer</small><strong>${safeHtml(getOrderField(order, ["customerName"], "Customer"))}</strong></div>
+        <div><small>Last Updated</small><strong>${safeHtml(formatTrackingTime(getOrderField(order, ["lastUpdated"], "Not updated")))}</strong></div>
+        <div><small>Payment</small><strong>${safeHtml(getOrderField(order, ["paymentMethod"], "To be confirmed"))}</strong></div>
+        <div><small>Subtotal</small><strong>${safeHtml(formatOrderMoney(getOrderField(order, ["subtotal"])))}</strong></div>
+        <div><small>Delivery Charge</small><strong>${safeHtml(formatOrderMoney(getOrderField(order, ["deliveryCharge"])))}</strong></div>
+        <div><small>Delivery Area</small><strong>${safeHtml(getOrderField(order, ["deliveryArea"], "To be confirmed"))}</strong></div>
+        <div><small>Courier</small><strong>${safeHtml(getOrderField(order, ["courier"], "Not assigned"))}</strong></div>
+        <div><small>Tracking No.</small><strong>${safeHtml(getOrderField(order, ["trackingNumber"], "Pending"))}</strong></div>
       </div>
       <h4>Items</h4>
-      <ul class="order-items">${items.map(item => `<li>${item}</li>`).join("") || "<li>Product details will be confirmed soon.</li>"}</ul>
+      <ul class="order-items">${items.map(item => `<li>${safeHtml(item)}</li>`).join("") || "<li>Product details will be confirmed soon.</li>"}</ul>
       <h4>Order Timeline</h4>
       <div class="order-timeline">
         ${timeline.map(step => `
-          <div class="order-timeline-step ${step.done ? "is-done" : ""}">
+          <div class="order-timeline-step ${step.done ? "is-done" : ""} ${step.step === "Cancelled" ? "is-cancelled" : ""}">
             <span class="order-timeline-dot">${step.done ? "✓" : "•"}</span>
-            <div><strong>${step.step || "Update"}</strong><small>${step.stepBn || ""} ${step.time ? `• ${step.time}` : ""}</small></div>
+            <div><strong>${safeHtml(step.step || "Update")}</strong><small>${safeHtml(step.stepBn || "")} ${step.time ? `• ${safeHtml(step.time)}` : ""}</small></div>
           </div>
         `).join("")}
       </div>
@@ -218,7 +234,7 @@ function renderOrderError(message) {
   return `
     <div class="order-result-card is-error">
       <h3>Order not found</h3>
-      <p>${message}</p>
+      <p>${safeHtml(message)}</p>
       <div class="order-support-actions">
         <a href="https://wa.me/${ORDER_SUPPORT_NUMBER}?text=${encodeURIComponent("Hello HB Gadget BD, I need help tracking my order.")}" target="_blank" rel="noreferrer">Contact WhatsApp Support</a>
         <a href="tel:+8801816569237">Call Hotline</a>

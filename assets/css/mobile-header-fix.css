@@ -1,0 +1,122 @@
+@media (max-width: 640px) {
+  body {
+    padding-bottom: 72px;
+  }
+
+  .site-header {
+    position: static !important;
+    top: auto !important;
+    backdrop-filter: none;
+  }
+
+  .header__inner.marketplace-header {
+    min-height: auto;
+    gap: 8px;
+    padding: 8px 0 10px;
+    grid-template-columns: 1fr;
+  }
+
+  .brand-logo-link {
+    width: fit-content;
+    max-width: 220px;
+  }
+
+  .brand-logo-image {
+    max-height: 54px;
+    width: auto;
+  }
+
+  .header-actions {
+    width: 100%;
+    display: grid;
+    grid-template-columns: 1fr 1.3fr 1fr;
+    gap: 8px;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+
+  .hotline-chip,
+  .cart-button,
+  .account-button {
+    width: 100%;
+    min-height: 42px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 8px 10px;
+    font-size: 14px;
+    text-align: center;
+  }
+
+  .account-button {
+    flex-direction: column;
+    line-height: 1.05;
+  }
+
+  .account-button small {
+    font-size: 9px;
+  }
+
+  .cart-button span {
+    min-width: 20px;
+    height: 20px;
+    font-size: 11px;
+  }
+
+  .search {
+    grid-column: 1 / -1;
+    width: 100%;
+    order: 3;
+    border-radius: 18px;
+  }
+
+  .search input {
+    min-width: 0;
+    padding: 11px 12px;
+    font-size: 14px;
+  }
+
+  .search button {
+    padding: 0 14px;
+    min-width: 88px;
+  }
+
+  .category-nav {
+    background: #fff;
+  }
+
+  .category-nav--nested .category-nav__inner {
+    overflow-x: auto;
+    overflow-y: hidden;
+    flex-wrap: nowrap;
+    gap: 8px;
+    padding: 8px 0;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+  }
+
+  .category-nav--nested .category-nav__inner::-webkit-scrollbar {
+    display: none;
+  }
+
+  .category-pill {
+    flex: 0 0 auto;
+    padding: 8px 12px;
+    font-size: 14px;
+  }
+
+  .category-dropdown {
+    flex: 0 0 auto;
+  }
+
+  .category-dropdown__menu {
+    position: static;
+    display: none;
+    margin-top: 6px;
+    box-shadow: none;
+  }
+
+  .category-dropdown:focus-within .category-dropdown__menu {
+    display: grid;
+  }
+}

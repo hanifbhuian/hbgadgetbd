@@ -28,10 +28,8 @@ const productGrid = document.getElementById("productGrid");
 const searchInput = document.getElementById("searchInput");
 const resultText = document.getElementById("resultText");
 const productSectionTitle = document.getElementById("productSectionTitle");
-const cartCount = document.getElementById("cartCount");
 const cartPanel = document.getElementById("cartPanel");
 const cartItems = document.getElementById("cartItems");
-const cartTotal = document.getElementById("cartTotal");
 const openCart = document.getElementById("openCart");
 const closeCart = document.getElementById("closeCart");
 const overlay = document.getElementById("overlay");
@@ -42,6 +40,26 @@ document.getElementById("year").textContent = new Date().getFullYear();
 
 function formatPrice(price) {
   return `৳${Number(price || 0).toLocaleString("en-BD")}`;
+}
+
+function syncCartHeader(totalItems, subtotal) {
+  const subtotalText = formatPrice(subtotal);
+
+  document.querySelectorAll("#cartCount").forEach(element => {
+    element.textContent = totalItems;
+  });
+
+  document.querySelectorAll("#cartTotal").forEach(element => {
+    element.textContent = subtotalText;
+  });
+
+  document.querySelectorAll("#cartSummaryLabel").forEach(element => {
+    element.textContent = `${subtotalText} Cart`;
+  });
+
+  document.querySelectorAll("#cartMobileLabel").forEach(element => {
+    element.textContent = `Cart ${totalItems}`;
+  });
 }
 
 function resolveAssetUrl(url) {
@@ -59,6 +77,7 @@ function getProductImages(product) {
 
 function saveCart() {
   localStorage.setItem("hbGadgetCart", JSON.stringify(state.cart));
+  window.dispatchEvent(new CustomEvent("hb-cart-updated", { detail: { cart: state.cart } }));
 }
 
 function scrollToProducts() {
@@ -270,8 +289,7 @@ function renderCart() {
   const totalItems = details.reduce((sum, item) => sum + item.qty, 0);
   const subtotal = details.reduce((sum, item) => sum + item.lineTotal, 0);
 
-  cartCount.textContent = totalItems;
-  cartTotal.textContent = formatPrice(subtotal);
+  syncCartHeader(totalItems, subtotal);
 
   if (!details.length) {
     cartItems.innerHTML = `<div class="empty">Your cart is empty.</div>`;

@@ -5,7 +5,7 @@ document.addEventListener("DOMContentLoaded", () => {
     if (window.__hbOrderPlacementRequested) return;
     window.__hbOrderPlacementRequested = true;
     const placementScript = document.createElement("script");
-    placementScript.src = "assets/js/order-placement.js?v=20260704-9";
+    placementScript.src = "assets/js/order-placement.js?v=20260704-10";
     document.body.appendChild(placementScript);
   }
 
@@ -16,7 +16,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     window.__hbOrderTrackingRequested = true;
     const orderScript = document.createElement("script");
-    orderScript.src = "assets/js/order-tracking.js?v=20260704-6";
+    orderScript.src = "assets/js/order-tracking.js?v=20260704-7";
     orderScript.onload = loadOrderPlacement;
     document.body.appendChild(orderScript);
   }

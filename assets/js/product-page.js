@@ -84,9 +84,19 @@ function updateCartHeader() {
     const product = allProducts.find(productItem => Number(productItem.id) === Number(item.id));
     return sum + (product ? Number(product.price || 0) * Number(item.qty || 0) : 0);
   }, 0);
+  const subtotalText = formatPrice(subtotal);
 
-  document.getElementById("productPageCartCount").textContent = totalItems;
-  document.getElementById("productPageCartTotal").textContent = formatPrice(subtotal);
+  document.querySelectorAll("#cartCount, #productPageCartCount").forEach(element => {
+    element.textContent = totalItems;
+  });
+
+  document.querySelectorAll("#cartSummaryLabel").forEach(element => {
+    element.textContent = `${subtotalText} Cart`;
+  });
+
+  document.querySelectorAll("#productPageCartTotal").forEach(element => {
+    element.textContent = subtotalText;
+  });
 }
 
 function addToCart(id) {
@@ -248,8 +258,9 @@ document.addEventListener("click", event => {
 
   if (event.target.closest("[data-add-current]")) {
     addToCart(currentProduct.id);
-    event.target.closest("[data-add-current]").textContent = "Added to Cart";
-    window.setTimeout(() => { event.target.closest("[data-add-current]").textContent = "Add to Cart"; }, 1200);
+    const addButton = event.target.closest("[data-add-current]");
+    addButton.textContent = "Added to Cart";
+    window.setTimeout(() => { addButton.textContent = "Add to Cart"; }, 1200);
   }
 
   if (event.target.closest("[data-order-current]")) orderNow(currentProduct);
@@ -260,8 +271,21 @@ document.addEventListener("click", event => {
   }
 });
 
-document.getElementById("productPageCart").addEventListener("click", () => {
-  window.location.href = "/#products";
-});
+const productPageCartButton = document.getElementById("productPageCart");
+if (productPageCartButton) {
+  productPageCartButton.addEventListener("click", () => {
+    window.location.href = "/#products";
+  });
+}
+
+const productSearchForm = document.getElementById("productSearchForm");
+if (productSearchForm) {
+  productSearchForm.addEventListener("submit", event => {
+    event.preventDefault();
+    const query = document.getElementById("productSearchInput")?.value || "";
+    sessionStorage.setItem("hbProductSearch", query.trim());
+    window.location.href = "/#products";
+  });
+}
 
 loadProducts();

@@ -5,11 +5,15 @@
 }
 
 .marketplace-header .brand-logo-link {
-  min-width: max-content !important;
+  min-width: 220px !important;
 }
 
 .marketplace-header .brand-logo-image {
-  max-height: 70px !important;
+  display: block !important;
+  width: 238px !important;
+  max-width: 40vw !important;
+  height: auto !important;
+  max-height: none !important;
 }
 
 .marketplace-header .search input {
@@ -74,25 +78,25 @@
 }
 
 .product-info h1 {
-  font-size: clamp(24px, 2.6vw, 34px) !important;
-  line-height: 1.12 !important;
-  letter-spacing: -0.03em !important;
+  font-size: clamp(23px, 1.8vw, 28px) !important;
+  line-height: 1.18 !important;
+  letter-spacing: -0.025em !important;
   font-weight: 800 !important;
-  margin: 8px 0 10px !important;
+  margin: 7px 0 10px !important;
 }
 
 .section-box h2,
 .side-column h2,
 .related-column h2 {
-  font-size: clamp(20px, 2vw, 26px) !important;
-  line-height: 1.18 !important;
-  letter-spacing: -0.02em !important;
+  font-size: 20px !important;
+  line-height: 1.2 !important;
+  letter-spacing: -0.015em !important;
   font-weight: 800 !important;
   margin-bottom: 12px !important;
 }
 
 .related-item h3 {
-  font-size: 15px !important;
+  font-size: 14px !important;
   line-height: 1.25 !important;
   font-weight: 800 !important;
 }
@@ -101,29 +105,35 @@
 .detail-list li,
 .ad-card p,
 .review-card span {
-  font-size: 15px !important;
-  line-height: 1.6 !important;
+  font-size: 14px !important;
+  line-height: 1.58 !important;
 }
 
 .price-panel {
-  font-size: 24px !important;
+  font-size: 22px !important;
   font-weight: 900 !important;
+  padding: 13px 14px !important;
 }
 
 .stats-row span,
 .category-label,
 .breadcrumb {
-  font-size: 13px !important;
+  font-size: 12px !important;
 }
 
 .ad-card strong {
-  font-size: 17px !important;
+  font-size: 16px !important;
   font-weight: 800 !important;
 }
 
 .review-card strong {
-  font-size: 20px !important;
+  font-size: 19px !important;
   font-weight: 900 !important;
+}
+
+.action-row button {
+  font-size: 15px !important;
+  font-weight: 800 !important;
 }
 
 .side-column,
@@ -138,6 +148,15 @@
     gap: 10px !important;
   }
 
+  .marketplace-header .brand-logo-link {
+    min-width: 0 !important;
+  }
+
+  .marketplace-header .brand-logo-image {
+    width: 210px !important;
+    max-width: 52vw !important;
+  }
+
   .marketplace-header .header-actions {
     gap: 8px !important;
   }
@@ -145,7 +164,8 @@
 
 @media (max-width: 640px) {
   .marketplace-header .brand-logo-image {
-    max-height: 54px !important;
+    width: 168px !important;
+    max-width: 48vw !important;
   }
 
   .marketplace-header .search input {
@@ -188,16 +208,16 @@
   }
 
   .product-info h1 {
-    font-size: 24px !important;
+    font-size: 22px !important;
   }
 
   .section-box h2,
   .side-column h2,
   .related-column h2 {
-    font-size: 20px !important;
+    font-size: 19px !important;
   }
 
   .price-panel {
-    font-size: 22px !important;
+    font-size: 21px !important;
   }
 }

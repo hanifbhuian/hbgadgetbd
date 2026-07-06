@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Product Details | HB Gadget BD</title>
+  <meta name="description" content="View HB Gadget BD product details, related products, offers, ratings, reviews, and order options." />
+  <link rel="icon" href="assets/img/favicon.svg?v=20260705-1" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/product-page.css?v=20260705-1" />
+</head>
+<body>
+  <header class="product-page-header">
+    <div class="container product-page-header__inner">
+      <a href="/" aria-label="HB Gadget BD home"><img class="brand-logo-image" src="assets/img/hb-gadget-bd-logo.svg?v=20260705-1" alt="HB Gadget BD logo" /></a>
+      <div class="header-actions">
+        <a class="header-button" href="/">Home</a>
+        <button class="header-button header-button--cart" id="productPageCart" type="button">Cart <span class="cart-count" id="productPageCartCount">0</span> <span id="productPageCartTotal">৳0</span></button>
+      </div>
+    </div>
+  </header>
+
+  <main class="product-page-main">
+    <div class="container product-layout">
+      <aside class="side-column" aria-label="Current offers">
+        <h2>Sponsored / Current Offers</h2>
+        <div class="ad-card">
+          <strong>Dhamaka Offer</strong>
+          <p>Combo deals and gift-ready gadgets are coming soon. Order fast when offers are live.</p>
+          <a href="/#offer-zone">View Offers</a>
+        </div>
+        <div class="ad-card ad-card--light">
+          <strong>Fast Delivery</strong>
+          <p>Inside Dhaka delivery support and nationwide courier processing.</p>
+          <a href="https://wa.me/8801816569237" target="_blank" rel="noreferrer">Ask Support</a>
+        </div>
+        <div class="ad-card ad-card--light">
+          <strong>Gift Box Support</strong>
+          <p>Need a gift box for birthday, office, or family events? Ask for a suggestion.</p>
+          <a href="https://wa.me/8801816569237?text=Hello%20HB%20Gadget%20BD%2C%20I%20need%20a%20gift%20suggestion." target="_blank" rel="noreferrer">Ask Now</a>
+        </div>
+      </aside>
+
+      <section class="main-product-card" id="productDetailRoot" aria-live="polite">
+        <div class="empty">Loading product details...</div>
+      </section>
+
+      <aside class="related-column" aria-label="Related products">
+        <h2>Related & Offer Products</h2>
+        <div class="related-list" id="relatedProducts"></div>
+      </aside>
+    </div>
+  </main>
+
+  <script src="assets/js/product-page.js?v=20260705-1"></script>
+</body>
+</html>

@@ -5,18 +5,49 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Product Details | HB Gadget BD</title>
   <meta name="description" content="View HB Gadget BD product details, related products, offers, ratings, reviews, and order options." />
-  <link rel="icon" href="assets/img/favicon.svg?v=20260705-1" type="image/svg+xml" />
-  <link rel="stylesheet" href="assets/css/product-page.css?v=20260705-1" />
+  <link rel="icon" href="assets/img/favicon.svg?v=20260706-1" type="image/svg+xml" />
+  <link rel="stylesheet" href="assets/css/styles.css?v=20260706-1" />
+  <link rel="stylesheet" href="assets/css/store-admin.css?v=20260706-1" />
+  <link rel="stylesheet" href="assets/css/marketplace-home.css?v=20260706-1" />
+  <link rel="stylesheet" href="assets/css/logo.css?v=20260706-1" />
+  <link rel="stylesheet" href="assets/css/mobile-header-fix.css?v=20260706-1" />
+  <link rel="stylesheet" href="assets/css/category-active-fix.css?v=20260706-1" />
+  <link rel="stylesheet" href="assets/css/product-page.css?v=20260706-1" />
 </head>
 <body>
-  <header class="product-page-header">
-    <div class="container product-page-header__inner">
-      <a href="/" aria-label="HB Gadget BD home"><img class="brand-logo-image" src="assets/img/hb-gadget-bd-logo.svg?v=20260705-1" alt="HB Gadget BD logo" /></a>
+  <header class="site-header" id="top">
+    <div class="container header__inner marketplace-header">
+      <a class="brand brand-logo-link" href="/" aria-label="HB Gadget BD home">
+        <img class="brand-logo-image" src="assets/img/hb-gadget-bd-logo.svg?v=20260706-1" alt="HB Gadget BD logo" />
+      </a>
+
+      <form class="search" id="productSearchForm" role="search" aria-label="Product search">
+        <input id="productSearchInput" type="search" placeholder="Search gadgets, gift box, leather bag, projector..." autocomplete="off" />
+        <button type="submit">Search</button>
+      </form>
+
       <div class="header-actions">
-        <a class="header-button" href="/">Home</a>
-        <button class="header-button header-button--cart" id="productPageCart" type="button">Cart <span class="cart-count" id="productPageCartCount">0</span> <span id="productPageCartTotal">৳0</span></button>
+        <a class="hotline-chip" href="tel:+8801816569237">Hotline</a>
+        <button class="cart-button" id="productPageCart" type="button" aria-label="Open cart">
+          Cart <span id="cartCount">0</span> <strong id="cartSummaryLabel">৳0 Cart</strong>
+        </button>
+        <a class="account-button" href="/#account" aria-label="Account login or register">Account <small>Login/Register</small></a>
       </div>
     </div>
+
+    <nav class="category-nav category-nav--nested" aria-label="Primary product navigation">
+      <div class="container category-nav__inner">
+        <a class="category-pill" href="/">Home</a>
+        <a class="category-pill active" href="/#products">All Products</a>
+        <a class="category-pill" href="/#offer-zone">Offer Zone</a>
+        <a class="category-pill" href="/#products">Electronics</a>
+        <a class="category-pill" href="/#products">Gift & Boxes</a>
+        <a class="category-pill" href="/#products">Cards</a>
+        <a class="category-pill" href="/#products">Others</a>
+        <a class="category-pill" href="/#products">Seasonal</a>
+        <a class="category-pill" href="/#track-order">Track Order</a>
+      </div>
+    </nav>
   </header>
 
   <main class="product-page-main">
@@ -51,6 +82,6 @@
     </div>
   </main>
 
-  <script src="assets/js/product-page.js?v=20260705-1"></script>
+  <script src="assets/js/product-page.js?v=20260706-1"></script>
 </body>
 </html>

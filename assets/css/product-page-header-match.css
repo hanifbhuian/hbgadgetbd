@@ -1,0 +1,220 @@
+.site-header {
+  background: rgba(255, 255, 255, 0.98);
+  border-bottom: 1px solid var(--line);
+  position: sticky;
+  top: 0;
+  z-index: 50;
+  backdrop-filter: blur(12px);
+}
+
+.header__inner.marketplace-header {
+  display: grid;
+  grid-template-columns: auto minmax(280px, 1fr) auto;
+  align-items: center;
+  gap: 24px;
+  min-height: 108px;
+  padding: 14px 0;
+}
+
+.marketplace-header .brand-logo-link {
+  display: inline-flex;
+  align-items: center;
+  min-width: 250px;
+}
+
+.marketplace-header .brand-logo-image {
+  max-height: 82px;
+  width: auto;
+}
+
+.marketplace-header .search {
+  width: 100%;
+  max-width: 720px;
+  justify-self: center;
+}
+
+.marketplace-header .header-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 12px;
+  flex-wrap: nowrap;
+}
+
+.marketplace-header .hotline-chip,
+.marketplace-header .cart-button,
+.marketplace-header .account-button {
+  min-height: 60px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #ffffff;
+  color: var(--accent);
+  font-weight: 900;
+  white-space: nowrap;
+  padding: 10px 18px;
+  box-shadow: 0 8px 22px rgba(24, 32, 51, 0.04);
+}
+
+.marketplace-header .cart-button {
+  background: #eef4ff;
+  border-color: #d6e1ff;
+  gap: 8px;
+  cursor: pointer;
+}
+
+.marketplace-header .cart-button span {
+  min-width: 28px;
+  height: 28px;
+  display: inline-grid;
+  place-items: center;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 950;
+}
+
+.marketplace-header .cart-button strong {
+  font-weight: 950;
+  color: var(--accent);
+}
+
+.marketplace-header .account-button {
+  flex-direction: column;
+  line-height: 1.05;
+  text-align: center;
+}
+
+.marketplace-header .account-button small {
+  display: block;
+  font-size: 12px;
+  color: var(--muted);
+  font-weight: 800;
+}
+
+.category-nav--nested {
+  background: #ffffff;
+  border-top: 1px solid var(--line);
+  border-bottom: 1px solid var(--line);
+}
+
+.category-nav--nested .category-nav__inner {
+  min-height: 76px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 12px 0;
+}
+
+.category-nav--nested .category-pill {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 54px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: #ffffff;
+  color: #687086;
+  padding: 10px 22px;
+  font-size: 18px;
+  font-weight: 850;
+  white-space: nowrap;
+}
+
+.category-nav--nested .category-pill.active,
+.category-nav--nested .category-pill:hover,
+.category-nav--nested .category-pill:focus-visible {
+  background: #8b3f1f !important;
+  border-color: #8b3f1f !important;
+  color: #ffffff !important;
+}
+
+.product-page-main {
+  padding-top: 28px;
+}
+
+.side-column,
+.related-column {
+  top: 208px;
+}
+
+@media (max-width: 1120px) {
+  .header__inner.marketplace-header {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    min-height: auto;
+  }
+
+  .marketplace-header .brand-logo-link {
+    min-width: 0;
+  }
+
+  .marketplace-header .search {
+    max-width: none;
+  }
+
+  .marketplace-header .header-actions {
+    width: 100%;
+    justify-content: stretch;
+    display: grid;
+    grid-template-columns: 1fr 1.18fr 1fr;
+  }
+
+  .side-column,
+  .related-column {
+    top: auto;
+  }
+}
+
+@media (max-width: 640px) {
+  .marketplace-header .brand-logo-image {
+    max-height: 54px;
+  }
+
+  .marketplace-header .header-actions {
+    gap: 7px;
+  }
+
+  .marketplace-header .hotline-chip,
+  .marketplace-header .cart-button,
+  .marketplace-header .account-button {
+    min-height: 54px;
+    padding: 6px 6px;
+    font-size: clamp(13px, 3.8vw, 16px);
+  }
+
+  .marketplace-header .cart-button {
+    gap: 3px;
+  }
+
+  .marketplace-header .cart-button span {
+    min-width: 22px;
+    height: 22px;
+    font-size: 11px;
+  }
+
+  .marketplace-header .cart-button strong {
+    font-size: clamp(12px, 3.6vw, 15px);
+  }
+
+  .marketplace-header .account-button small {
+    font-size: 10px;
+  }
+
+  .category-nav--nested .category-nav__inner {
+    justify-content: flex-start;
+    min-height: 62px;
+    padding: 8px 0;
+  }
+
+  .category-nav--nested .category-pill {
+    min-height: 44px;
+    font-size: 15px;
+    padding: 8px 14px;
+  }
+}

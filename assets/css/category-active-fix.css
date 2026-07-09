@@ -47,3 +47,12 @@
   border-color: var(--selected-category) !important;
   color: #ffffff !important;
 }
+
+/* Emergency compatibility fix for older cached homepage HTML.
+   Old menu order: Home, All Products, Offer Zone, Electronics, Gift & Boxes, Cards, Others, Seasonal, Track Order.
+   Hide Cards, Others, and Seasonal when that older 9-item menu is still being served. */
+.category-nav__inner:has(> :nth-child(9)) > :nth-child(6),
+.category-nav__inner:has(> :nth-child(9)) > :nth-child(7),
+.category-nav__inner:has(> :nth-child(9)) > :nth-child(8) {
+  display: none !important;
+}

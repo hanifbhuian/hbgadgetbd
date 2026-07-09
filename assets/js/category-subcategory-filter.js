@@ -29,3 +29,16 @@ function getFilteredProducts() {
     return matchesCategory && matchesSearch;
   });
 }
+
+(function applyRequestedCategoryFilter() {
+  const params = new URLSearchParams(window.location.search);
+  const requestedFilter = params.get("filter") || sessionStorage.getItem("hbRequestedCategoryFilter");
+  if (!requestedFilter) return;
+
+  sessionStorage.removeItem("hbRequestedCategoryFilter");
+  window.setTimeout(() => {
+    if (typeof setCategoryFilter === "function") {
+      setCategoryFilter(requestedFilter, true);
+    }
+  }, 250);
+})();

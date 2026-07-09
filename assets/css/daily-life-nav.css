@@ -1,0 +1,58 @@
+.category-nav__inner .nav-dropdown {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.category-nav__inner .nav-dropdown > .category-pill {
+  cursor: pointer;
+}
+
+.daily-life-submenu {
+  position: absolute;
+  top: calc(100% + 8px);
+  left: 0;
+  min-width: 210px;
+  display: none;
+  z-index: 80;
+  padding: 8px;
+  border: 1px solid var(--line, #e4e8f0);
+  border-radius: 16px;
+  background: #ffffff;
+  box-shadow: 0 18px 42px rgba(24, 32, 51, 0.14);
+}
+
+.nav-dropdown:hover .daily-life-submenu,
+.nav-dropdown:focus-within .daily-life-submenu {
+  display: grid;
+  gap: 6px;
+}
+
+.daily-life-submenu a {
+  display: block;
+  padding: 10px 12px;
+  border-radius: 12px;
+  color: #182033;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.daily-life-submenu a:hover,
+.daily-life-submenu a:focus-visible {
+  background: #8b3f1f;
+  color: #ffffff;
+}
+
+@media (max-width: 768px) {
+  .category-nav__inner .nav-dropdown {
+    position: static;
+  }
+
+  .daily-life-submenu {
+    position: fixed;
+    left: 16px;
+    right: 16px;
+    top: 148px;
+    min-width: auto;
+  }
+}

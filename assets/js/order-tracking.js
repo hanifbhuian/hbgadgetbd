@@ -23,19 +23,17 @@ function loadOrderTrackingCss() {
   if (document.querySelector("link[href*='order-tracking.css']")) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "assets/css/order-tracking.css?v=20260705-2";
+  link.href = "assets/css/order-tracking.css?v=20260710-1";
   document.head.appendChild(link);
 }
 
-function normalizeValue(value) {
-  return String(value || "").trim().toLowerCase().replace(/[^a-z0-9]/g, "");
+function normalizeOrderId(value) {
+  return String(value || "").replace(/[^0-9]/g, "");
 }
 
-function normalizePhone(value) {
-  let phone = String(value || "").replace(/[^0-9]/g, "");
-  if (phone.startsWith("880")) phone = phone.slice(3);
-  if (phone.startsWith("0")) phone = phone.slice(1);
-  return phone;
+function displayOrderId(value) {
+  const numeric = normalizeOrderId(value);
+  return numeric || String(value || "").trim() || "Unknown";
 }
 
 function normalizeStatus(value) {
@@ -81,7 +79,7 @@ function safeHtml(value) {
     .replace(/&/g, "&amp;")
     .replace(/</g, "&lt;")
     .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
+    .replace(/\"/g, "&quot;")
     .replace(/'/g, "&#039;");
 }
 
@@ -126,39 +124,39 @@ function getOrderTimeline(order) {
 
 function enhanceTrackOrderForm() {
   const form = document.getElementById("trackOrderForm");
-  if (!form || form.dataset.trackingReady === "true") return false;
+  if (!form) return false;
   const orderInput = document.getElementById("trackOrderInput");
   const result = document.getElementById("trackOrderResult");
   if (!orderInput || !result) return false;
 
-  orderInput.placeholder = "Order ID, e.g. HBG-1001";
+  orderInput.placeholder = "Enter Order ID, e.g. 1001";
   orderInput.autocomplete = "off";
+  orderInput.inputMode = "numeric";
+  orderInput.pattern = "[0-9]*";
+  orderInput.required = true;
 
-  if (!document.getElementById("trackPhoneInput")) {
-    const phoneInput = document.createElement("input");
-    phoneInput.id = "trackPhoneInput";
-    phoneInput.className = "phone-field";
-    phoneInput.type = "tel";
-    phoneInput.placeholder = "Phone number, e.g. 01800000000";
-    phoneInput.autocomplete = "tel";
-    phoneInput.required = true;
-    orderInput.insertAdjacentElement("afterend", phoneInput);
+  const oldPhoneInput = document.getElementById("trackPhoneInput");
+  if (oldPhoneInput) oldPhoneInput.remove();
 
+  Array.from(form.querySelectorAll(".track-order-help")).forEach(help => help.remove());
+
+  if (!document.getElementById("trackOrderOnlyHelp")) {
     const help = document.createElement("p");
+    help.id = "trackOrderOnlyHelp";
     help.className = "track-order-help";
-    help.textContent = "Enter the Order ID and phone number used when placing the order.";
-    phoneInput.insertAdjacentElement("afterend", help);
+    help.textContent = "Enter only your numeric Order ID. Phone number is not required.";
+    orderInput.insertAdjacentElement("afterend", help);
   }
 
   form.dataset.trackingReady = "true";
   return true;
 }
 
-async function fetchOrderFromGoogleSheet(orderId, phone) {
+async function fetchOrderFromGoogleSheet(orderId) {
+  const numericOrderId = normalizeOrderId(orderId);
   const url = new URL(ORDER_WEB_APP_URL);
   url.searchParams.set("action", "track");
-  url.searchParams.set("orderId", orderId);
-  url.searchParams.set("phone", phone);
+  url.searchParams.set("orderId", numericOrderId);
   url.searchParams.set("v", Date.now());
 
   const response = await fetch(url.toString(), { method: "GET", cache: "no-store" });
@@ -168,26 +166,27 @@ async function fetchOrderFromGoogleSheet(orderId, phone) {
   return data.order || null;
 }
 
-async function fetchOrderFromLocalFile(orderId, phone) {
+async function fetchOrderFromLocalFile(orderId) {
+  const numericOrderId = normalizeOrderId(orderId);
   const response = await fetch(`${ORDER_DATA_URL}?v=${Date.now()}`, { cache: "no-store" });
   if (!response.ok) throw new Error("Local order data could not be loaded.");
   const data = await response.json();
   const orders = Array.isArray(data.orders) ? data.orders : [];
-  return orders.find(order => normalizeValue(order.orderId) === normalizeValue(orderId) && normalizePhone(order.phone) === normalizePhone(phone)) || null;
+  return orders.find(order => normalizeOrderId(order.orderId || order.orderID) === numericOrderId) || null;
 }
 
-async function findOrder(orderId, phone) {
+async function findOrder(orderId) {
   try {
-    const googleOrder = await fetchOrderFromGoogleSheet(orderId, phone);
+    const googleOrder = await fetchOrderFromGoogleSheet(orderId);
     if (googleOrder) return googleOrder;
   } catch (error) {
     console.warn("Google Sheet tracking failed. Trying local fallback.", error);
   }
-  return fetchOrderFromLocalFile(orderId, phone);
+  return fetchOrderFromLocalFile(orderId);
 }
 
 function renderOrder(order) {
-  const orderId = getOrderField(order, ["orderId", "orderID"], "Unknown");
+  const orderId = displayOrderId(getOrderField(order, ["orderId", "orderID"], "Unknown"));
   const statusInfo = getStatusInfo(order);
   const timeline = getOrderTimeline(order);
   const items = getOrderItems(order);
@@ -249,21 +248,20 @@ async function handleTrackOrderSubmit(event) {
   event.stopImmediatePropagation();
 
   const orderId = document.getElementById("trackOrderInput")?.value || "";
-  const phone = document.getElementById("trackPhoneInput")?.value || "";
   const result = document.getElementById("trackOrderResult");
   if (!result) return;
 
-  if (!orderId.trim() || !phone.trim()) {
-    result.innerHTML = renderOrderError("Please enter both Order ID and phone number.");
+  if (!normalizeOrderId(orderId)) {
+    result.innerHTML = renderOrderError("Please enter your numeric Order ID.");
     return;
   }
 
   result.innerHTML = `<div class="order-result-card"><p>Checking order status...</p></div>`;
 
   try {
-    const match = await findOrder(orderId, phone);
+    const match = await findOrder(orderId);
     if (!match) {
-      result.innerHTML = renderOrderError("Please check your Order ID and phone number. If the order was placed recently, contact support for a live update.");
+      result.innerHTML = renderOrderError("Please check your Order ID. If the order was placed recently, contact support for a live update.");
       return;
     }
     result.innerHTML = renderOrder(match);

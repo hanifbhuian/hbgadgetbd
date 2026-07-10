@@ -8,35 +8,35 @@ export async function onRequest(context) {
 
   let html = await response.text();
   const fixScript = `
-<style id="hb-category-final-style-20260710-v3">
+<style id="hb-category-final-style-20260710-v4">
   .hb-force-hidden-section { display: none !important; }
 
-  .category-nav__inner .hb-category-highlight {
-    position: relative !important;
-    background: linear-gradient(135deg, #0f766e 0%, #1d4ed8 100%) !important;
-    border-color: rgba(29, 78, 216, 0.72) !important;
+  /* Standard category pills: clean white style like Home / All Products / Offer Zone */
+  .category-nav__inner .hb-category-standard {
+    background: #ffffff !important;
+    border: 1px solid #dfe6f0 !important;
+    color: #667085 !important;
+    font-weight: 700 !important;
+    box-shadow: none !important;
+    transform: none !important;
+  }
+
+  .category-nav__inner .hb-category-standard:hover,
+  .category-nav__inner .hb-category-standard:focus-visible {
+    background: #f8fafc !important;
+    border-color: #cbd5e1 !important;
+    color: #16428f !important;
+    box-shadow: 0 6px 16px rgba(15, 23, 42, 0.06) !important;
+  }
+
+  .category-nav__inner .hb-category-standard.active {
+    background: #8b3f1f !important;
+    border-color: #8b3f1f !important;
     color: #ffffff !important;
-    font-weight: 850 !important;
-    letter-spacing: -0.01em;
-    box-shadow: 0 10px 22px rgba(29, 78, 216, 0.22) !important;
+    box-shadow: 0 8px 18px rgba(139, 63, 31, 0.18) !important;
   }
 
-  .category-nav__inner .hb-category-highlight::before {
-    content: attr(data-icon);
-    margin-right: 7px;
-    font-size: 0.95em;
-  }
-
-  .category-nav__inner .hb-category-highlight:hover,
-  .category-nav__inner .hb-category-highlight:focus-visible,
-  .category-nav__inner .hb-category-highlight.active {
-    background: linear-gradient(135deg, #0b5f59 0%, #173ea5 100%) !important;
-    border-color: #173ea5 !important;
-    color: #ffffff !important;
-    transform: translateY(-1px);
-    box-shadow: 0 13px 28px rgba(15, 118, 110, 0.28) !important;
-  }
-
+  /* Track Order remains separate and more highlighted */
   .category-nav__inner .track-order-highlight {
     position: relative !important;
     overflow: visible !important;
@@ -79,28 +79,25 @@ export async function onRequest(context) {
   }
 
   @media (max-width: 768px) {
-    .category-nav__inner .hb-category-highlight {
-      box-shadow: 0 8px 18px rgba(29, 78, 216, 0.2) !important;
-    }
-
     .category-nav__inner .track-order-highlight {
       box-shadow: 0 8px 18px rgba(255, 74, 32, 0.28) !important;
     }
   }
 </style>
-<script id="hb-category-final-20260710-v3">
+<script id="hb-category-final-20260710-v4">
 (function () {
   var mainCategories = ["Power & Safety", "Health & Protection", "Clean Living"];
-  var otherCategories = ["Mobile Accessories", "Mini Speakers", "Gift Box", "Gift & Boxes", "Electronics", "Daily Life", "Others"];
-  var categoryIcons = {
-    "Power & Safety": "🔋",
-    "Health & Protection": "🛡️",
-    "Clean Living": "💧",
-    "Others": "🛒"
-  };
+  var standardCategoryLabels = ["Power & Safety", "Health & Protection", "Clean Living", "Others"];
 
   function textOf(element) {
     return (element && element.textContent ? element.textContent : "").replace(/\s+/g, " ").trim();
+  }
+
+  function normalizeLabel(value) {
+    return String(value || "")
+      .replace(/^📦\s*/, "")
+      .replace(/^(🔋|🛡️|💧|🛒)\s*/, "")
+      .trim();
   }
 
   function normalizeSubCategory(value) {
@@ -137,9 +134,8 @@ export async function onRequest(context) {
       });
     }
 
-    if (categoryIcons[label]) {
-      item.classList.add("hb-category-highlight");
-      item.setAttribute("data-icon", categoryIcons[label]);
+    if (standardCategoryLabels.indexOf(label) >= 0) {
+      item.classList.add("hb-category-standard");
     }
 
     if (label === "Track Order") {
@@ -157,7 +153,7 @@ export async function onRequest(context) {
 
     var activeLabel = "";
     var activeItem = nav.querySelector(".active");
-    if (activeItem) activeLabel = textOf(activeItem).replace(/^📦\s*/, "").replace(/^(🔋|🛡️|💧|🛒)\s*/, "");
+    if (activeItem) activeLabel = normalizeLabel(textOf(activeItem));
 
     var allowed = ["Home", "All Products", "Offer Zone", "Power & Safety", "Health & Protection", "Clean Living", "Others", "Track Order"];
     if (allowed.indexOf(activeLabel) === -1) activeLabel = "All Products";
@@ -173,7 +169,7 @@ export async function onRequest(context) {
     nav.appendChild(makeNavItem("Track Order", null, "#track-order"));
 
     Array.from(nav.children).forEach(function (item) {
-      var label = textOf(item).replace(/^📦\s*/, "").replace(/^(🔋|🛡️|💧|🛒)\s*/, "");
+      var label = normalizeLabel(textOf(item));
       item.classList.toggle("active", label === activeLabel || (!activeLabel && label === "All Products"));
     });
   }

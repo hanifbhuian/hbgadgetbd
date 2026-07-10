@@ -8,14 +8,13 @@ export async function onRequest(context) {
 
   let html = await response.text();
   const fixScript = `
-<style id="hb-home-category-revision-style-20260709-v6">
+<style id="hb-category-final-style-20260710-v1">
   .hb-force-hidden-section { display: none !important; }
 </style>
-<script id="hb-home-category-revision-20260709-v6">
+<script id="hb-category-final-20260710-v1">
 (function () {
-  var electronicsSubcategories = ["Mobile Accessories", "Mini Speakers"];
-  var giftBoxSubcategories = ["Gift Box"];
-  var dailyLifeSubcategories = ["Power & Safety", "Health & Protection", "Clean Living"];
+  var mainCategories = ["Power & Safety", "Health & Protection", "Clean Living"];
+  var otherCategories = ["Mobile Accessories", "Mini Speakers", "Gift Box", "Gift & Boxes", "Electronics", "Daily Life", "Others"];
 
   function textOf(element) {
     return (element && element.textContent ? element.textContent : "").replace(/\s+/g, " ").trim();
@@ -58,39 +57,6 @@ export async function onRequest(context) {
     return item;
   }
 
-  function makeDailyLifeNavItem() {
-    var wrapper = document.createElement("span");
-    wrapper.className = "nav-dropdown daily-life-auto-nav";
-
-    var main = document.createElement("button");
-    main.type = "button";
-    main.className = "category-pill";
-    main.dataset.filter = "Daily Life";
-    main.textContent = "Daily Life";
-    main.addEventListener("click", function () { setFilter("Daily Life"); });
-
-    var submenu = document.createElement("span");
-    submenu.className = "daily-life-submenu";
-    submenu.setAttribute("aria-label", "Daily Life subcategories");
-
-    dailyLifeSubcategories.forEach(function (label) {
-      var sub = document.createElement("button");
-      sub.type = "button";
-      sub.className = "category-pill";
-      sub.dataset.filter = label;
-      sub.textContent = label;
-      sub.addEventListener("click", function (event) {
-        event.stopPropagation();
-        setFilter(label);
-      });
-      submenu.appendChild(sub);
-    });
-
-    wrapper.appendChild(main);
-    wrapper.appendChild(submenu);
-    return wrapper;
-  }
-
   function cleanTopMenu() {
     var nav = document.querySelector(".category-nav__inner");
     if (!nav) return;
@@ -98,21 +64,23 @@ export async function onRequest(context) {
     var activeLabel = "";
     var activeItem = nav.querySelector(".active");
     if (activeItem) activeLabel = textOf(activeItem);
-    if (activeLabel.indexOf("Daily Life") === 0) activeLabel = "Daily Life";
+
+    var allowed = ["Home", "All Products", "Offer Zone", "Power & Safety", "Health & Protection", "Clean Living", "Others", "Track Order"];
+    if (allowed.indexOf(activeLabel) === -1) activeLabel = "All Products";
 
     nav.innerHTML = "";
     nav.appendChild(makeNavItem("Home", null, "/"));
     nav.appendChild(makeNavItem("All Products", "All"));
     nav.appendChild(makeNavItem("Offer Zone", null, "#offer-zone"));
-    nav.appendChild(makeNavItem("Electronics", "Electronics"));
-    nav.appendChild(makeNavItem("Gift & Boxes", "Gift Box"));
-    nav.appendChild(makeDailyLifeNavItem());
+    nav.appendChild(makeNavItem("Power & Safety", "Power & Safety"));
+    nav.appendChild(makeNavItem("Health & Protection", "Health & Protection"));
+    nav.appendChild(makeNavItem("Clean Living", "Clean Living"));
+    nav.appendChild(makeNavItem("Others", "Others"));
     nav.appendChild(makeNavItem("Track Order", null, "#track-order"));
 
     Array.from(nav.children).forEach(function (item) {
       var label = textOf(item);
-      var isDaily = label.indexOf("Daily Life") === 0 && activeLabel === "Daily Life";
-      item.classList.toggle("active", isDaily || label === activeLabel || (!activeLabel && label === "All Products"));
+      item.classList.toggle("active", label === activeLabel || (!activeLabel && label === "All Products"));
     });
   }
 
@@ -134,46 +102,10 @@ export async function onRequest(context) {
 
     var categories = [
       {
-        filter: "Electronics",
-        icon: "📱",
-        title: "Electronics",
-        description: "Main category for phone gadgets, mini speakers, and practical electronic accessories."
-      },
-      {
-        filter: "Mobile Accessories",
-        icon: "🔌",
-        title: "Mobile Accessories",
-        description: "Phone stands, cables, covers, holders, and useful everyday mobile items."
-      },
-      {
-        filter: "Mini Speakers",
-        icon: "🔊",
-        title: "Mini Speakers",
-        description: "Portable wireless speakers and sound gadgets for home, travel, and gifts."
-      },
-      {
-        filter: "Gift Box",
-        icon: "🎁",
-        title: "Gift & Boxes",
-        description: "Main category for gift boxes, family gifts, and gift-ready selections."
-      },
-      {
-        filter: "Gift Box",
-        icon: "🛍️",
-        title: "Gift Box",
-        description: "Ready-made gift boxes and simple packaging options for special moments."
-      },
-      {
-        filter: "Daily Life",
-        icon: "🧰",
-        title: "Daily Life",
-        description: "Useful daily problem-solving gadgets for Bangladeshi homes and families."
-      },
-      {
         filter: "Power & Safety",
         icon: "🔋",
         title: "Power & Safety",
-        description: "Backup lights, charging support, cable safety, and power-use essentials."
+        description: "Backup lights, charging support, cable safety, and daily power-use essentials."
       },
       {
         filter: "Health & Protection",
@@ -186,6 +118,12 @@ export async function onRequest(context) {
         icon: "💧",
         title: "Clean Living",
         description: "Clean and organized home gadgets for air, water, desk, storage, and convenience."
+      },
+      {
+        filter: "Others",
+        icon: "🛒",
+        title: "Others",
+        description: "Mobile accessories, mini speakers, gift boxes, and other useful gadget items."
       }
     ];
 
@@ -195,7 +133,7 @@ export async function onRequest(context) {
     });
   }
 
-  function patchSubcategoryFiltering() {
+  function patchCategoryFiltering() {
     try {
       window.getProductSubCategory = function (product) {
         return normalizeSubCategory(product.subCategory || product.subcategory || product.sub_category || "");
@@ -205,18 +143,11 @@ export async function onRequest(context) {
         return products.filter(function (product) {
           var category = String(product.category || "").trim();
           var subCategory = String(window.getProductSubCategory(product) || "").trim();
-          var matchesCategory = state.filter === "All" || category === state.filter || subCategory === state.filter;
+          var filter = state.filter;
+          var matchesCategory = filter === "All" || category === filter || subCategory === filter;
 
-          if (state.filter === "Electronics") {
-            matchesCategory = category === "Electronics" || electronicsSubcategories.indexOf(category) >= 0 || electronicsSubcategories.indexOf(subCategory) >= 0;
-          }
-
-          if (state.filter === "Gift Box" || state.filter === "Gift & Boxes") {
-            matchesCategory = category === "Gift Box" || category === "Gift & Boxes" || giftBoxSubcategories.indexOf(subCategory) >= 0;
-          }
-
-          if (state.filter === "Daily Life") {
-            matchesCategory = category === "Daily Life" || dailyLifeSubcategories.indexOf(subCategory) >= 0;
+          if (filter === "Others") {
+            matchesCategory = mainCategories.indexOf(subCategory) === -1 && mainCategories.indexOf(category) === -1;
           }
 
           var query = state.search.trim().toLowerCase();
@@ -247,7 +178,7 @@ export async function onRequest(context) {
   }
 
   function runFix() {
-    patchSubcategoryFiltering();
+    patchCategoryFiltering();
     cleanTopMenu();
     revisePopularCategories();
     removeComboSectionOnly();

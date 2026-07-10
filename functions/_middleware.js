@@ -8,10 +8,57 @@ export async function onRequest(context) {
 
   let html = await response.text();
   const fixScript = `
-<style id="hb-category-final-style-20260710-v1">
+<style id="hb-category-final-style-20260710-v2">
   .hb-force-hidden-section { display: none !important; }
+
+  .category-nav__inner .track-order-highlight {
+    position: relative !important;
+    overflow: visible !important;
+    background: linear-gradient(135deg, #ff3f1f 0%, #ff7a00 100%) !important;
+    border-color: #ff4b22 !important;
+    color: #ffffff !important;
+    font-weight: 900 !important;
+    box-shadow: 0 12px 26px rgba(255, 74, 32, 0.32) !important;
+    transform: translateY(-1px);
+  }
+
+  .category-nav__inner .track-order-highlight:hover,
+  .category-nav__inner .track-order-highlight:focus-visible,
+  .category-nav__inner .track-order-highlight.active {
+    background: linear-gradient(135deg, #e63116 0%, #ff6500 100%) !important;
+    border-color: #e63116 !important;
+    color: #ffffff !important;
+    box-shadow: 0 14px 30px rgba(230, 49, 22, 0.38) !important;
+  }
+
+  .category-nav__inner .track-order-highlight::before {
+    content: "📦";
+    margin-right: 7px;
+  }
+
+  .category-nav__inner .track-order-highlight::after {
+    content: "";
+    position: absolute;
+    inset: -5px;
+    border: 2px solid rgba(255, 91, 45, 0.35);
+    border-radius: 999px;
+    animation: hbTrackOrderPulse 1.7s ease-out infinite;
+    pointer-events: none;
+  }
+
+  @keyframes hbTrackOrderPulse {
+    0% { opacity: 0.72; transform: scale(0.98); }
+    70% { opacity: 0; transform: scale(1.12); }
+    100% { opacity: 0; transform: scale(1.12); }
+  }
+
+  @media (max-width: 768px) {
+    .category-nav__inner .track-order-highlight {
+      box-shadow: 0 8px 18px rgba(255, 74, 32, 0.28) !important;
+    }
+  }
 </style>
-<script id="hb-category-final-20260710-v1">
+<script id="hb-category-final-20260710-v2">
 (function () {
   var mainCategories = ["Power & Safety", "Health & Protection", "Clean Living"];
   var otherCategories = ["Mobile Accessories", "Mini Speakers", "Gift Box", "Gift & Boxes", "Electronics", "Daily Life", "Others"];
@@ -53,6 +100,12 @@ export async function onRequest(context) {
         setFilter(filter || label);
       });
     }
+
+    if (label === "Track Order") {
+      item.classList.add("track-order-highlight");
+      item.setAttribute("aria-label", "Track your HB Gadget BD order");
+    }
+
     item.textContent = label;
     return item;
   }
@@ -63,7 +116,7 @@ export async function onRequest(context) {
 
     var activeLabel = "";
     var activeItem = nav.querySelector(".active");
-    if (activeItem) activeLabel = textOf(activeItem);
+    if (activeItem) activeLabel = textOf(activeItem).replace(/^📦\s*/, "");
 
     var allowed = ["Home", "All Products", "Offer Zone", "Power & Safety", "Health & Protection", "Clean Living", "Others", "Track Order"];
     if (allowed.indexOf(activeLabel) === -1) activeLabel = "All Products";
@@ -79,7 +132,7 @@ export async function onRequest(context) {
     nav.appendChild(makeNavItem("Track Order", null, "#track-order"));
 
     Array.from(nav.children).forEach(function (item) {
-      var label = textOf(item);
+      var label = textOf(item).replace(/^📦\s*/, "");
       item.classList.toggle("active", label === activeLabel || (!activeLabel && label === "All Products"));
     });
   }

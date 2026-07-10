@@ -8,13 +8,23 @@ export async function onRequest(context) {
 
   let html = await response.text();
   const fixScript = `
-<style id="hb-home-category-revision-style-20260709-v4">
+<style id="hb-home-category-revision-style-20260709-v5">
   .hb-force-hidden-section { display: none !important; }
 </style>
-<script id="hb-home-category-revision-20260709-v4">
+<script id="hb-home-category-revision-20260709-v5">
 (function () {
+  var dailyLifeSubcategories = ["Power & Safety", "Health & Protection", "Clean Living"];
+
   function textOf(element) {
     return (element && element.textContent ? element.textContent : "").replace(/\s+/g, " ").trim();
+  }
+
+  function normalizeSubCategory(value) {
+    var text = String(value || "").trim();
+    if (text === "Backup") return "Power & Safety";
+    if (text === "Protection") return "Health & Protection";
+    if (text === "Health & Safety") return "Health & Protection";
+    return text;
   }
 
   function setFilter(filter) {
@@ -46,6 +56,39 @@ export async function onRequest(context) {
     return item;
   }
 
+  function makeDailyLifeNavItem() {
+    var wrapper = document.createElement("span");
+    wrapper.className = "nav-dropdown daily-life-auto-nav";
+
+    var main = document.createElement("button");
+    main.type = "button";
+    main.className = "category-pill";
+    main.dataset.filter = "Daily Life";
+    main.textContent = "Daily Life";
+    main.addEventListener("click", function () { setFilter("Daily Life"); });
+
+    var submenu = document.createElement("span");
+    submenu.className = "daily-life-submenu";
+    submenu.setAttribute("aria-label", "Daily Life subcategories");
+
+    dailyLifeSubcategories.forEach(function (label) {
+      var sub = document.createElement("button");
+      sub.type = "button";
+      sub.className = "category-pill";
+      sub.dataset.filter = label;
+      sub.textContent = label;
+      sub.addEventListener("click", function (event) {
+        event.stopPropagation();
+        setFilter(label);
+      });
+      submenu.appendChild(sub);
+    });
+
+    wrapper.appendChild(main);
+    wrapper.appendChild(submenu);
+    return wrapper;
+  }
+
   function cleanTopMenu() {
     var nav = document.querySelector(".category-nav__inner");
     if (!nav) return;
@@ -53,6 +96,7 @@ export async function onRequest(context) {
     var activeLabel = "";
     var activeItem = nav.querySelector(".active");
     if (activeItem) activeLabel = textOf(activeItem);
+    if (activeLabel.indexOf("Daily Life") === 0) activeLabel = "Daily Life";
 
     nav.innerHTML = "";
     nav.appendChild(makeNavItem("Home", null, "/"));
@@ -60,12 +104,13 @@ export async function onRequest(context) {
     nav.appendChild(makeNavItem("Offer Zone", null, "#offer-zone"));
     nav.appendChild(makeNavItem("Electronics", "Electronics"));
     nav.appendChild(makeNavItem("Gift & Boxes", "Gift Box"));
-    nav.appendChild(makeNavItem("Daily Life", "Daily Life"));
+    nav.appendChild(makeDailyLifeNavItem());
     nav.appendChild(makeNavItem("Track Order", null, "#track-order"));
 
     Array.from(nav.children).forEach(function (item) {
       var label = textOf(item);
-      item.classList.toggle("active", label === activeLabel || (!activeLabel && label === "All Products"));
+      var isDaily = label.indexOf("Daily Life") === 0 && activeLabel === "Daily Life";
+      item.classList.toggle("active", isDaily || label === activeLabel || (!activeLabel && label === "All Products"));
     });
   }
 
@@ -105,22 +150,22 @@ export async function onRequest(context) {
         description: "Useful daily problem-solving gadgets for Bangladeshi homes and families."
       },
       {
-        filter: "Backup",
+        filter: "Power & Safety",
         icon: "🔋",
-        title: "Backup",
-        description: "Helpful backup, light, charging, and power-support products for daily use."
+        title: "Power & Safety",
+        description: "Backup lights, charging support, cable safety, and power-use essentials."
       },
       {
-        filter: "Protection",
+        filter: "Health & Protection",
         icon: "🛡️",
-        title: "Protection",
-        description: "Practical protection and organization items for gadgets, home, and travel."
+        title: "Health & Protection",
+        description: "Comfort, hygiene, mosquito-exposure reduction, and family safety-focused items."
       },
       {
-        filter: "Health & Safety",
-        icon: "🏠",
-        title: "Health & Safety",
-        description: "Comfort and safety-focused daily gadgets for family home use."
+        filter: "Clean Living",
+        icon: "💧",
+        title: "Clean Living",
+        description: "Clean and organized home gadgets for air, water, desk, storage, and convenience."
       }
     ];
 
@@ -133,7 +178,7 @@ export async function onRequest(context) {
   function patchSubcategoryFiltering() {
     try {
       window.getProductSubCategory = function (product) {
-        return product.subCategory || product.subcategory || product.sub_category || "";
+        return normalizeSubCategory(product.subCategory || product.subcategory || product.sub_category || "");
       };
 
       getFilteredProducts = function () {
@@ -142,7 +187,7 @@ export async function onRequest(context) {
           var subCategory = String(window.getProductSubCategory(product) || "").trim();
           var matchesCategory = state.filter === "All" || category === state.filter || subCategory === state.filter;
           if (state.filter === "Daily Life") {
-            matchesCategory = category === "Daily Life" || ["Backup", "Protection", "Health & Safety"].indexOf(subCategory) >= 0;
+            matchesCategory = category === "Daily Life" || dailyLifeSubcategories.indexOf(subCategory) >= 0;
           }
           var query = state.search.trim().toLowerCase();
           var searchableText = [

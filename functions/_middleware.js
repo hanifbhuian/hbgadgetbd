@@ -8,11 +8,13 @@ export async function onRequest(context) {
 
   let html = await response.text();
   const fixScript = `
-<style id="hb-home-category-revision-style-20260709-v5">
+<style id="hb-home-category-revision-style-20260709-v6">
   .hb-force-hidden-section { display: none !important; }
 </style>
-<script id="hb-home-category-revision-20260709-v5">
+<script id="hb-home-category-revision-20260709-v6">
 (function () {
+  var electronicsSubcategories = ["Mobile Accessories", "Mini Speakers"];
+  var giftBoxSubcategories = ["Gift Box"];
   var dailyLifeSubcategories = ["Power & Safety", "Health & Protection", "Clean Living"];
 
   function textOf(element) {
@@ -135,13 +137,31 @@ export async function onRequest(context) {
         filter: "Electronics",
         icon: "📱",
         title: "Electronics",
-        description: "Useful electronic gadgets, speakers, accessories, and practical tech items."
+        description: "Main category for phone gadgets, mini speakers, and practical electronic accessories."
+      },
+      {
+        filter: "Mobile Accessories",
+        icon: "🔌",
+        title: "Mobile Accessories",
+        description: "Phone stands, cables, covers, holders, and useful everyday mobile items."
+      },
+      {
+        filter: "Mini Speakers",
+        icon: "🔊",
+        title: "Mini Speakers",
+        description: "Portable wireless speakers and sound gadgets for home, travel, and gifts."
       },
       {
         filter: "Gift Box",
         icon: "🎁",
         title: "Gift & Boxes",
-        description: "Gift boxes, family gifts, and gift-ready selections for special moments."
+        description: "Main category for gift boxes, family gifts, and gift-ready selections."
+      },
+      {
+        filter: "Gift Box",
+        icon: "🛍️",
+        title: "Gift Box",
+        description: "Ready-made gift boxes and simple packaging options for special moments."
       },
       {
         filter: "Daily Life",
@@ -186,9 +206,19 @@ export async function onRequest(context) {
           var category = String(product.category || "").trim();
           var subCategory = String(window.getProductSubCategory(product) || "").trim();
           var matchesCategory = state.filter === "All" || category === state.filter || subCategory === state.filter;
+
+          if (state.filter === "Electronics") {
+            matchesCategory = category === "Electronics" || electronicsSubcategories.indexOf(category) >= 0 || electronicsSubcategories.indexOf(subCategory) >= 0;
+          }
+
+          if (state.filter === "Gift Box" || state.filter === "Gift & Boxes") {
+            matchesCategory = category === "Gift Box" || category === "Gift & Boxes" || giftBoxSubcategories.indexOf(subCategory) >= 0;
+          }
+
           if (state.filter === "Daily Life") {
             matchesCategory = category === "Daily Life" || dailyLifeSubcategories.indexOf(subCategory) >= 0;
           }
+
           var query = state.search.trim().toLowerCase();
           var searchableText = [
             product.name,

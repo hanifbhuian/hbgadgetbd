@@ -2,6 +2,15 @@ const WHATSAPP_NUMBER = "8801816569237";
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/hanifbhuian/hbgadgetbd/main/";
 const PRODUCT_DATA_URL = `${GITHUB_RAW_BASE}assets/data/products.json`;
 
+const HB_RETURN_POLICY = [
+  ["Product damaged on arrival", "Exchange within 24–48 hours after receiving proof"],
+  ["Wrong product delivered", "Free replacement"],
+  ["Customer changed mind", "Return accepted only if unopened; delivery cost is not refundable"],
+  ["Electronics warranty", "Supplier/brand warranty only"],
+  ["Burnt/damaged due to misuse", "No warranty"],
+  ["Water purifier used/installed", "Return not accepted unless defective"]
+];
+
 let allProducts = [];
 let currentProduct = null;
 let galleryImages = [];
@@ -62,6 +71,10 @@ function getStats(product) {
     stock: getDetailValue(product, ["stock", "availability"], "Available"),
     location: getDetailValue(product, ["location"], "Bangladesh")
   };
+}
+
+function renderPolicyList() {
+  return HB_RETURN_POLICY.map(([issue, policy]) => `<li><strong>${htmlEscape(issue)}:</strong> ${htmlEscape(policy)}</li>`).join("");
 }
 
 function getCart() {
@@ -187,6 +200,14 @@ function renderProduct(product) {
         <div class="review-card"><strong>${htmlEscape(stats.sold)}</strong><span>Total sold</span></div>
       </div>
     </div>
+    <div class="section-box">
+      <h2>Return, Exchange & Warranty Policy</h2>
+      <p class="product-description">Please check the product after delivery. For exchange or return support, proof such as photo/video and order ID may be required.</p>
+      <ul class="detail-list">
+        ${renderPolicyList()}
+      </ul>
+      <p class="product-description"><strong>Note:</strong> Delivery charge is non-refundable unless HB Gadget BD sends the wrong product.</p>
+    </div>
   `;
   updateGallery();
 }
@@ -278,14 +299,5 @@ if (productPageCartButton) {
   });
 }
 
-const productSearchForm = document.getElementById("productSearchForm");
-if (productSearchForm) {
-  productSearchForm.addEventListener("submit", event => {
-    event.preventDefault();
-    const query = document.getElementById("productSearchInput")?.value || "";
-    sessionStorage.setItem("hbProductSearch", query.trim());
-    window.location.href = "/#products";
-  });
-}
-
 loadProducts();
+window.addEventListener("storage", updateCartHeader);

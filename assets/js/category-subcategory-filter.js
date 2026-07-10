@@ -13,22 +13,12 @@ function getProductSubCategory(product) {
 function productMatchesCategoryFilter(product, filter) {
   const category = String(product.category || "").trim();
   const subCategory = String(getProductSubCategory(product) || "").trim();
-  const dailyLifeSubCategories = ["Power & Safety", "Health & Protection", "Clean Living"];
-  const electronicsSubCategories = ["Mobile Accessories", "Mini Speakers"];
-  const giftBoxSubCategories = ["Gift Box"];
+  const mainCategories = ["Power & Safety", "Health & Protection", "Clean Living"];
 
   if (!filter || filter === "All") return true;
 
-  if (filter === "Electronics") {
-    return category === "Electronics" || electronicsSubCategories.includes(category) || electronicsSubCategories.includes(subCategory);
-  }
-
-  if (filter === "Gift & Boxes" || filter === "Gift Box") {
-    return category === "Gift Box" || category === "Gift & Boxes" || giftBoxSubCategories.includes(subCategory);
-  }
-
-  if (filter === "Daily Life") {
-    return category === "Daily Life" || dailyLifeSubCategories.includes(subCategory);
+  if (filter === "Others") {
+    return !mainCategories.includes(category) && !mainCategories.includes(subCategory);
   }
 
   return category === filter || subCategory === filter;
@@ -50,45 +40,49 @@ function getFilteredProducts() {
   });
 }
 
-function buildDailyLifeNavItem() {
-  const wrapper = document.createElement("span");
-  wrapper.className = "nav-dropdown daily-life-auto-nav";
-  wrapper.innerHTML = `
-    <button class="category-pill" data-filter="Daily Life" type="button">Daily Life</button>
-    <span class="daily-life-submenu" aria-label="Daily Life subcategories">
-      <button class="category-pill" data-filter="Power & Safety" type="button">Power &amp; Safety</button>
-      <button class="category-pill" data-filter="Health & Protection" type="button">Health &amp; Protection</button>
-      <button class="category-pill" data-filter="Clean Living" type="button">Clean Living</button>
-    </span>
-  `;
-  return wrapper;
+function buildCategoryNavItem(label, filter) {
+  const item = document.createElement("button");
+  item.type = "button";
+  item.className = "category-pill";
+  item.dataset.filter = filter || label;
+  item.textContent = label;
+  item.addEventListener("click", () => {
+    if (typeof setCategoryFilter === "function") {
+      setCategoryFilter(filter || label, true);
+    }
+  });
+  return item;
+}
+
+function buildCategoryNavLink(label, href) {
+  const item = document.createElement("a");
+  item.className = "category-pill";
+  item.href = href;
+  item.textContent = label;
+  return item;
 }
 
 function normalizeMainCategoryMenu() {
   const nav = document.querySelector(".category-nav__inner");
   if (!nav) return;
 
-  const items = Array.from(nav.children);
+  const activeText = (nav.querySelector(".active")?.textContent || "All Products").trim();
+  const allowed = ["Home", "All Products", "Offer Zone", "Power & Safety", "Health & Protection", "Clean Living", "Others", "Track Order"];
+  const activeLabel = allowed.includes(activeText) ? activeText : "All Products";
 
-  items.forEach(item => {
-    const text = (item.textContent || "").trim().toLowerCase();
-    if (["cards", "others", "seasonal"].includes(text)) {
-      item.remove();
-    }
+  nav.innerHTML = "";
+  nav.appendChild(buildCategoryNavLink("Home", "/"));
+  nav.appendChild(buildCategoryNavItem("All Products", "All"));
+  nav.appendChild(buildCategoryNavLink("Offer Zone", "#offer-zone"));
+  nav.appendChild(buildCategoryNavItem("Power & Safety", "Power & Safety"));
+  nav.appendChild(buildCategoryNavItem("Health & Protection", "Health & Protection"));
+  nav.appendChild(buildCategoryNavItem("Clean Living", "Clean Living"));
+  nav.appendChild(buildCategoryNavItem("Others", "Others"));
+  nav.appendChild(buildCategoryNavLink("Track Order", "#track-order"));
+
+  Array.from(nav.children).forEach(item => {
+    item.classList.toggle("active", (item.textContent || "").trim() === activeLabel);
   });
-
-  const hasDailyLife = Array.from(nav.children).some(item =>
-    (item.textContent || "").trim().toLowerCase().includes("daily life")
-  );
-  if (hasDailyLife) return;
-
-  const trackOrder = Array.from(nav.children).find(item =>
-    (item.textContent || "").trim().toLowerCase() === "track order"
-  );
-  const dailyLifeItem = buildDailyLifeNavItem();
-
-  if (trackOrder) nav.insertBefore(dailyLifeItem, trackOrder);
-  else nav.appendChild(dailyLifeItem);
 }
 
 (function applyRequestedCategoryFilter() {

@@ -1,3 +1,30 @@
+const HB_RETURN_POLICY = [
+  {
+    issue: "Product damaged on arrival",
+    policy: "Exchange within 24–48 hours after receiving proof"
+  },
+  {
+    issue: "Wrong product delivered",
+    policy: "Free replacement"
+  },
+  {
+    issue: "Customer changed mind",
+    policy: "Return accepted only if unopened; delivery cost is not refundable"
+  },
+  {
+    issue: "Electronics warranty",
+    policy: "Supplier/brand warranty only"
+  },
+  {
+    issue: "Burnt/damaged due to misuse",
+    policy: "No warranty"
+  },
+  {
+    issue: "Water purifier used/installed",
+    policy: "Return not accepted unless defective"
+  }
+];
+
 function normalizeDailyLifeSubCategory(value) {
   const text = String(value || "").trim();
   if (text === "Backup") return "Power & Safety";
@@ -85,8 +112,188 @@ function normalizeMainCategoryMenu() {
   });
 }
 
+function ensurePolicyStyles() {
+  if (document.getElementById("hbReturnPolicyStyles")) return;
+
+  const style = document.createElement("style");
+  style.id = "hbReturnPolicyStyles";
+  style.textContent = `
+    .hb-policy-section {
+      margin-top: 36px;
+      padding: 28px;
+      border: 1px solid #e5eaf2;
+      border-radius: 28px;
+      background: #ffffff;
+      box-shadow: 0 18px 46px rgba(15, 23, 42, 0.06);
+    }
+
+    .hb-policy-section__head {
+      display: flex;
+      justify-content: space-between;
+      gap: 18px;
+      align-items: flex-end;
+      margin-bottom: 20px;
+    }
+
+    .hb-policy-section__head h2 {
+      margin: 0;
+      color: #101828;
+      font-size: clamp(24px, 3vw, 38px);
+      line-height: 1.05;
+    }
+
+    .hb-policy-section__head p {
+      margin: 8px 0 0;
+      color: #667085;
+      max-width: 760px;
+    }
+
+    .hb-policy-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 12px;
+    }
+
+    .hb-policy-item {
+      border: 1px solid #e5eaf2;
+      border-radius: 18px;
+      padding: 14px 16px;
+      background: #f8fafc;
+    }
+
+    .hb-policy-item strong {
+      display: block;
+      color: #101828;
+      margin-bottom: 5px;
+    }
+
+    .hb-policy-item span {
+      display: block;
+      color: #667085;
+      line-height: 1.45;
+    }
+
+    .hb-policy-note {
+      margin: 16px 0 0;
+      color: #8b3f1f;
+      font-weight: 800;
+    }
+
+    .hb-product-policy-box {
+      margin-top: 18px;
+      border: 1px solid #e5eaf2;
+      border-radius: 18px;
+      padding: 16px;
+      background: #fffaf7;
+    }
+
+    .hb-product-policy-box h3 {
+      margin: 0 0 10px;
+      color: #101828;
+    }
+
+    .hb-product-policy-box ul {
+      margin: 0;
+      padding-left: 18px;
+      color: #667085;
+    }
+
+    .hb-product-policy-box li + li {
+      margin-top: 7px;
+    }
+
+    @media (max-width: 720px) {
+      .hb-policy-section {
+        padding: 20px;
+        border-radius: 22px;
+      }
+
+      .hb-policy-section__head {
+        display: block;
+      }
+
+      .hb-policy-grid {
+        grid-template-columns: 1fr;
+      }
+    }
+  `;
+  document.head.appendChild(style);
+}
+
+function renderPolicyCards() {
+  return HB_RETURN_POLICY.map(item => `
+    <div class="hb-policy-item">
+      <strong>${item.issue}</strong>
+      <span>${item.policy}</span>
+    </div>
+  `).join("");
+}
+
+function insertWebsitePolicySection() {
+  if (document.getElementById("hbReturnPolicySection")) return;
+  const productsSection = document.getElementById("products");
+  if (!productsSection) return;
+
+  ensurePolicyStyles();
+
+  const section = document.createElement("section");
+  section.id = "hbReturnPolicySection";
+  section.className = "container hb-policy-section";
+  section.innerHTML = `
+    <div class="hb-policy-section__head">
+      <div>
+        <p class="eyebrow">Return, Exchange & Warranty</p>
+        <h2>HB Gadget BD product policy</h2>
+        <p>Please check your product after delivery. For exchange or return support, proof such as photo/video and order ID may be required.</p>
+      </div>
+    </div>
+    <div class="hb-policy-grid">${renderPolicyCards()}</div>
+    <p class="hb-policy-note">Delivery charge is non-refundable unless HB Gadget BD sends the wrong product.</p>
+  `;
+
+  const categoriesSection = document.getElementById("categories");
+  if (categoriesSection) {
+    categoriesSection.insertAdjacentElement("afterend", section);
+  } else {
+    productsSection.insertAdjacentElement("afterend", section);
+  }
+}
+
+function insertDrawerPolicy() {
+  const body = document.getElementById("productDetailBody");
+  if (!body || body.querySelector(".hb-product-policy-box")) return;
+
+  ensurePolicyStyles();
+
+  const box = document.createElement("div");
+  box.className = "hb-product-policy-box";
+  box.innerHTML = `
+    <h3>Return, Exchange & Warranty</h3>
+    <ul>
+      <li>Damaged on arrival: exchange within 24–48 hours after proof.</li>
+      <li>Wrong product delivered: free replacement.</li>
+      <li>Changed mind: return accepted only if unopened; delivery cost not refundable.</li>
+      <li>Electronics warranty: supplier/brand warranty only.</li>
+      <li>Burnt or damaged due to misuse: no warranty.</li>
+      <li>Used/installed water purifier: return not accepted unless defective.</li>
+    </ul>
+  `;
+  body.appendChild(box);
+}
+
+function observeProductPolicy() {
+  insertDrawerPolicy();
+  if (window.hbPolicyObserverReady) return;
+  window.hbPolicyObserverReady = true;
+
+  const observer = new MutationObserver(() => insertDrawerPolicy());
+  observer.observe(document.body, { childList: true, subtree: true });
+}
+
 (function applyRequestedCategoryFilter() {
   normalizeMainCategoryMenu();
+  insertWebsitePolicySection();
+  observeProductPolicy();
 
   const params = new URLSearchParams(window.location.search);
   const requestedFilter = params.get("filter") || sessionStorage.getItem("hbRequestedCategoryFilter");
@@ -95,11 +302,21 @@ function normalizeMainCategoryMenu() {
   sessionStorage.removeItem("hbRequestedCategoryFilter");
   window.setTimeout(() => {
     normalizeMainCategoryMenu();
+    insertWebsitePolicySection();
+    observeProductPolicy();
     if (typeof setCategoryFilter === "function") {
       setCategoryFilter(requestedFilter, true);
     }
   }, 250);
 })();
 
-document.addEventListener("DOMContentLoaded", normalizeMainCategoryMenu);
-window.addEventListener("load", normalizeMainCategoryMenu);
+document.addEventListener("DOMContentLoaded", () => {
+  normalizeMainCategoryMenu();
+  insertWebsitePolicySection();
+  observeProductPolicy();
+});
+window.addEventListener("load", () => {
+  normalizeMainCategoryMenu();
+  insertWebsitePolicySection();
+  observeProductPolicy();
+});

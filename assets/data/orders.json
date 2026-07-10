@@ -1,8 +1,7 @@
 {
   "orders": [
     {
-      "orderId": "HBG-1001",
-      "phone": "01800000000",
+      "orderId": "1001",
       "customerName": "Demo Customer",
       "status": "Confirmed",
       "statusBn": "অর্ডার কনফার্ম হয়েছে",
@@ -25,8 +24,7 @@
       ]
     },
     {
-      "orderId": "HBG-1002",
-      "phone": "01900000000",
+      "orderId": "1002",
       "customerName": "Demo Customer 2",
       "status": "Shipped",
       "statusBn": "কুরিয়ারে পাঠানো হয়েছে",

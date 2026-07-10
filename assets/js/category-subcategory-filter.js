@@ -14,8 +14,19 @@ function productMatchesCategoryFilter(product, filter) {
   const category = String(product.category || "").trim();
   const subCategory = String(getProductSubCategory(product) || "").trim();
   const dailyLifeSubCategories = ["Power & Safety", "Health & Protection", "Clean Living"];
+  const electronicsSubCategories = ["Mobile Accessories", "Mini Speakers"];
+  const giftBoxSubCategories = ["Gift Box"];
 
   if (!filter || filter === "All") return true;
+
+  if (filter === "Electronics") {
+    return category === "Electronics" || electronicsSubCategories.includes(category) || electronicsSubCategories.includes(subCategory);
+  }
+
+  if (filter === "Gift & Boxes" || filter === "Gift Box") {
+    return category === "Gift Box" || category === "Gift & Boxes" || giftBoxSubCategories.includes(subCategory);
+  }
+
   if (filter === "Daily Life") {
     return category === "Daily Life" || dailyLifeSubCategories.includes(subCategory);
   }

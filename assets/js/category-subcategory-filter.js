@@ -1,14 +1,23 @@
+function normalizeDailyLifeSubCategory(value) {
+  const text = String(value || "").trim();
+  if (text === "Backup") return "Power & Safety";
+  if (text === "Protection") return "Health & Protection";
+  if (text === "Health & Safety") return "Health & Protection";
+  return text;
+}
+
 function getProductSubCategory(product) {
-  return product.subCategory || product.subcategory || product.sub_category || "";
+  return normalizeDailyLifeSubCategory(product.subCategory || product.subcategory || product.sub_category || "");
 }
 
 function productMatchesCategoryFilter(product, filter) {
   const category = String(product.category || "").trim();
   const subCategory = String(getProductSubCategory(product) || "").trim();
+  const dailyLifeSubCategories = ["Power & Safety", "Health & Protection", "Clean Living"];
 
   if (!filter || filter === "All") return true;
   if (filter === "Daily Life") {
-    return category === "Daily Life" || ["Backup", "Protection", "Health & Safety"].includes(subCategory);
+    return category === "Daily Life" || dailyLifeSubCategories.includes(subCategory);
   }
 
   return category === filter || subCategory === filter;
@@ -36,9 +45,9 @@ function buildDailyLifeNavItem() {
   wrapper.innerHTML = `
     <button class="category-pill" data-filter="Daily Life" type="button">Daily Life</button>
     <span class="daily-life-submenu" aria-label="Daily Life subcategories">
-      <button class="category-pill" data-filter="Backup" type="button">Backup</button>
-      <button class="category-pill" data-filter="Protection" type="button">Protection</button>
-      <button class="category-pill" data-filter="Health & Safety" type="button">Health &amp; Safety</button>
+      <button class="category-pill" data-filter="Power & Safety" type="button">Power &amp; Safety</button>
+      <button class="category-pill" data-filter="Health & Protection" type="button">Health &amp; Protection</button>
+      <button class="category-pill" data-filter="Clean Living" type="button">Clean Living</button>
     </span>
   `;
   return wrapper;

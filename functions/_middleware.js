@@ -8,19 +8,13 @@ export async function onRequest(context) {
 
   let html = await response.text();
   const fixScript = `
-<script id="hb-category-cleanup-20260709-v2">
+<style id="hb-home-section-cleanup-style-20260709-v3">
+  .hb-force-hidden-section { display: none !important; }
+</style>
+<script id="hb-category-cleanup-20260709-v3">
 (function () {
   function textOf(element) {
     return (element && element.textContent ? element.textContent : "").replace(/\s+/g, " ").trim();
-  }
-
-  function removeSectionByHeading(headingText) {
-    Array.from(document.querySelectorAll("h1, h2, h3")).forEach(function (heading) {
-      if (textOf(heading).toLowerCase().includes(headingText.toLowerCase())) {
-        var section = heading.closest("section");
-        if (section) section.remove();
-      }
-    });
   }
 
   function makeNavItem(label, filter, href) {
@@ -68,9 +62,48 @@ export async function onRequest(context) {
     });
   }
 
+  function hideBlockByHeadingText(headingText, extraSelector) {
+    var target = headingText.toLowerCase();
+    Array.from(document.querySelectorAll("h1, h2, h3, .section__heading, .marketplace-section__header")).forEach(function (node) {
+      if (!textOf(node).toLowerCase().includes(target)) return;
+
+      var block = node.closest("section");
+      if (!block) block = node.closest(".marketplace-section");
+      if (!block) block = node.closest(".section");
+      if (!block) block = node.closest(".container");
+      if (!block && extraSelector) block = document.querySelector(extraSelector)?.closest("section, .section, .marketplace-section, .container");
+      if (block) {
+        block.classList.add("hb-force-hidden-section");
+        block.remove();
+      }
+    });
+  }
+
   function removeUnwantedHomepageSections() {
-    removeSectionByHeading("Browse popular categories");
-    removeSectionByHeading("Build your own gift or gadget combo");
+    hideBlockByHeadingText("Browse popular categories", ".category-grid");
+    hideBlockByHeadingText("Build your own gift or gadget combo", ".combo-grid");
+
+    // Fallback for old homepage layout: remove the category grid area even if the heading text is changed.
+    var categoryGrid = document.querySelector(".category-grid");
+    if (categoryGrid) {
+      var categoryBlock = categoryGrid.closest("section, .section, .marketplace-section, .container");
+      if (categoryBlock && textOf(categoryBlock).toLowerCase().includes("featured categories")) {
+        categoryBlock.classList.add("hb-force-hidden-section");
+        categoryBlock.remove();
+      }
+    }
+
+    // Fallback for combo offer section.
+    Array.from(document.querySelectorAll("h1, h2, h3")).forEach(function (heading) {
+      var text = textOf(heading).toLowerCase();
+      if (text.includes("combo") && text.includes("gift")) {
+        var block = heading.closest("section, .section, .marketplace-section, .container");
+        if (block) {
+          block.classList.add("hb-force-hidden-section");
+          block.remove();
+        }
+      }
+    });
   }
 
   function runFix() {
@@ -83,9 +116,10 @@ export async function onRequest(context) {
   } else {
     runFix();
   }
-  window.setTimeout(runFix, 250);
-  window.setTimeout(runFix, 1000);
-  window.setTimeout(runFix, 2500);
+  window.setTimeout(runFix, 100);
+  window.setTimeout(runFix, 500);
+  window.setTimeout(runFix, 1500);
+  window.setTimeout(runFix, 3000);
 })();
 </script>`;
 

@@ -48,6 +48,62 @@
   color: #ffffff !important;
 }
 
+.hb-top-facebook-link {
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  gap: 7px !important;
+  min-height: 42px !important;
+  padding: 10px 15px !important;
+  border-radius: 999px !important;
+  background: #1877f2 !important;
+  border: 1px solid #1877f2 !important;
+  color: #fff !important;
+  font-weight: 900 !important;
+  text-decoration: none !important;
+  box-shadow: 0 8px 18px rgba(24, 119, 242, 0.22) !important;
+  line-height: 1 !important;
+  white-space: nowrap !important;
+}
+
+.hb-top-facebook-link:hover {
+  background: #0f63d8 !important;
+  transform: translateY(-1px);
+}
+
+.hb-top-facebook-link .hb-fb-mark {
+  font-family: Arial, sans-serif;
+  font-size: 18px;
+  font-weight: 900;
+}
+
+.hb-social-icon-fix {
+  width: 42px !important;
+  height: 42px !important;
+  min-width: 42px !important;
+  border-radius: 50% !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  color: #fff !important;
+  text-decoration: none !important;
+  font-weight: 900 !important;
+  font-size: 16px !important;
+  box-shadow: 0 7px 16px rgba(0, 0, 0, 0.16) !important;
+  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+  border: 0 !important;
+}
+
+.hb-social-icon-fix:hover {
+  transform: translateY(-2px) scale(1.04);
+  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2) !important;
+}
+
+.hb-social-facebook { background: #1877f2 !important; }
+.hb-social-x { background: #111111 !important; }
+.hb-social-youtube { background: #ff0000 !important; }
+.hb-social-web { background: linear-gradient(135deg, #ff7a00, #ffb347) !important; }
+
 /* Emergency compatibility fix for older cached homepage HTML.
    Old menu order: Home, All Products, Offer Zone, Electronics, Gift & Boxes, Cards, Others, Seasonal, Track Order.
    Hide Cards, Others, and Seasonal when that older 9-item menu is still being served. */
@@ -55,4 +111,15 @@
 .category-nav__inner:has(> :nth-child(9)) > :nth-child(7),
 .category-nav__inner:has(> :nth-child(9)) > :nth-child(8) {
   display: none !important;
+}
+
+@media (max-width: 768px) {
+  .hb-top-facebook-link span:not(.hb-fb-mark) {
+    display: none !important;
+  }
+
+  .hb-top-facebook-link {
+    width: 42px !important;
+    padding: 0 !important;
+  }
 }

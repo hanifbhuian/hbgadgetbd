@@ -48,62 +48,6 @@
   color: #ffffff !important;
 }
 
-.hb-top-facebook-link {
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  gap: 7px !important;
-  min-height: 42px !important;
-  padding: 10px 15px !important;
-  border-radius: 999px !important;
-  background: #1877f2 !important;
-  border: 1px solid #1877f2 !important;
-  color: #fff !important;
-  font-weight: 900 !important;
-  text-decoration: none !important;
-  box-shadow: 0 8px 18px rgba(24, 119, 242, 0.22) !important;
-  line-height: 1 !important;
-  white-space: nowrap !important;
-}
-
-.hb-top-facebook-link:hover {
-  background: #0f63d8 !important;
-  transform: translateY(-1px);
-}
-
-.hb-top-facebook-link .hb-fb-mark {
-  font-family: Arial, sans-serif;
-  font-size: 18px;
-  font-weight: 900;
-}
-
-.hb-social-icon-fix {
-  width: 42px !important;
-  height: 42px !important;
-  min-width: 42px !important;
-  border-radius: 50% !important;
-  display: inline-flex !important;
-  align-items: center !important;
-  justify-content: center !important;
-  color: #fff !important;
-  text-decoration: none !important;
-  font-weight: 900 !important;
-  font-size: 16px !important;
-  box-shadow: 0 7px 16px rgba(0, 0, 0, 0.16) !important;
-  transition: transform 0.2s ease, box-shadow 0.2s ease !important;
-  border: 0 !important;
-}
-
-.hb-social-icon-fix:hover {
-  transform: translateY(-2px) scale(1.04);
-  box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2) !important;
-}
-
-.hb-social-facebook { background: #1877f2 !important; }
-.hb-social-x { background: #111111 !important; }
-.hb-social-youtube { background: #ff0000 !important; }
-.hb-social-web { background: linear-gradient(135deg, #ff7a00, #ffb347) !important; }
-
 /* Emergency compatibility fix for older cached homepage HTML.
    Old menu order: Home, All Products, Offer Zone, Electronics, Gift & Boxes, Cards, Others, Seasonal, Track Order.
    Hide Cards, Others, and Seasonal when that older 9-item menu is still being served. */
@@ -113,13 +57,81 @@
   display: none !important;
 }
 
-@media (max-width: 768px) {
-  .hb-top-facebook-link span:not(.hb-fb-mark) {
-    display: none !important;
+/* Desktop header layout: logo | search | Hotline/Cart/Account/Facebook.
+   Keep everything on one row so there is no empty band above the category menu. */
+@media (min-width: 1100px) {
+  .site-header .header__inner,
+  .site-header .header__inner.marketplace-header {
+    display: flex !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    gap: 10px !important;
+    min-height: 82px !important;
+    padding-top: 7px !important;
+    padding-bottom: 7px !important;
   }
 
-  .hb-top-facebook-link {
-    width: 42px !important;
+  .site-header .brand,
+  .site-header .brand-logo-link {
+    flex: 0 0 auto !important;
+    margin: 0 6px 0 0 !important;
+  }
+
+  .site-header .search {
+    order: 2 !important;
+    flex: 1 1 390px !important;
+    width: auto !important;
+    max-width: 560px !important;
+    min-width: 300px !important;
+    margin: 0 !important;
+  }
+
+  .site-header .header-actions {
+    order: 3 !important;
+    display: flex !important;
+    flex: 0 0 auto !important;
+    flex-wrap: nowrap !important;
+    align-items: center !important;
+    justify-content: flex-end !important;
+    gap: 8px !important;
+    width: auto !important;
+    min-width: 0 !important;
+    margin: 0 !important;
     padding: 0 !important;
+  }
+
+  .site-header .header-actions .hotline-chip,
+  .site-header .header-actions .cart-button,
+  .site-header .header-actions .account-button,
+  .site-header .header-actions .hb-top-facebook-link {
+    flex: 0 0 auto !important;
+    width: auto !important;
+    min-width: 0 !important;
+    white-space: nowrap !important;
+    margin: 0 !important;
+  }
+
+  .site-header .header-actions .hotline-chip {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  .site-header .header-actions .cart-button {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  .site-header .header-actions .account-button {
+    padding-left: 13px !important;
+    padding-right: 13px !important;
+  }
+
+  .site-header .header-actions .hb-top-facebook-link {
+    padding-left: 14px !important;
+    padding-right: 14px !important;
+  }
+
+  .site-header .category-nav {
+    margin-top: 0 !important;
   }
 }

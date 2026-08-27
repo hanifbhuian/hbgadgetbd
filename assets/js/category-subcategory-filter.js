@@ -7,6 +7,8 @@ const HB_RETURN_POLICY = [
   ["Water purifier used/installed", "Return not accepted unless defective"]
 ];
 
+const HB_FACEBOOK_URL = "https://www.facebook.com/hbgadgetbd/";
+
 function normalizeDailyLifeSubCategory(value) {
   const text = String(value || "").trim();
   if (text === "Backup") return "Power & Safety";
@@ -115,7 +117,14 @@ function ensureProductStructureStyles() {
     .hb-structure-section ul, .hb-product-policy-box ul { margin: 0; padding-left: 18px; color: #667085; }
     .hb-structure-section li, .hb-product-policy-box li { margin: 5px 0; }
     .hb-policy-list strong { color: #101828; }
-    @media (max-width: 720px) { .hb-policy-section { padding: 20px; border-radius: 22px; } .hb-policy-grid { grid-template-columns: 1fr; } }
+    .hb-social-section { margin-top: 30px; padding: 24px; border: 1px solid #dfe6f0; border-radius: 24px; background: linear-gradient(135deg, #f8fbff 0%, #fff7f2 100%); box-shadow: 0 16px 38px rgba(15, 23, 42, 0.06); }
+    .hb-social-section h2 { margin: 0 0 8px; color: #101828; font-size: clamp(22px, 2.4vw, 34px); line-height: 1.1; }
+    .hb-social-section p { margin: 0 0 14px; color: #667085; }
+    .hb-facebook-button, .hb-footer-facebook-link { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 999px; background: #1877f2; color: #fff !important; font-weight: 900; text-decoration: none !important; padding: 11px 18px; box-shadow: 0 10px 22px rgba(24, 119, 242, 0.22); }
+    .hb-facebook-button:hover, .hb-footer-facebook-link:hover { background: #0f63d8; transform: translateY(-1px); }
+    .hb-footer-social-block { margin-top: 12px; }
+    .hb-footer-social-block strong { display: block; margin-bottom: 8px; color: #101828; }
+    @media (max-width: 720px) { .hb-policy-section, .hb-social-section { padding: 20px; border-radius: 22px; } .hb-policy-grid { grid-template-columns: 1fr; } }
   `;
   document.head.appendChild(style);
 }
@@ -212,6 +221,35 @@ function insertWebsitePolicySection() {
   else productsSection.insertAdjacentElement("afterend", section);
 }
 
+function insertFacebookLinks() {
+  ensureProductStructureStyles();
+
+  if (!document.getElementById("hbSocialMediaSection")) {
+    const anchor = document.getElementById("hbReturnPolicySection") || document.getElementById("about") || document.getElementById("products");
+    if (anchor) {
+      const section = document.createElement("section");
+      section.id = "hbSocialMediaSection";
+      section.className = "container hb-social-section";
+      section.innerHTML = `
+        <p class="eyebrow">Social Media</p>
+        <h2>Follow HB Gadget BD on Facebook</h2>
+        <p>Get new product updates, offers, order support, and daily-life gadget posts from our official Facebook page.</p>
+        <a class="hb-facebook-button" href="${HB_FACEBOOK_URL}" target="_blank" rel="noopener noreferrer" aria-label="Visit HB Gadget BD Facebook page">📘 Visit Facebook Page</a>
+      `;
+      anchor.insertAdjacentElement("afterend", section);
+    }
+  }
+
+  const footer = document.querySelector(".site-footer .footer__grid") || document.querySelector("footer");
+  if (footer && !document.getElementById("hbFooterSocialBlock")) {
+    const block = document.createElement("div");
+    block.id = "hbFooterSocialBlock";
+    block.className = "hb-footer-social-block";
+    block.innerHTML = `<strong>Social Media</strong><a class="hb-footer-facebook-link" href="${HB_FACEBOOK_URL}" target="_blank" rel="noopener noreferrer">📘 Facebook</a>`;
+    footer.appendChild(block);
+  }
+}
+
 function patchProductRendering() {
   ensureProductStructureStyles();
 
@@ -291,6 +329,7 @@ function patchProductRendering() {
 function bootEnhancements() {
   normalizeMainCategoryMenu();
   insertWebsitePolicySection();
+  insertFacebookLinks();
   patchProductRendering();
 }
 

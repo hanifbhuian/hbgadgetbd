@@ -48,16 +48,7 @@
   color: #ffffff !important;
 }
 
-/* Emergency compatibility fix for older cached homepage HTML.
-   Old menu order: Home, All Products, Offer Zone, Electronics, Gift & Boxes, Cards, Others, Seasonal, Track Order.
-   Hide Cards, Others, and Seasonal when that older 9-item menu is still being served. */
-.category-nav__inner:has(> :nth-child(9)) > :nth-child(6),
-.category-nav__inner:has(> :nth-child(9)) > :nth-child(7),
-.category-nav__inner:has(> :nth-child(9)) > :nth-child(8) {
-  display: none !important;
-}
-
-/* Desktop header layout: logo | search | Hotline/Cart/Account/Facebook.
+/* Desktop header layout: logo | search | Hotline/Cart/Account.
    Keep everything on one row so there is no empty band above the category menu. */
 @media (min-width: 1100px) {
   .site-header .header__inner,
@@ -102,8 +93,7 @@
 
   .site-header .header-actions .hotline-chip,
   .site-header .header-actions .cart-button,
-  .site-header .header-actions .account-button,
-  .site-header .header-actions .hb-top-facebook-link {
+  .site-header .header-actions .account-button {
     flex: 0 0 auto !important;
     width: auto !important;
     min-width: 0 !important;
@@ -124,11 +114,6 @@
   .site-header .header-actions .account-button {
     padding-left: 13px !important;
     padding-right: 13px !important;
-  }
-
-  .site-header .header-actions .hb-top-facebook-link {
-    padding-left: 14px !important;
-    padding-right: 14px !important;
   }
 
   .site-header .category-nav {

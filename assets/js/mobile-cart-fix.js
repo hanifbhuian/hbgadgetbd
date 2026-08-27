@@ -1,3 +1,29 @@
+function positionFacebookButton() {
+  const isMobile = window.matchMedia("(max-width: 640px)").matches;
+  const facebookButton = document.getElementById("hbTopFacebookLink");
+  const headerActions = document.querySelector(".header-actions");
+  const categoryNav = document.querySelector(".category-nav__inner");
+
+  if (!facebookButton) return;
+
+  if (isMobile) {
+    facebookButton.classList.remove("hb-facebook-nav-placement");
+    if (headerActions && facebookButton.parentElement !== headerActions) {
+      headerActions.appendChild(facebookButton);
+    }
+    return;
+  }
+
+  if (categoryNav) {
+    facebookButton.classList.add("hb-facebook-nav-placement");
+    if (facebookButton.parentElement !== categoryNav) {
+      categoryNav.appendChild(facebookButton);
+    } else if (categoryNav.lastElementChild !== facebookButton) {
+      categoryNav.appendChild(facebookButton);
+    }
+  }
+}
+
 function applyMobileCartFix() {
   const isMobile = window.matchMedia("(max-width: 640px)").matches;
   const total = document.getElementById("cartTotal")?.textContent || "৳0";
@@ -11,6 +37,8 @@ function applyMobileCartFix() {
   if (cartButton) {
     cartButton.classList.add("mobile-cart-single-line");
   }
+
+  positionFacebookButton();
 }
 
 function injectMobileCartStyle() {
@@ -19,10 +47,19 @@ function injectMobileCartStyle() {
   const style = document.createElement("style");
   style.id = "mobileCartSingleLineStyle";
   style.textContent = `
+    .category-nav__inner .hb-facebook-nav-placement {
+      flex: 0 0 auto !important;
+      min-height: 40px !important;
+      padding: 8px 14px !important;
+      margin: 0 !important;
+      align-self: center !important;
+      box-shadow: 0 7px 16px rgba(24, 119, 242, 0.18) !important;
+    }
+
     @media (max-width: 640px) {
       .header-actions {
         display: grid !important;
-        grid-template-columns: 1fr .88fr 1fr !important;
+        grid-template-columns: 1fr .88fr 1fr auto !important;
         gap: 7px !important;
         width: 100% !important;
         flex-wrap: nowrap !important;

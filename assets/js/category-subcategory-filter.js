@@ -117,14 +117,61 @@ function ensureProductStructureStyles() {
     .hb-structure-section ul, .hb-product-policy-box ul { margin: 0; padding-left: 18px; color: #667085; }
     .hb-structure-section li, .hb-product-policy-box li { margin: 5px 0; }
     .hb-policy-list strong { color: #101828; }
-    .hb-social-section { margin-top: 30px; padding: 24px; border: 1px solid #dfe6f0; border-radius: 24px; background: linear-gradient(135deg, #f8fbff 0%, #fff7f2 100%); box-shadow: 0 16px 38px rgba(15, 23, 42, 0.06); }
-    .hb-social-section h2 { margin: 0 0 8px; color: #101828; font-size: clamp(22px, 2.4vw, 34px); line-height: 1.1; }
-    .hb-social-section p { margin: 0 0 14px; color: #667085; }
-    .hb-facebook-button, .hb-footer-facebook-link { display: inline-flex; align-items: center; justify-content: center; gap: 8px; border-radius: 999px; background: #1877f2; color: #fff !important; font-weight: 900; text-decoration: none !important; padding: 11px 18px; box-shadow: 0 10px 22px rgba(24, 119, 242, 0.22); }
-    .hb-facebook-button:hover, .hb-footer-facebook-link:hover { background: #0f63d8; transform: translateY(-1px); }
-    .hb-footer-social-block { margin-top: 12px; }
-    .hb-footer-social-block strong { display: block; margin-bottom: 8px; color: #101828; }
-    @media (max-width: 720px) { .hb-policy-section, .hb-social-section { padding: 20px; border-radius: 22px; } .hb-policy-grid { grid-template-columns: 1fr; } }
+    @media (max-width: 720px) { .hb-policy-section { padding: 20px; border-radius: 22px; } .hb-policy-grid { grid-template-columns: 1fr; } }
+  `;
+  document.head.appendChild(style);
+}
+
+function ensureSocialStyles() {
+  if (document.getElementById("hbSocialFixStyles")) return;
+  const style = document.createElement("style");
+  style.id = "hbSocialFixStyles";
+  style.textContent = `
+    #hbSocialMediaSection, #hbFooterSocialBlock, .hb-social-section, .hb-footer-social-block { display: none !important; }
+    .hb-top-facebook-link {
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      gap: 7px !important;
+      min-height: 42px !important;
+      padding: 10px 15px !important;
+      border-radius: 999px !important;
+      background: #1877f2 !important;
+      border: 1px solid #1877f2 !important;
+      color: #fff !important;
+      font-weight: 900 !important;
+      text-decoration: none !important;
+      box-shadow: 0 8px 18px rgba(24, 119, 242, 0.22) !important;
+      line-height: 1 !important;
+      white-space: nowrap !important;
+    }
+    .hb-top-facebook-link:hover { background: #0f63d8 !important; transform: translateY(-1px); }
+    .hb-top-facebook-link .hb-fb-mark { font-family: Arial, sans-serif; font-size: 18px; font-weight: 900; }
+    .hb-social-icon-fix {
+      width: 42px !important;
+      height: 42px !important;
+      min-width: 42px !important;
+      border-radius: 50% !important;
+      display: inline-flex !important;
+      align-items: center !important;
+      justify-content: center !important;
+      color: #fff !important;
+      text-decoration: none !important;
+      font-weight: 900 !important;
+      font-size: 16px !important;
+      box-shadow: 0 7px 16px rgba(0, 0, 0, 0.16) !important;
+      transition: transform 0.2s ease, box-shadow 0.2s ease !important;
+      border: 0 !important;
+    }
+    .hb-social-icon-fix:hover { transform: translateY(-2px) scale(1.04); box-shadow: 0 10px 22px rgba(0, 0, 0, 0.2) !important; }
+    .hb-social-facebook { background: #1877f2 !important; }
+    .hb-social-x { background: #111111 !important; }
+    .hb-social-youtube { background: #ff0000 !important; }
+    .hb-social-web { background: linear-gradient(135deg, #ff7a00, #ffb347) !important; }
+    @media (max-width: 768px) {
+      .hb-top-facebook-link span:not(.hb-fb-mark) { display: none !important; }
+      .hb-top-facebook-link { width: 42px !important; padding: 0 !important; }
+    }
   `;
   document.head.appendChild(style);
 }
@@ -221,33 +268,84 @@ function insertWebsitePolicySection() {
   else productsSection.insertAdjacentElement("afterend", section);
 }
 
-function insertFacebookLinks() {
-  ensureProductStructureStyles();
+function removeExtraFacebookSections() {
+  ["hbSocialMediaSection", "hbFooterSocialBlock"].forEach(id => {
+    const element = document.getElementById(id);
+    if (element) element.remove();
+  });
 
-  if (!document.getElementById("hbSocialMediaSection")) {
-    const anchor = document.getElementById("hbReturnPolicySection") || document.getElementById("about") || document.getElementById("products");
-    if (anchor) {
-      const section = document.createElement("section");
-      section.id = "hbSocialMediaSection";
-      section.className = "container hb-social-section";
-      section.innerHTML = `
-        <p class="eyebrow">Social Media</p>
-        <h2>Follow HB Gadget BD on Facebook</h2>
-        <p>Get new product updates, offers, order support, and daily-life gadget posts from our official Facebook page.</p>
-        <a class="hb-facebook-button" href="${HB_FACEBOOK_URL}" target="_blank" rel="noopener noreferrer" aria-label="Visit HB Gadget BD Facebook page">📘 Visit Facebook Page</a>
-      `;
-      anchor.insertAdjacentElement("afterend", section);
+  document.querySelectorAll(".hb-social-section, .hb-footer-social-block").forEach(element => element.remove());
+
+  document.querySelectorAll("section, div").forEach(element => {
+    const text = (element.textContent || "").replace(/\s+/g, " ").trim().toLowerCase();
+    if (text.includes("follow hb gadget bd on facebook") && text.includes("visit facebook")) {
+      element.remove();
     }
-  }
+  });
+}
 
-  const footer = document.querySelector(".site-footer .footer__grid") || document.querySelector("footer");
-  if (footer && !document.getElementById("hbFooterSocialBlock")) {
-    const block = document.createElement("div");
-    block.id = "hbFooterSocialBlock";
-    block.className = "hb-footer-social-block";
-    block.innerHTML = `<strong>Social Media</strong><a class="hb-footer-facebook-link" href="${HB_FACEBOOK_URL}" target="_blank" rel="noopener noreferrer">📘 Facebook</a>`;
-    footer.appendChild(block);
-  }
+function addTopFacebookLink() {
+  if (document.getElementById("hbTopFacebookLink")) return;
+  const target = document.querySelector(".header-actions") || document.querySelector(".header__inner");
+  if (!target) return;
+
+  const link = document.createElement("a");
+  link.id = "hbTopFacebookLink";
+  link.className = "hb-top-facebook-link";
+  link.href = HB_FACEBOOK_URL;
+  link.target = "_blank";
+  link.rel = "noopener noreferrer";
+  link.setAttribute("aria-label", "Visit HB Gadget BD Facebook page");
+  link.innerHTML = `<span class="hb-fb-mark">f</span><span>Facebook</span>`;
+  target.appendChild(link);
+}
+
+function colorExistingSocialIcons() {
+  const footer = document.querySelector("footer, .site-footer");
+  if (!footer) return;
+
+  const candidates = Array.from(footer.querySelectorAll("a, button")).filter(item => {
+    const text = (item.textContent || "").replace(/\s+/g, "").trim().toLowerCase();
+    const href = item.getAttribute("href") || "";
+    const className = item.className || "";
+    if (href.includes("facebook.com") || href === "#" || text === "f" || text === "x" || text === "▶" || text === "►" || text === "◎" || text === "◉") return true;
+    return String(className).toLowerCase().includes("social") && text.length <= 12;
+  });
+
+  const socialItems = candidates.filter(item => {
+    const text = (item.textContent || "").trim();
+    return text.length <= 12 && !/products|categories|about|contact|email|phone|whatsapp/i.test(text);
+  }).slice(0, 4);
+
+  if (!socialItems.length) return;
+
+  const configs = [
+    { cls: "hb-social-facebook", label: "Facebook", text: "f", href: HB_FACEBOOK_URL },
+    { cls: "hb-social-x", label: "X", text: "X" },
+    { cls: "hb-social-youtube", label: "YouTube", text: "▶" },
+    { cls: "hb-social-web", label: "Website", text: "◎", href: "https://hbgadgetbd.com/" }
+  ];
+
+  socialItems.forEach((item, index) => {
+    const config = configs[index] || configs[3];
+    item.classList.add("hb-social-icon-fix", config.cls);
+    item.setAttribute("aria-label", config.label);
+    if (config.href && item.tagName.toLowerCase() === "a") {
+      item.href = config.href;
+      item.target = "_blank";
+      item.rel = "noopener noreferrer";
+    }
+    if ((item.textContent || "").trim().length <= 2) {
+      item.textContent = config.text;
+    }
+  });
+}
+
+function fixSocialMediaLinks() {
+  ensureSocialStyles();
+  removeExtraFacebookSections();
+  colorExistingSocialIcons();
+  addTopFacebookLink();
 }
 
 function patchProductRendering() {
@@ -329,7 +427,7 @@ function patchProductRendering() {
 function bootEnhancements() {
   normalizeMainCategoryMenu();
   insertWebsitePolicySection();
-  insertFacebookLinks();
+  fixSocialMediaLinks();
   patchProductRendering();
 }
 
@@ -350,3 +448,4 @@ document.addEventListener("DOMContentLoaded", bootEnhancements);
 window.addEventListener("load", bootEnhancements);
 window.setTimeout(bootEnhancements, 500);
 window.setTimeout(bootEnhancements, 1500);
+window.setTimeout(bootEnhancements, 3000);

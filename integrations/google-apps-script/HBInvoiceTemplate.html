@@ -32,24 +32,24 @@
     </tr></table>
   </div>
   <table class="info"><tr>
-    <td><strong>BILL TO</strong><div style="margin-top:8px"><?!= data.customerName ?></div><div>Payment: <?!= data.paymentMethod ?></div></td>
-    <td><strong>INVOICE DETAILS</strong><div style="margin-top:8px">Order ID: <b><?!= data.orderId ?></b></div>
-      <div>Date: <?!= data.date ?></div><div>Status: <?!= data.status ?></div></td>
+    <td><strong>BILL TO</strong><div style="margin-top:8px"><?= data.customerName ?></div><div>Payment: <?= data.paymentMethod ?></div></td>
+    <td><strong>INVOICE DETAILS</strong><div style="margin-top:8px">Order ID: <b><?= data.orderId ?></b></div>
+      <div>Date: <?= data.date ?></div><div>Status: <?= data.status ?></div></td>
   </tr></table>
   <table class="line">
     <thead><tr><th>ITEM DESCRIPTION</th><th style="width:75px;text-align:right">AMOUNT</th></tr></thead>
     <tbody>
     <? for(var i=0;i<data.items.length;i++) { ?>
-      <tr><td><?!= data.items[i] ?></td><td style="text-align:right">—</td></tr>
+      <tr><td><?= data.items[i] ?></td><td style="text-align:right">—</td></tr>
     <? } ?>
     </tbody>
   </table>
   <table class="totals">
-    <tr><td>Subtotal</td><td>BDT <?!= data.subtotal.toLocaleString('en-US') ?></td></tr>
-    <tr><td>Delivery</td><td>BDT <?!= data.deliveryCharge.toLocaleString('en-US') ?></td></tr>
-    <tr class="total"><td>Grand Total</td><td>BDT <?!= data.total.toLocaleString('en-US') ?></td></tr>
-    <tr><td>Paid</td><td>BDT <?!= data.paid.toLocaleString('en-US') ?></td></tr>
-    <tr class="due"><td>Amount Due</td><td>BDT <?!= data.due.toLocaleString('en-US') ?></td></tr>
+    <tr><td>Subtotal</td><td>BDT <?= data.subtotal.toLocaleString('en-US') ?></td></tr>
+    <tr><td>Delivery</td><td>BDT <?= data.deliveryCharge.toLocaleString('en-US') ?></td></tr>
+    <tr class="total"><td>Grand Total</td><td>BDT <?= data.total.toLocaleString('en-US') ?></td></tr>
+    <tr><td>Paid</td><td>BDT <?= data.paid.toLocaleString('en-US') ?></td></tr>
+    <tr class="due"><td>Amount Due</td><td>BDT <?= data.due.toLocaleString('en-US') ?></td></tr>
   </table>
   <div class="thanks">Thank you for shopping with HB Gadget BD!</div>
   <div class="footer">This is a computer-generated invoice, not a receipt or confirmation that the order has been paid in full.

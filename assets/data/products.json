@@ -1,1 +1,27 @@
-{"products":[]}
+{
+  "products": [
+    {
+      "id": 1,
+      "sku": "MG-DCUPS-10000-01",
+      "name": "MG Mini DC UPS – 10000mAh Network Power Bank",
+      "category": "Backup",
+      "price": 1600,
+      "regularPrice": 1800,
+      "image": "assets/uploads/mg-mini-dc-ups-10000mah.webp",
+      "icon": "🔋",
+      "tag": "Sale",
+      "description": "Compact 10,000mAh (advertised) DC UPS / network power bank for compatible Wi-Fi routers and network equipment. Please check your device voltage, current and connector before ordering.",
+      "details": [
+        "Brand: MG",
+        "Product type: Mini DC UPS / Network Power Bank",
+        "Advertised battery capacity: 10,000mAh (as printed on packaging)",
+        "Colour: White / Silver",
+        "Visible ports: USB-A, two round DC-style sockets and a side connector (check actual unit)",
+        "Compatible use: Suitable networking devices, subject to voltage and connector compatibility",
+        "Input/output voltage and maximum power: Not yet verified",
+        "Backup duration: Depends on connected load; not yet verified",
+        "Warranty: To be confirmed"
+      ]
+    }
+  ]
+}

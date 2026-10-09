@@ -38,11 +38,19 @@ collections:
                   - "Mobile Accessories"
                   - "Desk Gadgets"
                   - "Daily Use"
+                  - "Backup"
+                  - "Electronics"
               - label: "Price"
                 name: "price"
                 widget: "number"
                 value_type: "int"
                 min: 0
+              - label: "Regular Price (before discount)"
+                name: "regularPrice"
+                widget: "number"
+                value_type: "int"
+                min: 0
+                required: false
               - label: "Icon or Emoji"
                 name: "icon"
                 widget: "string"
@@ -51,6 +59,14 @@ collections:
                 name: "image"
                 widget: "image"
                 required: false
+              - label: "Additional Product Images"
+                name: "images"
+                widget: "list"
+                required: false
+                field:
+                  label: "Product Photo"
+                  name: "photo"
+                  widget: "image"
               - label: "Tag"
                 name: "tag"
                 widget: "string"

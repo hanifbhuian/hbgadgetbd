@@ -45,7 +45,7 @@ function loadProductDetailCss() {
   if (document.querySelector("link[href*='product-detail-drawer.css']")) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "assets/css/product-detail-drawer.css?v=20260705-1";
+  link.href = "assets/css/product-detail-drawer.css?v=20261009-1";
   document.head.appendChild(link);
 }
 
@@ -60,6 +60,13 @@ function htmlEscape(value) {
 
 function formatPrice(price) {
   return `৳${Number(price || 0).toLocaleString("en-BD")}`;
+}
+
+function renderProductPrice(product) {
+  const sale = Number(product.price || 0);
+  const regular = Number(product.regularPrice || 0);
+  return `<span class="sale-price">${formatPrice(sale)}</span>` +
+    (regular > sale ? `<del class="regular-price">${formatPrice(regular)}</del>` : "");
 }
 
 function syncCartHeader(totalItems, subtotal) {
@@ -214,7 +221,7 @@ function renderProducts() {
         <p>${htmlEscape(product.description)}</p>
         ${renderProductDetails(product)}
         <div class="product-card__bottom">
-          <span class="price">${formatPrice(product.price)}</span>
+          <span class="price price-group">${renderProductPrice(product)}</span>
           <button class="add-cart" type="button" data-id="${product.id}">Add</button>
         </div>
       </div>
@@ -301,7 +308,7 @@ function renderProductDrawer(product) {
     </div>
     <span class="product-card__category">${htmlEscape(product.category)}</span>
     <h2>${htmlEscape(product.name)}</h2>
-    <div class="product-detail-price"><span>${formatPrice(product.price)}</span><small>Delivery charge added at checkout</small></div>
+    <div class="product-detail-price"><span class="price-group">${renderProductPrice(product)}</span><small>Delivery charge added at checkout</small></div>
     <p class="product-detail-description">${htmlEscape(product.description || "")}</p>
     <div class="product-detail-section">
       <h3>Product Information</h3>

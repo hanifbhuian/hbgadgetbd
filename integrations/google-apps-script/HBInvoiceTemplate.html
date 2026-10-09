@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  @page { size:A4; margin: 24pt; }
+  body { font-family: Arial, sans-serif; font-size: 11px; color:#203047; margin:0; }
+  .header { background:#133E83; color:white; padding:24px; border-bottom:6px solid #F26A37; }
+  .brand { font-size:25px; font-weight:bold; letter-spacing:.5px; }
+  .sub { font-size:10px; color:#DAE8FF; margin-top:5px; }
+  .invoice-title { font-size:22px; font-weight:bold; color:#F26A37; text-align:right; }
+  table { border-collapse:collapse; width:100%; }
+  .info { margin-top:18px; margin-bottom:24px; }
+  .info td { width:50%; padding:7px 10px; vertical-align:top; background:#F1F6FD; }
+  .info strong { color:#163C78; }
+  .line th { padding:12px 10px; background:#163C78; color:white; text-align:left; font-size:11px; }
+  .line td { border-bottom:1px solid #DFE7F1; padding:12px 10px; }
+  .totals { width:48%; margin:22px 0 0 auto; }
+  .totals td { padding:7px 10px; }
+  .totals td:last-child { text-align:right; font-weight:bold; }
+  .total { background:#EAF1FB; color:#153F81; font-weight:bold; font-size:14px; }
+  .due { color:#E4532C; }
+  .footer { border-top:2px solid #E6EEF8; margin-top:35px; padding-top:13px; font-size:10px; color:#65758C; }
+  .thanks { color:#153F81; font-size:13px; font-weight:bold; margin-top:24px; }
+</style>
+</head>
+<body>
+  <div class="header">
+    <table><tr>
+      <td><div class="brand">HB Gadget BD</div><div class="sub">Practical gadgets for everyday life</div></td>
+      <td class="invoice-title">INVOICE</td>
+    </tr></table>
+  </div>
+  <table class="info"><tr>
+    <td><strong>BILL TO</strong><div style="margin-top:8px"><?!= data.customerName ?></div><div>Payment: <?!= data.paymentMethod ?></div></td>
+    <td><strong>INVOICE DETAILS</strong><div style="margin-top:8px">Order ID: <b><?!= data.orderId ?></b></div>
+      <div>Date: <?!= data.date ?></div><div>Status: <?!= data.status ?></div></td>
+  </tr></table>
+  <table class="line">
+    <thead><tr><th>ITEM DESCRIPTION</th><th style="width:75px;text-align:right">AMOUNT</th></tr></thead>
+    <tbody>
+    <? for(var i=0;i<data.items.length;i++) { ?>
+      <tr><td><?!= data.items[i] ?></td><td style="text-align:right">—</td></tr>
+    <? } ?>
+    </tbody>
+  </table>
+  <table class="totals">
+    <tr><td>Subtotal</td><td>BDT <?!= data.subtotal.toLocaleString('en-US') ?></td></tr>
+    <tr><td>Delivery</td><td>BDT <?!= data.deliveryCharge.toLocaleString('en-US') ?></td></tr>
+    <tr class="total"><td>Grand Total</td><td>BDT <?!= data.total.toLocaleString('en-US') ?></td></tr>
+    <tr><td>Paid</td><td>BDT <?!= data.paid.toLocaleString('en-US') ?></td></tr>
+    <tr class="due"><td>Amount Due</td><td>BDT <?!= data.due.toLocaleString('en-US') ?></td></tr>
+  </table>
+  <div class="thanks">Thank you for shopping with HB Gadget BD!</div>
+  <div class="footer">This is a computer-generated invoice, not a receipt or confirmation that the order has been paid in full.
+  For order support, contact HB Gadget BD. Any amount due is payable under the chosen payment terms.</div>
+</body>
+</html>

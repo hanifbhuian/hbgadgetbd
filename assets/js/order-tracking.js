@@ -6,17 +6,22 @@ const ORDER_STATUS_FLOW = [
   { key: "pending", label: "Order Received", bn: "অর্ডার গ্রহণ করা হয়েছে" },
   { key: "confirmed", label: "Confirmed", bn: "অর্ডার কনফার্ম হয়েছে" },
   { key: "processing", label: "Processing", bn: "অর্ডার প্রস্তুত করা হচ্ছে" },
-  { key: "shipped", label: "Shipped", bn: "অর্ডার কুরিয়ারে পাঠানো হয়েছে" },
-  { key: "delivered", label: "Delivered", bn: "অর্ডার ডেলিভারি সম্পন্ন হয়েছে" }
+  { key: "packed", label: "Packed", bn: "প্যাক করা হয়েছে" },
+  { key: "shipped", label: "Shipped", bn: "কুরিয়ারে পাঠানো হয়েছে" },
+  { key: "out-for-delivery", label: "Out for Delivery", bn: "ডেলিভারির জন্য বের হয়েছে" },
+  { key: "delivered", label: "Delivered", bn: "ডেলিভারি সম্পন্ন হয়েছে" }
 ];
-
 const ORDER_STATUS_MAP = {
   pending: { label: "Pending", bn: "অর্ডার গ্রহণ করা হয়েছে", level: 0 },
   confirmed: { label: "Confirmed", bn: "অর্ডার কনফার্ম হয়েছে", level: 1 },
   processing: { label: "Processing", bn: "অর্ডার প্রস্তুত করা হচ্ছে", level: 2 },
-  shipped: { label: "Shipped", bn: "অর্ডার কুরিয়ারে পাঠানো হয়েছে", level: 3 },
-  delivered: { label: "Delivered", bn: "অর্ডার ডেলিভারি সম্পন্ন হয়েছে", level: 4 },
-  cancelled: { label: "Cancelled", bn: "অর্ডার বাতিল করা হয়েছে", level: -1 }
+  packed: { label: "Packed", bn: "প্যাক করা হয়েছে", level: 3 },
+  shipped: { label: "Shipped", bn: "কুরিয়ারে পাঠানো হয়েছে", level: 4 },
+  "out-for-delivery": { label: "Out for Delivery", bn: "ডেলিভারির জন্য বের হয়েছে", level: 5 },
+  delivered: { label: "Delivered", bn: "ডেলিভারি সম্পন্ন হয়েছে", level: 6 },
+  cancelled: { label: "Cancelled", bn: "অর্ডার বাতিল হয়েছে", level: -1 },
+  returned: { label: "Returned", bn: "পণ্য ফেরত এসেছে", level: -2 },
+  "on-hold": { label: "On Hold", bn: "সাময়িক স্থগিত", level: -3 }
 };
 
 function loadOrderTrackingCss() {
@@ -39,18 +44,22 @@ function displayOrderId(value) {
 function normalizeStatus(value) {
   const status = String(value || "pending").trim().toLowerCase();
   if (status.includes("cancel")) return "cancelled";
+  if (status.includes("return")) return "returned";
+  if (status.includes("hold")) return "on-hold";
+  if (status.includes("out for delivery")) return "out-for-delivery";
   if (status.includes("deliver")) return "delivered";
   if (status.includes("ship") || status.includes("courier")) return "shipped";
+  if (status.includes("pack")) return "packed";
   if (status.includes("process") || status.includes("prepar")) return "processing";
   if (status.includes("confirm")) return "confirmed";
-  if (status.includes("pending") || status.includes("received") || status.includes("receive")) return "pending";
   return "pending";
 }
 
 function getStatusInfo(order) {
-  const rawStatus = getOrderField(order, ["status"], "Pending");
-  const key = normalizeStatus(rawStatus);
-  return ORDER_STATUS_MAP[key] || ORDER_STATUS_MAP.pending;
+  const key = normalizeStatus(getOrderField(order, ["status"], "Pending"));
+  const status = ORDER_STATUS_MAP[key] || ORDER_STATUS_MAP.pending;
+  const providedBn = getOrderField(order, ["statusBn", "banglaStatus"], "");
+  return { ...status, bn: providedBn || status.bn };
 }
 
 function formatOrderMoney(value) {
@@ -101,24 +110,20 @@ function getOrderItems(order) {
 }
 
 function getOrderTimeline(order) {
-  if (Array.isArray(order.timeline)) return order.timeline;
-
   const statusInfo = getStatusInfo(order);
   const orderDate = formatTrackingTime(getOrderField(order, ["orderDate"], ""));
   const lastUpdated = formatTrackingTime(getOrderField(order, ["lastUpdated"], ""));
-
-  if (statusInfo.label === "Cancelled") {
+  if (statusInfo.level < 0) {
     return [
       { step: "Order Received", stepBn: ORDER_STATUS_MAP.pending.bn, done: true, time: orderDate },
-      { step: "Cancelled", stepBn: ORDER_STATUS_MAP.cancelled.bn, done: true, time: lastUpdated }
+      { step: statusInfo.label, stepBn: statusInfo.bn, done: true, time: lastUpdated }
     ];
   }
-
   return ORDER_STATUS_FLOW.map((step, index) => ({
     step: step.label,
-    stepBn: step.bn,
+    stepBn: step.key === normalizeStatus(getOrderField(order, ["status"], "Pending")) ? statusInfo.bn : step.bn,
     done: index <= statusInfo.level,
-    time: index === 0 ? orderDate : (index <= statusInfo.level ? lastUpdated : "Pending")
+    time: index === 0 ? orderDate : (index === statusInfo.level ? lastUpdated : "")
   }));
 }
 
@@ -129,7 +134,7 @@ function enhanceTrackOrderForm() {
   const result = document.getElementById("trackOrderResult");
   if (!orderInput || !result) return false;
 
-  orderInput.placeholder = "Enter Order ID, e.g. 1001";
+  orderInput.placeholder = "Enter your Order ID";
   orderInput.autocomplete = "off";
   orderInput.inputMode = "numeric";
   orderInput.pattern = "[0-9]*";
@@ -198,15 +203,13 @@ function renderOrder(order) {
     <div class="order-result-card ${isCancelled ? "is-cancelled" : ""}">
       <span class="order-status-badge ${isCancelled ? "is-cancelled" : ""}">● ${statusInfo.label} / ${statusInfo.bn}</span>
       <h3>Order ${safeHtml(orderId)}</h3>
-      <p>${safeHtml(getOrderField(order, ["note"], "Your order information is shown below."))}</p>
-      ${isCancelled ? `<div class="cancel-reason-box"><strong>Cancellation Reason</strong><p>${safeHtml(cancelReason || "No cancellation reason has been added yet. Please contact support for details.")}</p></div>` : ""}
+      <p>Live delivery progress from HB Gadget BD Orders.</p>
+
       <div class="order-meta-grid">
-        <div><small>Customer</small><strong>${safeHtml(getOrderField(order, ["customerName"], "Customer"))}</strong></div>
         <div><small>Last Updated</small><strong>${safeHtml(formatTrackingTime(getOrderField(order, ["lastUpdated"], "Not updated")))}</strong></div>
         <div><small>Payment</small><strong>${safeHtml(getOrderField(order, ["paymentMethod"], "To be confirmed"))}</strong></div>
         <div><small>Subtotal</small><strong>${safeHtml(formatOrderMoney(getOrderField(order, ["subtotal"])))}</strong></div>
         <div><small>Delivery Charge</small><strong>${safeHtml(formatOrderMoney(getOrderField(order, ["deliveryCharge"])))}</strong></div>
-        <div><small>Delivery Area</small><strong>${safeHtml(getOrderField(order, ["deliveryArea"], "To be confirmed"))}</strong></div>
         <div><small>Courier</small><strong>${safeHtml(getOrderField(order, ["courier"], "Not assigned"))}</strong></div>
         <div><small>Tracking No.</small><strong>${safeHtml(getOrderField(order, ["trackingNumber"], "Pending"))}</strong></div>
       </div>

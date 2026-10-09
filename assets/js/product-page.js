@@ -205,7 +205,7 @@ function addToCart(id) {
 
 function orderNow(product) {
   addToCart(product.id);
-  const message = `Hello HB Gadget BD, I want to order: ${product.name}. Please confirm stock and delivery.`;
+  const message = `Hello HB Gadget BD, I want to order: ${product.name} (1 × ${formatPrice(sellingPrice(product))}). Please confirm stock and delivery.`;
   window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank", "noopener");
 }
 

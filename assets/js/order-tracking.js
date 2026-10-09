@@ -1,5 +1,5 @@
 const ORDER_DATA_URL = "assets/data/orders.json";
-const ORDER_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzva7OB4SqKgN51v66okHgb8LdiAmzJuEjVixpvs_gL4f0L6fRrqRnxbx-yDYWaSxtjnw/exec";
+const ORDER_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzBndPWOJ-Q8hk06-M6c9klMG0R-n3N-y3JTkX7P5hdij3BQwE1mJ5ufuTxcWGILGnO/exec";
 const ORDER_SUPPORT_NUMBER = "8801816569237";
 
 const ORDER_STATUS_FLOW = [

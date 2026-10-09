@@ -24,9 +24,18 @@ function setCheckoutButtonLabel() {
 }
 
 function generateClientOrderId() {
-  const timePart = Date.now().toString().slice(-6);
-  const randomPart = Math.floor(Math.random() * 90 + 10).toString();
-  return `HBG-${timePart}${randomPart}`;
+  // Numeric-only Order ID used consistently by checkout, Google Sheet,
+  // payment-proof filenames, invoice filenames, and Track Order.
+  const timePart = Date.now().toString().slice(-10);
+  let randomPart = "";
+  if (window.crypto && window.crypto.getRandomValues) {
+    const bytes = new Uint32Array(1);
+    window.crypto.getRandomValues(bytes);
+    randomPart = String(bytes[0] % 100).padStart(2, "0");
+  } else {
+    randomPart = String(Math.floor(Math.random() * 100)).padStart(2, "0");
+  }
+  return `${timePart}${randomPart}`;
 }
 
 function formatCheckoutMoney(value) {
@@ -291,11 +300,11 @@ async function submitOrderToSheet(payload) {
   }
 }
 
-function renderCheckoutSuccess(orderId, phone, receiptLink) {
+function renderCheckoutSuccess(orderId, receiptLink) {
   const modal = ensureCheckoutModal();
   const dialog = modal.querySelector(".checkout-modal__dialog");
   const message = `Hello HB Gadget BD, I placed order ${orderId}. Please confirm delivery charge and availability.`;
-  dialog.innerHTML = `<div class="checkout-success-card"><h3>Order submitted successfully!</h3><p>Your Order ID is <strong>${safeText(orderId)}</strong>.</p><p>Please save this Order ID and your phone number to track the delivery status. An invoice email will be sent after Google Sheet processing is complete.</p><div class="order-meta-grid"><div><small>Order ID</small><strong>${safeText(orderId)}</strong></div><div><small>Phone</small><strong>${safeText(phone)}</strong></div></div>${receiptLink ? `<p><a href="${safeText(receiptLink)}" target="_blank" rel="noreferrer">View invoice</a></p>` : ""}<div class="checkout-actions"><a href="https://wa.me/${ORDER_CREATE_SUPPORT_NUMBER}?text=${encodeURIComponent(message)}" target="_blank" rel="noreferrer">Confirm on WhatsApp</a><button type="button" data-checkout-close>Close</button></div></div>`;
+  dialog.innerHTML = `<div class="checkout-success-card"><h3>Order submitted successfully!</h3><p>Your Order ID is <strong>${safeText(orderId)}</strong>.</p><p>Please save this numeric Order ID. You only need this ID to track the delivery status. An invoice email will be sent after Google Sheet processing is complete.</p><div class="order-meta-grid"><div><small>Order ID</small><strong>${safeText(orderId)}</strong></div></div>${receiptLink ? `<p><a href="${safeText(receiptLink)}" target="_blank" rel="noreferrer">View invoice</a></p>` : ""}<div class="checkout-actions"><a href="https://wa.me/${ORDER_CREATE_SUPPORT_NUMBER}?text=${encodeURIComponent(message)}" target="_blank" rel="noreferrer">Confirm on WhatsApp</a><button type="button" data-checkout-close>Close</button></div></div>`;
 }
 
 async function handleCheckoutSubmit(event) {
@@ -317,7 +326,7 @@ async function handleCheckoutSubmit(event) {
     const result = await submitOrderToSheet(payload);
     if (!result.success) throw new Error(result.message || "Order could not be saved.");
     document.getElementById("clearCart")?.click();
-    renderCheckoutSuccess(result.orderId || payload.orderId, payload.phone, result.receiptLink || "");
+    renderCheckoutSuccess(result.orderId || payload.orderId, result.receiptLink || "");
   } catch (error) {
     console.error(error);
     if (status) status.textContent = error.message || "Order could not be submitted automatically. Please contact WhatsApp support.";

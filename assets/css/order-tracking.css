@@ -181,3 +181,16 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Standalone responsive homepage order-tracking panel */
+#track-order .hb-track-panel { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:30px; align-items:start; background:#fff; border:1px solid var(--line); border-radius:20px; padding:28px; box-shadow:0 12px 32px rgba(24,32,51,.05); }
+#track-order .hb-track-intro p:not(.eyebrow) { margin:8px 0; color:var(--muted); line-height:1.55; }
+#track-order .track-order-form { display:grid; gap:9px; min-width:0; }
+#track-order .track-order-form label { font-size:13px; font-weight:800; color:var(--ink); }
+#track-order .hb-track-controls { display:flex; gap:10px; min-width:0; }
+#track-order #trackOrderInput { flex:1; min-width:0; padding:12px 14px; border:1px solid var(--line); border-radius:12px; font:inherit; }
+#track-order .hb-track-controls .button { flex:0 0 auto; border-radius:12px; white-space:nowrap; }
+#track-order .track-order-help { grid-column:1/-1; }
+#track-order .track-order-result { margin-top:4px; min-width:0; }
+@media(max-width:760px){ #track-order .hb-track-panel { grid-template-columns:1fr; padding:18px; gap:18px; } }
+@media(max-width:390px){ #track-order .hb-track-controls { flex-direction:column; } #track-order .hb-track-controls .button { width:100%; } }

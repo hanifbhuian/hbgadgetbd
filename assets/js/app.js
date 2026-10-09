@@ -62,11 +62,35 @@ function formatPrice(price) {
   return `৳${Number(price || 0).toLocaleString("en-BD")}`;
 }
 
+function productMoney(value) {
+  if (value === undefined || value === null || value === "") return 0;
+  const amount = typeof value === "number" ? value : Number(String(value).replace(/[,৳\s]/g, ""));
+  return Number.isFinite(amount) && amount >= 0 ? amount : 0;
+}
+
+function getSalePrice(product) {
+  return productMoney(product.discountPrice ?? product.salePrice ?? product.offerPrice ?? product.price);
+}
+
+function getRegularPrice(product) {
+  return productMoney(product.regularPrice ?? product.oldPrice ?? product.originalPrice ?? product.mrp ?? product.compareAtPrice);
+}
+
 function renderProductPrice(product) {
-  const sale = Number(product.price || 0);
-  const regular = Number(product.regularPrice || 0);
-  return `<span class="sale-price">${formatPrice(sale)}</span>` +
-    (regular > sale ? `<del class="regular-price">${formatPrice(regular)}</del>` : "");
+  const sale = getSalePrice(product);
+  const regular = getRegularPrice(product);
+  const oldPrice = regular > sale ? `<del class="product-card__old-price">${formatPrice(regular)}</del>` : "";
+  return `<span class="product-card__sale-price">${formatPrice(sale)}</span>${oldPrice}`;
+}
+
+function renderProductBadge(product) {
+  const sale = getSalePrice(product);
+  const regular = getRegularPrice(product);
+  if (regular > sale && sale > 0) {
+    const percent = Math.round((regular - sale) * 100 / regular);
+    return `<span class="product-card__tag product-card__tag--discount">Save ${formatPrice(regular - sale)} (${percent}%)</span>`;
+  }
+  return product.tag ? `<span class="product-card__tag">${htmlEscape(product.tag)}</span>` : "";
 }
 
 function syncCartHeader(totalItems, subtotal) {
@@ -183,18 +207,13 @@ function renderProductDetails(product) {
 }
 
 function renderProductImage(product) {
-  const images = getProductImages(product).map(image => resolveAssetUrl(image));
-  if (!images.length) return product.icon || "🛒";
-
-  const imageList = images.join("|");
+  const images = getProductImages(product).map(resolveAssetUrl);
+  if (!images.length) return `<span class="product-card__placeholder" aria-hidden="true">${htmlEscape(product.icon || "🛒")}</span>`;
   const photoCount = images.length > 1 ? `<span class="gallery-count">1/${images.length}</span>` : "";
-  const hint = images.length > 1 ? `<span class="gallery-hint">Click product to view details</span>` : `<span class="gallery-hint">Click product to view details</span>`;
-
   return `
-    <button class="product-gallery" type="button" data-images="${imageList}" data-index="0" data-title="${htmlEscape(product.name)}" aria-label="Open ${htmlEscape(product.name)} details">
-      <img src="${images[0]}" alt="${htmlEscape(product.name)}" loading="lazy">
+    <button class="product-gallery" type="button" aria-label="View details for ${htmlEscape(product.name)}">
+      <img src="${htmlEscape(images[0])}" alt="${htmlEscape(product.name)}" loading="lazy">
       ${photoCount}
-      ${hint}
     </button>
   `;
 }
@@ -203,27 +222,22 @@ function renderProducts() {
   const filtered = getFilteredProducts();
   const categoryLabel = state.filter === "All" ? "all products" : state.filter;
   resultText.textContent = `Showing ${filtered.length} ${categoryLabel} item${filtered.length === 1 ? "" : "s"}`;
-
   if (!filtered.length) {
     productGrid.innerHTML = `<div class="empty">No products found. Try another keyword or category.</div>`;
     return;
   }
-
+  // Single compact card template; full descriptions belong on the product detail page.
   productGrid.innerHTML = filtered.map(product => `
     <article class="product-card" data-product-id="${product.id}">
       <div class="product-card__image">
-        <span class="product-card__tag">${htmlEscape(product.tag || "New")}</span>
         ${renderProductImage(product)}
+        ${renderProductBadge(product)}
       </div>
       <div class="product-card__body">
-        <span class="product-card__category">${htmlEscape(product.category)}</span>
-        <h3>${htmlEscape(product.name)}</h3>
-        <p>${htmlEscape(product.description)}</p>
-        ${renderProductDetails(product)}
-        <div class="product-card__bottom">
-          <span class="price price-group">${renderProductPrice(product)}</span>
-          <button class="add-cart" type="button" data-id="${product.id}">Add</button>
-        </div>
+        <span class="product-card__category">${htmlEscape(product.category || "Products")}</span>
+        <h3 class="product-card__title"><a href="product.html?id=${encodeURIComponent(product.id)}" data-detail-id="${product.id}">${htmlEscape(product.name)}</a></h3>
+        <div class="product-card__pricing" aria-label="Product price">${renderProductPrice(product)}</div>
+        <button class="add-cart" type="button" data-id="${product.id}" aria-label="Add ${htmlEscape(product.name)} to cart">+ Add to Cart</button>
       </div>
     </article>
   `).join("");

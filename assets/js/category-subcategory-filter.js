@@ -351,38 +351,7 @@ function fixSocialMediaLinks() {
 function patchProductRendering() {
   ensureProductStructureStyles();
 
-  if (typeof renderProducts === "function" && typeof productGrid !== "undefined" && !window.hbProductCardPricePatched) {
-    window.hbProductCardPricePatched = true;
-    renderProducts = function () {
-      const filtered = getFilteredProducts();
-      const categoryLabel = state.filter === "All" ? "all products" : state.filter;
-      resultText.textContent = `Showing ${filtered.length} ${categoryLabel} item${filtered.length === 1 ? "" : "s"}`;
-
-      if (!filtered.length) {
-        productGrid.innerHTML = `<div class="empty">No products found. Try another keyword or category.</div>`;
-        return;
-      }
-
-      productGrid.innerHTML = filtered.map(product => `
-        <article class="product-card" data-product-id="${product.id}">
-          <div class="product-card__image">
-            <span class="product-card__tag">${htmlEscape(product.tag || "New")}</span>
-            ${renderProductImage(product)}
-          </div>
-          <div class="product-card__body">
-            <span class="product-card__category">${htmlEscape(product.category)}</span>
-            <h3>${htmlEscape(product.name)}</h3>
-            <p>${htmlEscape(product.description)}</p>
-            ${renderProductDetails(product)}
-            <div class="product-card__bottom">
-              <span class="price">${renderProductPriceMarkup(product)}</span>
-              <button class="add-cart" type="button" data-id="${product.id}">Add</button>
-            </div>
-          </div>
-        </article>
-      `).join("");
-    };
-  }
+  // Do not replace app.js product cards: this caused inconsistent price layout.
 
   if (typeof renderProductDrawer === "function" && !window.hbProductDrawerStructurePatched) {
     window.hbProductDrawerStructurePatched = true;

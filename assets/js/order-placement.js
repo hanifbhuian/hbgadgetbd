@@ -26,7 +26,7 @@ function setCheckoutButtonLabel() {
 function generateClientOrderId() {
   // Numeric-only Order ID used consistently by checkout, Google Sheet,
   // payment-proof filenames, invoice filenames, and Track Order.
-  const timePart = Date.now().toString().slice(-10);
+  const timePart = Date.now().toString();
   let randomPart = "";
   if (window.crypto && window.crypto.getRandomValues) {
     const bytes = new Uint32Array(1);

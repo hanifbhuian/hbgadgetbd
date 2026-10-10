@@ -1,3 +1,23 @@
+# HB Gadget BD — Current deployment status (October 2026)
+
+The owner's Apps Script screenshot confirms **Version 12 deployed successfully** on October 9, 2026. The Google Sheets `setupHBOrders` routine was run earlier and the owner confirmed that `Pending_order` edits update `Orders`.
+
+The storefront has been changed to use these same-origin Cloudflare Pages Functions:
+- `GET /api/orders/track?orderId=...` reads public status-only fields from Apps Script.
+- `POST /api/orders/create` submits a checkout once and requires a server-confirmed mobile+serial Order ID.
+
+Both API Functions now target the **Version 12 deployment ID visible in the owner's deployment screenshot**. Checkout uses `assets/js/order-placement.js`; tracking uses `assets/js/order-tracking.js`.
+
+**Live end-to-end confirmation is still pending.** Check that Google Apps Script deployment access is **Anyone**, and test existing Order ID lookup, a new checkout, the invoice email, and pending-order synchronization.
+
+**Do not paste the older add-on over the current integrated Code.gs.** The `HBOrdersAddon.gs` and template files in this directory were pre-integration helpers and are retained for reference only. The live Google Apps Script uses the full replacement `Code.gs` installed by the owner.
+
+The current website code preserves older timestamp-based Order IDs for tracking. Only new orders receive mobile+serial IDs; old invoice documents are not regenerated automatically.
+
+---
+
+## Historical pre-integration notes (reference only)
+
 # HB Gadget BD — Order workflow update
 
 This directory contains **source files, not a live deployment**. The existing Google Apps Script web app handles checkout, payment-proof uploads, PDF receipt generation, and order tracking. Its source is not exposed to the connected Drive/GitHub tools.

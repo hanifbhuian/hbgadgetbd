@@ -71,8 +71,7 @@ export async function onRequestGet(context) {
       statusBn: String(o.statusBn || o.banglaStatus || ""),
       orderDate: String(o.orderDate || ""),
       lastUpdated: String(o.lastUpdated || ""),
-      courier: String(o.courier || "Not assigned yet"),
-      trackingNumber: String(o.trackingNumber || "Pending")
+      courier: String(o.courier || "Not assigned yet")
     };
     if (sanitized.status.trim().toLowerCase() === "cancelled") {
       sanitized.cancelReason = String(o.cancelReason || o.cancellationReason || "").trim().slice(0, 300);

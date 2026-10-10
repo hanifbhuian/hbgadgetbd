@@ -2,7 +2,7 @@
 // Browsers cannot reliably read Google Apps Script JSON responses across origins.
 // Never return customer name, phone, address, email, invoice or payment-proof links.
 const DEFAULT_GOOGLE_WEBAPP =
-  "https://script.google.com/macros/s/AKfycbzBndPWOJ-Q8hk06-M6c9klMG0R-n3N-y3JTkX7P5hdij3BQwE1mJ5ufuTxcWGILGnO/exec";
+  "https://script.google.com/macros/s/AKfycbwTSSUNQFJNprDoERK6XQZvH1-s40hdzPUrRaPgoaf4a1BEa7alh8v5EZuse3iRU9R0/exec";
 
 function respond(data, status = 200) {
   return new Response(JSON.stringify(data), {
@@ -25,7 +25,8 @@ export async function onRequestGet(context) {
       message: "Please enter the numeric Order ID from your invoice." }, 400);
   }
 
-  const endpoint = (context.env && context.env.HB_ORDER_WEBAPP_URL) || DEFAULT_GOOGLE_WEBAPP;
+  // Use the deployed Version 12 URL; do not accidentally fall back to an obsolete environment override.
+  const endpoint = DEFAULT_GOOGLE_WEBAPP;
   const url = new URL(endpoint);
   url.searchParams.set("action", "track");
   url.searchParams.set("orderId", orderId);

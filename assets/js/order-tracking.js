@@ -127,6 +127,28 @@ function getOrderTimeline(order) {
   }));
 }
 
+// The original storefront also contained an old tracking widget with identical IDs.
+// Keep the current standalone panel and remove legacy duplicates after any DOM inserts.
+function dedupeTrackingSections() {
+  const sections = Array.from(document.querySelectorAll('section[id="track-order"], section.track-order-section'));
+  if (sections.length <= 1) return;
+  const keep = sections.find(section => section.dataset.hbTrackPrimary === "true")
+    || sections.find(section => section.querySelector(".hb-track-panel"))
+    || sections[0];
+  sections.forEach(section => { if (section !== keep) section.remove(); });
+}
+
+function watchTrackingSections() {
+  if (window.__hbTrackingSectionObserver || !document.body) return;
+  const observer = new MutationObserver(() => {
+    if (document.querySelectorAll('section[id="track-order"], section.track-order-section').length > 1) {
+      dedupeTrackingSections();
+    }
+  });
+  observer.observe(document.body, { childList: true, subtree: true });
+  window.__hbTrackingSectionObserver = observer;
+}
+
 function enhanceTrackOrderForm() {
   const form = document.getElementById("trackOrderForm");
   if (!form) return false;
@@ -143,15 +165,20 @@ function enhanceTrackOrderForm() {
   const oldPhoneInput = document.getElementById("trackPhoneInput");
   if (oldPhoneInput) oldPhoneInput.remove();
 
-  Array.from(form.querySelectorAll(".track-order-help")).forEach(help => help.remove());
-
-  if (!document.getElementById("trackOrderOnlyHelp")) {
-    const help = document.createElement("p");
+  // Keep helper text BELOW the input/button row, not between them in the flex layout.
+  const otherHelp = Array.from(form.querySelectorAll(".track-order-help"))
+    .filter(element => element.id !== "trackOrderOnlyHelp");
+  otherHelp.forEach(element => element.remove());
+  let help = document.getElementById("trackOrderOnlyHelp");
+  if (!help) {
+    help = document.createElement("p");
     help.id = "trackOrderOnlyHelp";
     help.className = "track-order-help";
-    help.textContent = "Enter only your numeric Order ID. Phone number is not required.";
-    orderInput.insertAdjacentElement("afterend", help);
   }
+  help.textContent = "Enter your Order ID from the invoice. No phone number is needed.";
+  const controls = orderInput.closest(".hb-track-controls");
+  if (controls) controls.insertAdjacentElement("afterend", help);
+  else orderInput.insertAdjacentElement("afterend", help);
 
   form.dataset.trackingReady = "true";
   return true;
@@ -276,8 +303,13 @@ async function handleTrackOrderSubmit(event) {
 
 function initOrderTracking() {
   loadOrderTrackingCss();
+  dedupeTrackingSections();
   enhanceTrackOrderForm();
-  document.addEventListener("submit", handleTrackOrderSubmit, true);
+  watchTrackingSections();
+  if (!window.__hbOrderTrackingSubmitWired) {
+    window.__hbOrderTrackingSubmitWired = true;
+    document.addEventListener("submit", handleTrackOrderSubmit, true);
+  }
 }
 
 function waitForTrackForm() {

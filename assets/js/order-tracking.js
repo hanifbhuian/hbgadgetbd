@@ -207,6 +207,7 @@ function renderOrder(order) {
   const statusInfo = getStatusInfo(order);
   const timeline = getOrderTimeline(order);
   const isCancelled = statusInfo.label === "Cancelled";
+  const cancelReason = String(getOrderField(order, ["cancelReason", "cancellationReason", "cancelledReason"], "")).trim();
   const supportMessage = `Hello HB Gadget BD, I need an update for order ${orderId}.`;
   return `
     <div class="order-result-card ${isCancelled ? "is-cancelled" : ""}">
@@ -218,6 +219,7 @@ function renderOrder(order) {
         <div><small>Courier</small><strong>${safeHtml(getOrderField(order, ["courier"], "Not assigned"))}</strong></div>
         <div><small>Tracking No.</small><strong>${safeHtml(getOrderField(order, ["trackingNumber"], "Pending"))}</strong></div>
       </div>
+      ${isCancelled ? `<div class="cancel-reason-box" role="status"><strong>Cancellation Reason | বাতিলের কারণ</strong><p>${safeHtml(cancelReason || "Our team has not added a cancellation reason yet.")}</p></div>` : ""}
       <h4>Order Timeline</h4>
       <div class="order-timeline">
         ${timeline.map(step => `

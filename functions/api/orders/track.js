@@ -74,6 +74,9 @@ export async function onRequestGet(context) {
       courier: String(o.courier || "Not assigned yet"),
       trackingNumber: String(o.trackingNumber || "Pending")
     };
+    if (sanitized.status.trim().toLowerCase() === "cancelled") {
+      sanitized.cancelReason = String(o.cancelReason || o.cancellationReason || "").trim().slice(0, 300);
+    }
     // Order ID is already supplied by the requester; no other personally
     // identifying customer fields from the sheet are returned.
     return respond({ success: true, order: sanitized });

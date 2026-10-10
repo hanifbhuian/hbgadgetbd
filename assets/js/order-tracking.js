@@ -1,5 +1,5 @@
-const ORDER_DATA_URL = "assets/data/orders.json";
-const ORDER_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzBndPWOJ-Q8hk06-M6c9klMG0R-n3N-y3JTkX7P5hdij3BQwE1mJ5ufuTxcWGILGnO/exec";
+// Same-origin Cloudflare Pages API reads the Google Sheet via Apps Script.
+const ORDER_TRACKING_API = "/api/orders/track";
 const ORDER_SUPPORT_NUMBER = "8801816569237";
 
 const ORDER_STATUS_FLOW = [
@@ -184,64 +184,40 @@ function enhanceTrackOrderForm() {
   return true;
 }
 
-async function fetchOrderFromGoogleSheet(orderId) {
-  const numericOrderId = normalizeOrderId(orderId);
-  const url = new URL(ORDER_WEB_APP_URL);
-  url.searchParams.set("action", "track");
-  url.searchParams.set("orderId", numericOrderId);
-  url.searchParams.set("v", Date.now());
-
-  const response = await fetch(url.toString(), { method: "GET", cache: "no-store" });
-  if (!response.ok) throw new Error("Google Sheet order data could not be loaded.");
-  const data = await response.json();
-  if (!data.success) return null;
-  return data.order || null;
-}
-
-async function fetchOrderFromLocalFile(orderId) {
-  const numericOrderId = normalizeOrderId(orderId);
-  const response = await fetch(`${ORDER_DATA_URL}?v=${Date.now()}`, { cache: "no-store" });
-  if (!response.ok) throw new Error("Local order data could not be loaded.");
-  const data = await response.json();
-  const orders = Array.isArray(data.orders) ? data.orders : [];
-  return orders.find(order => normalizeOrderId(order.orderId || order.orderID) === numericOrderId) || null;
-}
-
 async function findOrder(orderId) {
-  try {
-    const googleOrder = await fetchOrderFromGoogleSheet(orderId);
-    if (googleOrder) return googleOrder;
-  } catch (error) {
-    console.warn("Google Sheet tracking failed. Trying local fallback.", error);
+  const url = new URL(ORDER_TRACKING_API, window.location.origin);
+  url.searchParams.set("orderId", normalizeOrderId(orderId));
+  const response = await fetch(url.toString(), { method: "GET", cache: "no-store", headers: { "Accept": "application/json" } });
+  let payload;
+  try { payload = await response.json(); } catch (error) {
+    throw new Error("Live order tracking is temporarily unavailable. Please try again later.");
   }
-  return fetchOrderFromLocalFile(orderId);
+  if (response.status === 404 && payload.error === "not_found") return null;
+  if (!response.ok || !payload.success) {
+    throw new Error(payload.message || "Live order tracking is currently unavailable.");
+  }
+  if (!payload.order || !payload.order.orderId) {
+    throw new Error("The tracking service returned an incomplete response.");
+  }
+  return payload.order;
 }
 
 function renderOrder(order) {
   const orderId = displayOrderId(getOrderField(order, ["orderId", "orderID"], "Unknown"));
   const statusInfo = getStatusInfo(order);
   const timeline = getOrderTimeline(order);
-  const items = getOrderItems(order);
-  const cancelReason = getCancelReason(order);
   const isCancelled = statusInfo.label === "Cancelled";
   const supportMessage = `Hello HB Gadget BD, I need an update for order ${orderId}.`;
-
   return `
     <div class="order-result-card ${isCancelled ? "is-cancelled" : ""}">
-      <span class="order-status-badge ${isCancelled ? "is-cancelled" : ""}">● ${statusInfo.label} / ${statusInfo.bn}</span>
+      <span class="order-status-badge ${isCancelled ? "is-cancelled" : ""}">● ${safeHtml(statusInfo.label)} / ${safeHtml(statusInfo.bn)}</span>
       <h3>Order ${safeHtml(orderId)}</h3>
-      <p>Live delivery progress from HB Gadget BD Orders.</p>
-
+      <p>Current delivery status from the HB Gadget BD order sheet.</p>
       <div class="order-meta-grid">
-        <div><small>Last Updated</small><strong>${safeHtml(formatTrackingTime(getOrderField(order, ["lastUpdated"], "Not updated")))}</strong></div>
-        <div><small>Payment</small><strong>${safeHtml(getOrderField(order, ["paymentMethod"], "To be confirmed"))}</strong></div>
-        <div><small>Subtotal</small><strong>${safeHtml(formatOrderMoney(getOrderField(order, ["subtotal"])))}</strong></div>
-        <div><small>Delivery Charge</small><strong>${safeHtml(formatOrderMoney(getOrderField(order, ["deliveryCharge"])))}</strong></div>
+        <div><small>Last Updated</small><strong>${safeHtml(formatTrackingTime(getOrderField(order, ["lastUpdated"], "")))}</strong></div>
         <div><small>Courier</small><strong>${safeHtml(getOrderField(order, ["courier"], "Not assigned"))}</strong></div>
         <div><small>Tracking No.</small><strong>${safeHtml(getOrderField(order, ["trackingNumber"], "Pending"))}</strong></div>
       </div>
-      <h4>Items</h4>
-      <ul class="order-items">${items.map(item => `<li>${safeHtml(item)}</li>`).join("") || "<li>Product details will be confirmed soon.</li>"}</ul>
       <h4>Order Timeline</h4>
       <div class="order-timeline">
         ${timeline.map(step => `
@@ -259,10 +235,10 @@ function renderOrder(order) {
   `;
 }
 
-function renderOrderError(message) {
+function renderOrderError(message, title = "Order not found") {
   return `
     <div class="order-result-card is-error">
-      <h3>Order not found</h3>
+      <h3>${safeHtml(title)}</h3>
       <p>${safeHtml(message)}</p>
       <div class="order-support-actions">
         <a href="https://wa.me/${ORDER_SUPPORT_NUMBER}?text=${encodeURIComponent("Hello HB Gadget BD, I need help tracking my order.")}" target="_blank" rel="noreferrer">Contact WhatsApp Support</a>
@@ -281,8 +257,8 @@ async function handleTrackOrderSubmit(event) {
   const result = document.getElementById("trackOrderResult");
   if (!result) return;
 
-  if (!normalizeOrderId(orderId)) {
-    result.innerHTML = renderOrderError("Please enter your numeric Order ID.");
+  if (normalizeOrderId(orderId).length < 8) {
+    result.innerHTML = renderOrderError("Please enter the complete numeric Order ID from your invoice.", "Invalid Order ID");
     return;
   }
 
@@ -297,7 +273,7 @@ async function handleTrackOrderSubmit(event) {
     result.innerHTML = renderOrder(match);
   } catch (error) {
     console.error(error);
-    result.innerHTML = renderOrderError("Tracking data is not available right now. Please contact support for the latest update.");
+    result.innerHTML = renderOrderError(error.message || "Tracking data is temporarily unavailable. Please contact support.", "Tracking unavailable");
   }
 }
 

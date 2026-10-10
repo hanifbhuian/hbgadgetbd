@@ -217,7 +217,6 @@ function renderOrder(order) {
       <div class="order-meta-grid">
         <div><small>Last Updated</small><strong>${safeHtml(formatTrackingTime(getOrderField(order, ["lastUpdated"], "")))}</strong></div>
         <div><small>Courier</small><strong>${safeHtml(getOrderField(order, ["courier"], "Not assigned"))}</strong></div>
-        <div><small>Tracking No.</small><strong>${safeHtml(getOrderField(order, ["trackingNumber"], "Pending"))}</strong></div>
       </div>
       ${isCancelled ? `<div class="cancel-reason-box" role="status"><strong>Cancellation Reason | বাতিলের কারণ</strong><p>${safeHtml(cancelReason || "Our team has not added a cancellation reason yet.")}</p></div>` : ""}
       <h4>Order Timeline</h4>

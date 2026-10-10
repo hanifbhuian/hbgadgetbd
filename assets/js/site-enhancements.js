@@ -60,7 +60,7 @@ function replaceHomeSections() {
 
   const promo = document.querySelector(".promo-section");
   if (promo) {
-    promo.outerHTML = `<section class="container section" id="combo-offers"><div class="section__heading"><p class="eyebrow">Combo Offers | কম্বো অফার</p><h2>Build your own gift or gadget combo</h2></div><div class="combo-grid"><article class="combo-card"><h3>Birthday Gift Combo</h3><p>Gift box, card, and small gadget.</p><a href="https://wa.me/8801816569237?text=Hello%20HB%20Gadget%20BD%2C%20I%20need%20a%20birthday%20combo%20offer." target="_blank" rel="noreferrer">Ask for combo</a></article><article class="combo-card"><h3>Mobile Accessories Combo</h3><p>Phone stand, cable, and useful accessory.</p><a href="https://wa.me/8801816569237?text=Hello%20HB%20Gadget%20BD%2C%20I%20need%20a%20mobile%20accessories%20combo." target="_blank" rel="noreferrer">Ask for combo</a></article><article class="combo-card"><h3>Travel Essentials Combo</h3><p>Bag and travel accessories for daily use.</p><a href="https://wa.me/8801816569237?text=Hello%20HB%20Gadget%20BD%2C%20I%20need%20a%20travel%20combo%20offer." target="_blank" rel="noreferrer">Ask for combo</a></article></div></section><section class="track-order-section" id="track-order"><div class="container track-order-card"><div><p class="eyebrow">Track Order | অর্ডার ট্র্যাক করুন</p><h2>Enter your order ID to check delivery status.</h2><p>Use the order ID shared by our support team after order confirmation.</p></div><form class="track-order-form" id="trackOrderForm"><input id="trackOrderInput" type="text" placeholder="Example: HBG-1001" required /><button class="button button--primary" type="submit">Track Order</button><p class="track-order-result" id="trackOrderResult" aria-live="polite"></p></form></div></section>`;
+    promo.outerHTML = `<section class="container section" id="combo-offers"><div class="section__heading"><p class="eyebrow">Combo Offers | কম্বো অফার</p><h2>Build your own gift or gadget combo</h2></div><div class="combo-grid"><article class="combo-card"><h3>Birthday Gift Combo</h3><p>Gift box, card, and small gadget.</p><a href="https://wa.me/8801816569237?text=Hello%20HB%20Gadget%20BD%2C%20I%20need%20a%20birthday%20combo%20offer." target="_blank" rel="noreferrer">Ask for combo</a></article><article class="combo-card"><h3>Mobile Accessories Combo</h3><p>Phone stand, cable, and useful accessory.</p><a href="https://wa.me/8801816569237?text=Hello%20HB%20Gadget%20BD%2C%20I%20need%20a%20mobile%20accessories%20combo." target="_blank" rel="noreferrer">Ask for combo</a></article><article class="combo-card"><h3>Travel Essentials Combo</h3><p>Bag and travel accessories for daily use.</p><a href="https://wa.me/8801816569237?text=Hello%20HB%20Gadget%20BD%2C%20I%20need%20a%20travel%20combo%20offer." target="_blank" rel="noreferrer">Ask for combo</a></article></div></section>`;
   }
 }
 
@@ -111,13 +111,7 @@ function wireEvents() {
     }
   });
 
-  document.addEventListener("submit", e => {
-    if (e.target?.id !== "trackOrderForm") return;
-    e.preventDefault();
-    const value = document.getElementById("trackOrderInput")?.value.trim();
-    const result = document.getElementById("trackOrderResult");
-    if (result) result.textContent = value ? `Order ID ${value} received. Please contact hotline/WhatsApp for the latest live delivery update.` : "Please enter a valid order ID.";
-  });
+
 }
 
 function updateCartLabels() {

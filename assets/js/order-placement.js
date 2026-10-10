@@ -1,4 +1,4 @@
-const ORDER_CREATE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzBndPWOJ-Q8hk06-M6c9klMG0R-n3N-y3JTkX7P5hdij3BQwE1mJ5ufuTxcWGILGnO/exec";
+const ORDER_CREATE_WEB_APP_URL = "/api/orders/create";
 const ORDER_CREATE_SUPPORT_NUMBER = "8801816569237";
 const MAX_PAYMENT_FILE_SIZE = 5 * 1024 * 1024;
 const DELIVERY_OPTIONS = {
@@ -87,7 +87,7 @@ function getDirectCheckoutItem(button) {
   const card = button.closest(".product-card");
   if (!card) return null;
   const name = card.querySelector("h3")?.textContent?.trim() || "Selected product";
-  const priceText = card.querySelector(".price")?.textContent || "0";
+  const priceText = card.querySelector(".product-card__sale-price, .sale-price, .price")?.textContent || "0";
   const price = Number(priceText.replace(/[^0-9]/g, "")) || 0;
   return { name, qty: 1, price, lineTotal: price };
 }
@@ -231,7 +231,8 @@ async function buildOrderPayload() {
   const paymentProof = await readPaymentProofFile();
 
   return {
-    orderId: generateClientOrderId(),
+    orderId: generateClientOrderId(), // provisional request token; NOT the final Order ID
+    clientOrigin: window.location.origin,
     action: "create",
     customerName: name,
     phone,
@@ -258,53 +259,41 @@ async function buildOrderPayload() {
   };
 }
 
-function submitOrderByHiddenForm(payload) {
-  return new Promise(resolve => {
-    const frameName = `hbOrderFrame${Date.now()}`;
-    const iframe = document.createElement("iframe");
-    iframe.name = frameName;
-    iframe.style.display = "none";
-    const form = document.createElement("form");
-    form.method = "POST";
-    form.action = ORDER_CREATE_WEB_APP_URL;
-    form.target = frameName;
-    form.style.display = "none";
-    const field = document.createElement("textarea");
-    field.name = "payload";
-    field.value = JSON.stringify(payload);
-    form.appendChild(field);
-    document.body.appendChild(iframe);
-    document.body.appendChild(form);
-    form.submit();
-    window.setTimeout(() => {
-      form.remove();
-      window.setTimeout(() => iframe.remove(), 8000);
-      resolve({ success: true, orderId: payload.orderId, receiptLink: "" });
-    }, 3000);
-  });
-}
-
 async function submitOrderToSheet(payload) {
+  // Exactly one request. Do not retry a submission automatically: the order
+  // might have been saved even if a network response is lost.
+  let response;
   try {
-    const response = await fetch(ORDER_CREATE_WEB_APP_URL, {
+    response = await fetch(ORDER_CREATE_WEB_APP_URL, {
       method: "POST",
-      mode: "cors",
-      headers: { "Content-Type": "text/plain;charset=utf-8" },
+      credentials: "same-origin",
+      headers: { "Content-Type": "application/json" },
+      cache: "no-store",
       body: JSON.stringify(payload)
     });
-    if (!response.ok) throw new Error("Order submission failed.");
-    return await response.json();
   } catch (error) {
-    console.warn("Fetch submission failed; using form submission fallback.", error);
-    return submitOrderByHiddenForm(payload);
+    throw new Error("Order confirmation could not be received. Contact support before trying again.");
   }
+  let result;
+  try {
+    result = await response.json();
+  } catch (error) {
+    throw new Error("Order confirmation was not returned. Contact support before trying again.");
+  }
+  if (!response.ok || !result.success) {
+    throw new Error(result.message || "Could not confirm the order. Contact support before trying again.");
+  }
+  if (!/^\d{12,25}$/.test(String(result.orderId || ""))) {
+    throw new Error("The server did not return a valid Order ID. Contact support before trying again.");
+  }
+  return result;
 }
 
-function renderCheckoutSuccess(orderId, receiptLink) {
+function renderCheckoutSuccess(orderId, invoiceLink) {
   const modal = ensureCheckoutModal();
   const dialog = modal.querySelector(".checkout-modal__dialog");
   const message = `Hello HB Gadget BD, I placed order ${orderId}. Please confirm delivery charge and availability.`;
-  dialog.innerHTML = `<div class="checkout-success-card"><h3>Order submitted successfully!</h3><p>Your Order ID is <strong>${safeText(orderId)}</strong>.</p><p>Please save this numeric Order ID. You only need this ID to track the delivery status. An invoice email will be sent after Google Sheet processing is complete.</p><div class="order-meta-grid"><div><small>Order ID</small><strong>${safeText(orderId)}</strong></div></div>${receiptLink ? `<p><a href="${safeText(receiptLink)}" target="_blank" rel="noreferrer">View invoice</a></p>` : ""}<div class="checkout-actions"><a href="https://wa.me/${ORDER_CREATE_SUPPORT_NUMBER}?text=${encodeURIComponent(message)}" target="_blank" rel="noreferrer">Confirm on WhatsApp</a><button type="button" data-checkout-close>Close</button></div></div>`;
+  dialog.innerHTML = `<div class="checkout-success-card"><h3>Order submitted successfully!</h3><p>Your Order ID is <strong>${safeText(orderId)}</strong>.</p><p>Please save this numeric Order ID. You only need this ID to track the delivery status. Your invoice will be emailed when processing succeeds.</p><div class="order-meta-grid"><div><small>Order ID</small><strong>${safeText(orderId)}</strong></div></div>${invoiceLink ? `<p><a href="${safeText(invoiceLink)}" target="_blank" rel="noreferrer">View invoice</a></p>` : ""}<div class="checkout-actions"><a href="https://wa.me/${ORDER_CREATE_SUPPORT_NUMBER}?text=${encodeURIComponent(message)}" target="_blank" rel="noreferrer">Confirm on WhatsApp</a><button type="button" data-checkout-close>Close</button></div></div>`;
 }
 
 async function handleCheckoutSubmit(event) {
@@ -326,7 +315,8 @@ async function handleCheckoutSubmit(event) {
     const result = await submitOrderToSheet(payload);
     if (!result.success) throw new Error(result.message || "Order could not be saved.");
     document.getElementById("clearCart")?.click();
-    renderCheckoutSuccess(result.orderId || payload.orderId, result.receiptLink || "");
+    if (!result.orderId) throw new Error("Server did not return a confirmed Order ID.");
+    renderCheckoutSuccess(result.orderId, result.invoiceLink || "");
   } catch (error) {
     console.error(error);
     if (status) status.textContent = error.message || "Order could not be submitted automatically. Please contact WhatsApp support.";

@@ -23,7 +23,7 @@
     .hb-footer-social {display:flex;align-items:center;gap:10px;margin-top:14px;}
     .hb-footer-social a,.hb-footer-social span {display:inline-grid;place-items:center;width:38px;height:38px;border-radius:50%;font-weight:900;font-size:20px;color:#fff;}
     .hb-footer-social a {background:#1877f2;text-decoration:none;margin:0;}
-    .hb-footer-social .hb-youtube-awaiting {background:#9c3440;opacity:.55;cursor:not-allowed;}
+    .hb-footer-social .hb-footer-social__youtube {background:#f00;opacity:1;cursor:pointer;}
     @media(max-width:1100px) and (min-width:641px) {
       .header__inner:not(.marketplace-header) {grid-template-columns:1fr;gap:10px;padding:12px 0}
       .header__inner:not(.marketplace-header) .header-actions {justify-content:flex-start;}
@@ -94,4 +94,6 @@
     if (event.target.matches("#hbContactOverlay") || event.target.closest("[data-contact-close]")) close();
   });
   document.addEventListener("keydown", event => {if(event.key === "Escape" && document.getElementById("hbContactOverlay")?.classList.contains("is-open")) close();});
+  const updateFooterYear=()=>document.querySelectorAll("[data-hb-footer-year]").forEach(node=>{node.textContent=String(new Date().getFullYear());});
+  if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",updateFooterYear); else updateFooterYear();
 })();

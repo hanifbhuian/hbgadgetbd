@@ -254,8 +254,8 @@ function renderProduct(product) {
         <h1>${htmlEscape(product.name)}</h1>
         <div class="stats-row">
           <span>⭐ ${htmlEscape(stats.rating)}</span>
-          <span>💬 ${htmlEscape(stats.reviews)} reviews</span>
-          <span>🛍️ ${htmlEscape(stats.sold)} sold</span>
+          <span>💬 Reviews: ${htmlEscape(stats.reviews)}</span>
+          <span>🛍️ Sold: ${htmlEscape(stats.sold)}</span>
           <span>📦 ${htmlEscape(stats.stock)}</span>
           <span>📍 ${htmlEscape(stats.location)}</span>
         </div>
@@ -411,7 +411,7 @@ function renderRelated(product) {
 
 async function loadProducts() {
   ensureProductPageStyles();
-  const urls = [`${PRODUCT_DATA_URL}?v=${Date.now()}`, `assets/data/products.json?v=${Date.now()}`];
+  const urls = [`assets/data/products.json?v=20261011-ux`, `${PRODUCT_DATA_URL}?v=${Date.now()}`];
   for (const url of urls) {
     try {
       const response = await fetch(url, { cache: "no-store" });

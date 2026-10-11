@@ -30,7 +30,7 @@ Do not install the historical `HBOrdersAddon.gs` alongside the replacement — s
 - When Orders status becomes Delivered, Cancelled or Returned the trigger emails the customer.
 - Delivered: thanks customer, requests a genuine Facebook review and recommends sharing the business with friends/family.
 - Cancelled/Returned: appropriate status notification and support contact. Reasons taken from Orders!V when present.
-- Provide the official Facebook review URL using Apps Script Script Properties: key **HB_FACEBOOK_REVIEW_URL**. Until set, the delivered email will politely request a review without a link.
+- Provide the official Facebook review URL using Apps Script Script Properties: key **HB_FACEBOOK_REVIEW_URL**. The updated Code.gs now defaults to the official Facebook page https://www.facebook.com/hbgadgetbd in delivered-order emails, even if HB_FACEBOOK_REVIEW_URL is unset. That optional property can override the default with a future dedicated Reviews-tab link.
 
 ## Deployment instructions
 1. Back up live Code.gs and live HBInvoiceTemplate HTML.

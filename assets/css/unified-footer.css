@@ -1,0 +1,22 @@
+/* Unified HB Gadget BD footer: same information and responsive layout across every page. */
+.site-footer.hb-unified-footer { background:#111827; color:#fff; padding:48px 0 20px; }
+.hb-unified-footer .hb-unified-footer__grid { display:grid; grid-template-columns:1.35fr 1fr 1fr 1.18fr; gap:clamp(18px,3.1vw,44px); align-items:start; }
+.hb-unified-footer .hb-unified-footer__grid > div { min-width:0; }
+.hb-unified-footer .hb-unified-footer__brand .brand--footer { display:inline-flex; margin:0 0 10px; max-width:250px; }
+.hb-unified-footer .hb-unified-footer__brand .brand-logo-image {display:block; width:min(250px,100%); height:auto; border-radius:15px; background:white;}
+.hb-unified-footer .hb-unified-footer__brand p { margin:0; line-height:1.45; font-size:15px; color:#dce3f0; max-width:290px;}
+.hb-unified-footer .hb-unified-footer__grid h3 {font-size:19px;line-height:1.25;letter-spacing:0;margin:0 0 10px;font-weight:800;color:#fff;}
+.hb-unified-footer .hb-unified-footer__links a {display:block; font-size:15px;line-height:1.6; margin:5px 0; color:#dce3f0; text-decoration:none;}
+.hb-unified-footer .hb-unified-footer__links a:hover,.hb-unified-footer__contact a:hover {color:#fff;text-decoration:underline;}
+.hb-unified-footer .hb-unified-footer__contact p {color:#dce3f0;font-size:15px;line-height:1.6;margin:0 0 12px;overflow-wrap:anywhere;}
+.hb-unified-footer__contact a {color:#dce3f0;text-decoration:none;display:inline;}
+.hb-unified-footer .hb-footer-social {display:flex;align-items:center;gap:9px;margin:15px 0 0;flex-wrap:wrap;}
+.hb-unified-footer .hb-footer-social a,.hb-unified-footer .hb-footer-social span {display:inline-grid;place-items:center;width:42px;height:42px;min-width:42px;line-height:1;font-size:19px;border:0;border-radius:999px;font-weight:900;box-shadow:none;margin:0;text-decoration:none;color:#fff;}
+.hb-unified-footer .hb-footer-social__facebook {background:#1877f2;}
+.hb-unified-footer .hb-footer-social__x {background:#09090b;opacity:.85;}
+.hb-unified-footer .hb-footer-social__youtube {background:#f00;}
+.hb-unified-footer .hb-footer-social__website {background:#ff9117;}
+.hb-unified-footer .hb-footer-social a:hover {filter:brightness(1.12);transform:translateY(-2px);}
+.hb-unified-footer .hb-unified-footer__bottom {border-top:1px solid rgba(255,255,255,.13);margin-top:28px;padding-top:17px;font-size:13px;color:#9db8d7;}
+@media (max-width:950px){.hb-unified-footer .hb-unified-footer__grid{grid-template-columns:repeat(2,minmax(0,1fr));gap:28px;}}
+@media (max-width:560px){.site-footer.hb-unified-footer{padding:36px 0 20px;}.hb-unified-footer .hb-unified-footer__grid{grid-template-columns:1fr;gap:24px;}.hb-unified-footer .hb-unified-footer__brand p{max-width:none;}.hb-unified-footer .hb-unified-footer__grid h3{font-size:18px;}}

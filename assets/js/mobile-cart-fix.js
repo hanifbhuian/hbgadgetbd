@@ -1,27 +1,8 @@
 function positionFacebookButton() {
-  const isMobile = window.matchMedia("(max-width: 640px)").matches;
-  const facebookButton = document.getElementById("hbTopFacebookLink");
-  const headerActions = document.querySelector(".header-actions");
-  const categoryNav = document.querySelector(".category-nav__inner");
-
-  if (!facebookButton) return;
-
-  if (isMobile) {
-    facebookButton.classList.remove("hb-facebook-nav-placement");
-    if (headerActions && facebookButton.parentElement !== headerActions) {
-      headerActions.appendChild(facebookButton);
-    }
-    return;
-  }
-
-  if (categoryNav) {
-    facebookButton.classList.add("hb-facebook-nav-placement");
-    if (facebookButton.parentElement !== categoryNav) {
-      categoryNav.appendChild(facebookButton);
-    } else if (categoryNav.lastElementChild !== facebookButton) {
-      categoryNav.appendChild(facebookButton);
-    }
-  }
+  // Facebook always stays directly after Account, on mobile and desktop.
+  const facebook=document.getElementById("hbTopFacebookLink");
+  const account=document.querySelector(".header-actions .account-button");
+  if(facebook && account && account.nextElementSibling!==facebook) account.after(facebook);
 }
 
 function applyMobileCartFix() {
@@ -47,6 +28,7 @@ function injectMobileCartStyle() {
   const style = document.createElement("style");
   style.id = "mobileCartSingleLineStyle";
   style.textContent = `
+    /* Legacy nav placement removed. The Facebook icon belongs to the header. */
     .category-nav__inner .hb-facebook-nav-placement {
       flex: 0 0 auto !important;
       min-height: 40px !important;
@@ -59,7 +41,7 @@ function injectMobileCartStyle() {
     @media (max-width: 640px) {
       .header-actions {
         display: grid !important;
-        grid-template-columns: 1fr .88fr 1fr auto !important;
+        grid-template-columns: minmax(65px,1fr) minmax(105px,1.2fr) minmax(70px,1fr) 38px !important;
         gap: 7px !important;
         width: 100% !important;
         flex-wrap: nowrap !important;

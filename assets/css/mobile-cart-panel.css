@@ -12,7 +12,8 @@
     z-index: 110;
   }
 
-  #overlay.is-open {
+  /* Raise the backdrop only while the CART is open, not for other overlays. */
+  #cartPanel.is-open + #overlay.is-open {
     z-index: 100;
   }
 

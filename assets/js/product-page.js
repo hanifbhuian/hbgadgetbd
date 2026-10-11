@@ -270,15 +270,15 @@ function renderProduct(product) {
       </div>
     </div>
     <div class="section-box">
-      <div class="hb-product-tabs" role="tablist" aria-label="Product information and reviews">
+      <div class="hb-product-tabs" role="tablist" aria-label="Product details and tutorials">
         <button type="button" role="tab" id="hbProductDetailsTab" aria-controls="hbProductDetailsPanel" aria-selected="true" data-product-tab="details">Product Details</button>
-        <button type="button" role="tab" id="hbProductReviewsTab" aria-controls="hbProductReviewsPanel" aria-selected="false" data-product-tab="reviews">Reviews & Tutorials</button>
+        <button type="button" role="tab" id="hbProductTutorialsTab" aria-controls="hbProductTutorialsPanel" aria-selected="false" data-product-tab="tutorials">Tutorials</button>
       </div>
       <div id="hbProductDetailsPanel" role="tabpanel" aria-labelledby="hbProductDetailsTab">
         ${renderProductStructure(product)}
       </div>
-      <div id="hbProductReviewsPanel" role="tabpanel" aria-labelledby="hbProductReviewsTab" hidden>
-        ${renderReviewTutorialContent(product,stats)}
+      <div id="hbProductTutorialsPanel" role="tabpanel" aria-labelledby="hbProductTutorialsTab" hidden>
+        ${renderTutorialContent(product)}
       </div>
     </div>
     <div class="section-box">
@@ -297,36 +297,29 @@ function validVideoUrl(url) {
     return parsed.protocol === "https:" && /^(www\.)?(youtube\.com|youtu\.be|youtube-nocookie\.com)$/.test(parsed.hostname) ? parsed.href : "";
   } catch { return ""; }
 }
-function renderReviewTutorialContent(product, stats) {
-  // Reviews and video links are published only when real content exists in products.json.
-  const reviews = Array.isArray(product.customerReviews) ? product.customerReviews : Array.isArray(product.reviews) ? product.reviews : [];
+function renderTutorialContent(product) {
+  // Only real tutorial/video links from products.json are displayed.
+  // Rating, review count and sold metrics already appear in the product header.
   const candidates = [
     ...(Array.isArray(product.tutorials) ? product.tutorials : []),
     product.tutorialUrl ? {title:"Product tutorial",url:product.tutorialUrl} : null,
-    product.reviewVideoUrl ? {title:"Product video review",url:product.reviewVideoUrl} : null,
+    product.reviewVideoUrl ? {title:"Product video tutorial",url:product.reviewVideoUrl} : null,
     product.videoUrl ? {title:"Product video",url:product.videoUrl} : null
   ].filter(Boolean);
-  const videos = candidates.map(value => typeof value === "string" ? {url:value,title:"Watch product video"} : value)
+  const videos = candidates.map(value => typeof value === "string" ? {url:value,title:"Watch product tutorial"} : value)
     .filter(value => validVideoUrl(value.url));
   return `
-    <div class="review-grid" aria-label="Product rating and sales statistics">
-      <div class="review-card"><strong>${htmlEscape(stats.rating)}</strong><span>Product rating</span></div>
-      <div class="review-card"><strong>${htmlEscape(stats.reviews)}</strong><span>Published reviews</span></div>
-      <div class="review-card"><strong>${htmlEscape(stats.sold)}</strong><span>Reported sales</span></div>
+    <div class="hb-review-section hb-tutorials-section">
+      <h3>Product Tutorials</h3>
+      ${videos.length ? videos.map(video => `<a class="hb-review-video" href="${htmlEscape(validVideoUrl(video.url))}" target="_blank" rel="noopener noreferrer">▶ ${htmlEscape(video.title || "Watch product tutorial")}</a>`).join("") : '<p class="hb-review-empty">Product tutorials will be added soon.</p>'}
     </div>
-    <div class="hb-review-section"><h3>Customer Reviews</h3>
-      ${reviews.length ? reviews.map(review => `<article class="hb-review-entry"><strong>${htmlEscape(review.reviewer || "Verified customer")}</strong><span>${htmlEscape(review.rating ? review.rating+" / 5 stars" : "")}</span><p>${htmlEscape(review.comment || "")}</p></article>`).join("") : '<p class="hb-review-empty">No customer reviews have been published for this product yet.</p>'}
-    </div>
-    <div class="hb-review-section"><h3>Product Tutorials & Video Reviews</h3>
-      ${videos.length ? videos.map(video => `<a class="hb-review-video" href="${htmlEscape(validVideoUrl(video.url))}" target="_blank" rel="noopener noreferrer">▶ ${htmlEscape(video.title || "Watch product tutorial")}</a>`).join("") : '<p class="hb-review-empty">No tutorial or video review has been published for this product yet.</p>'}
-    </div>
-    <p class="hb-review-help">Have a question or want to share feedback? <button type="button" class="hb-review-support" data-contact-panel="support">Contact Order Support</button></p>
+    <p class="hb-review-help">Need help using this product? <button type="button" class="hb-review-support" data-contact-panel="support">Contact Order Support</button></p>
   `;
 }
 function switchProductTab(name) {
-  const isReviews = name === "reviews";
-  document.getElementById("hbProductDetailsPanel").hidden = isReviews;
-  document.getElementById("hbProductReviewsPanel").hidden = !isReviews;
+  const isTutorials = name === "tutorials";
+  document.getElementById("hbProductDetailsPanel").hidden = isTutorials;
+  document.getElementById("hbProductTutorialsPanel").hidden = !isTutorials;
   document.querySelectorAll("[data-product-tab]").forEach(tab => {
     const active = tab.dataset.productTab === name;
     tab.setAttribute("aria-selected",String(active));

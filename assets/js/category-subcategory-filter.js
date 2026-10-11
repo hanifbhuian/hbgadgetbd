@@ -304,6 +304,8 @@ function addTopFacebookLink() {
 function colorExistingSocialIcons() {
   const footer = document.querySelector("footer, .site-footer");
   if (!footer) return;
+  // Preserve authoritative footer links and labels on every storefront page.
+  if (footer.querySelector("[data-hb-unified-footer]")) return;
 
   const candidates = Array.from(footer.querySelectorAll("a, button")).filter(item => {
     const text = (item.textContent || "").replace(/\s+/g, "").trim().toLowerCase();

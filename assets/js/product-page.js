@@ -390,9 +390,9 @@ function renderProduct(product) {
       </div>
     </div>
     <div class="section-box">
-      <div class="hb-product-tabs" role="tablist" aria-label="Product details and tutorials">
+      <div class="hb-product-tabs" role="tablist" aria-label="Product details and tutorials or videos">
         <button type="button" role="tab" id="hbProductDetailsTab" aria-controls="hbProductDetailsPanel" aria-selected="true" data-product-tab="details">Product Details</button>
-        <button type="button" role="tab" id="hbProductTutorialsTab" aria-controls="hbProductTutorialsPanel" aria-selected="false" data-product-tab="tutorials">Tutorials</button>
+        <button type="button" role="tab" id="hbProductTutorialsTab" aria-controls="hbProductTutorialsPanel" aria-selected="false" data-product-tab="tutorials">Tutorials/Videos</button>
       </div>
       <div id="hbProductDetailsPanel" role="tabpanel" aria-labelledby="hbProductDetailsTab">
         ${renderProductStructure(product)}
@@ -430,8 +430,8 @@ function renderTutorialContent(product) {
     .filter(value => validVideoUrl(value.url));
   return `
     <div class="hb-review-section hb-tutorials-section">
-      <h3>Product Tutorials</h3>
-      ${videos.length ? videos.map(video => `<a class="hb-review-video" href="${htmlEscape(validVideoUrl(video.url))}" target="_blank" rel="noopener noreferrer">▶ ${htmlEscape(video.title || "Watch product tutorial")}</a>`).join("") : '<p class="hb-review-empty">Product tutorials will be added soon.</p>'}
+      <h3>Product Tutorials/Videos</h3>
+      ${videos.length ? videos.map(video => `<a class="hb-review-video" href="${htmlEscape(validVideoUrl(video.url))}" target="_blank" rel="noopener noreferrer">▶ ${htmlEscape(video.title || "Watch product tutorial")}</a>`).join("") : '<p class="hb-review-empty">Product tutorials and videos will be added here soon.</p>'}
     </div>
     <p class="hb-review-help">Need help using this product? <button type="button" class="hb-review-support" data-contact-panel="support">Contact Support</button></p>
   `;

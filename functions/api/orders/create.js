@@ -40,11 +40,11 @@ export async function onRequestPost({ request, env }) {
     return json({success:false,message:"Missing required checkout information."},400);
   }
 
-  // Feature flag: business receiving accounts must be approved before enabling.
+  // Manual payment instructions are shown after order creation.
+  // This endpoint NEVER marks customer funds received or verified.
   const method = String(data.paymentMethod || "");
-  const paymentEnabled = env?.HB_ENABLE_PREPAYMENT === "true";
   const prepayMethod = method === "bKash" || method === "Nagad";
-  if (method !== "Cash on Delivery" && !(paymentEnabled && prepayMethod)) {
+  if (method !== "Cash on Delivery" && !prepayMethod) {
     return json({success:false,message:"This payment method is not available yet. Choose Cash on Delivery."},400);
   }
   const subtotal = Number(data.subtotal);

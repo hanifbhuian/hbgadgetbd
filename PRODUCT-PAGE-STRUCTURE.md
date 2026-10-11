@@ -2,22 +2,37 @@
 
 Use this structure whenever adding a new product to `assets/data/products.json`.
 
-Each product page should answer customer questions and reduce unnecessary inbox messages.
+Each product page should answer the most important customer questions in a simple, easy-to-scan format.
 
-## Required product sections
+## Product page format
 
 | Section | What to include |
 | --- | --- |
-| Product title | SEO-friendly name, for example: `Mini Router UPS for Wi-Fi Backup During Load-Shedding` |
-| Short description | 2–3 lines explaining the daily problem it solves |
-| Key benefits | 4–6 bullet points |
-| Specifications | Brand, model, battery, voltage, size, material, warranty |
-| Who should buy | Target customer segment |
-| What is included | Box contents and accessories |
-| Important note | Limitations, compatibility, warranty conditions |
-| Delivery info | COD/advance payment, courier, delivery time |
-| WhatsApp support | Contact option before order confirmation |
-| Return, Exchange & Warranty Policy | Standard HB Gadget BD product policy shown automatically |
+| Product title | SEO-friendly product name |
+| Short description | 1–3 lines explaining the product and the daily problem it solves |
+| Product Details | One simple bullet list. Include the most useful benefits/features, important specifications, and box contents. Avoid many separate subsections. |
+| Tutorials | Add real tutorial/video links only when available |
+| Return, Exchange & Warranty Policy | Standard HB Gadget BD policy shown automatically |
+
+### Product Details style
+
+Keep **Product Details** simple, similar to a clean marketplace bullet list.
+
+Use:
+- 4–6 useful benefit/feature bullets when possible
+- Important specifications such as brand, model, capacity, voltage, size, material, compatibility, or warranty when relevant
+- One **What is included:** bullet for box contents/accessories
+- Clear product-specific information only
+
+Do **not** create separate customer-facing subsections for:
+- Who should buy
+- Important note
+- Delivery info
+- WhatsApp support
+
+Under the Product Details list, the website automatically shows:
+
+**Need help using this product? — Contact Order Support**
 
 ## Price rule
 
@@ -44,12 +59,12 @@ Supported alternatives if needed:
 "offerPrice": 990
 ```
 
-## Product JSON template
+## Recommended product JSON template
 
 ```json
 {
   "id": 1,
-  "name": "Mini Router UPS for Wi-Fi Backup During Load-Shedding",
+  "name": "Product Name",
   "category": "Power & Safety",
   "subCategory": "Power & Safety",
   "regularPrice": 1250,
@@ -60,41 +75,27 @@ Supported alternatives if needed:
   "images": [
     "assets/uploads/product-image.png"
   ],
-  "description": "Keeps your Wi-Fi router running for a limited time during load-shedding so you can stay connected at home or office.",
-  "shortDescription": "A practical backup solution for Wi-Fi users during load-shedding in Bangladesh.",
+  "description": "A short product-specific description explaining what it does and the practical problem it helps solve.",
+  "shortDescription": "A concise 1–3 line summary.",
   "benefits": [
-    "Helps keep router power running during short outages",
-    "Useful for online classes, office work, and home internet",
-    "Compact size for desk or router area",
-    "Easy to connect with compatible router models"
+    "Main useful benefit or feature",
+    "Second practical benefit or feature",
+    "Third practical benefit or feature",
+    "Compatibility or safety-related benefit when relevant"
   ],
   "specifications": {
-    "Brand": "To be confirmed",
-    "Model": "To be confirmed",
-    "Battery": "To be confirmed",
-    "Voltage": "Check router compatibility before order",
+    "Brand": "Brand name",
+    "Model": "Model number",
+    "Capacity": "If applicable",
+    "Voltage": "If applicable",
+    "Material": "If applicable",
     "Warranty": "Supplier/brand warranty only if available"
   },
-  "whoShouldBuy": [
-    "Home Wi-Fi users",
-    "Online students",
-    "Remote workers",
-    "Small office users"
-  ],
   "included": [
-    "1 x Router UPS",
-    "Compatible connector/accessories if supplied by seller"
+    "1 x Main product",
+    "Included accessory if supplied"
   ],
-  "importantNote": [
-    "Backup time depends on router power consumption and battery capacity",
-    "Check voltage and connector compatibility before order confirmation"
-  ],
-  "deliveryInfo": [
-    "Inside Dhaka and nationwide courier available",
-    "Delivery charge added at checkout",
-    "COD/advance payment rules will be confirmed before final order"
-  ],
-  "whatsappSupport": "Message HB Gadget BD on WhatsApp before final order confirmation if you need compatibility support.",
+  "tutorials": [],
   "rating": "Not rated yet",
   "reviews": "0",
   "sold": "0",
@@ -102,6 +103,8 @@ Supported alternatives if needed:
   "location": "Bangladesh"
 }
 ```
+
+Only include specifications that actually apply to the product. Do not invent missing technical information.
 
 ## Standard policy shown on the website
 

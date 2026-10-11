@@ -82,7 +82,7 @@ function normalizeMainCategoryMenu() {
   nav.innerHTML = "";
   nav.appendChild(buildCategoryNavLink("Home", "/"));
   nav.appendChild(buildCategoryNavItem("All Products", "All"));
-  nav.appendChild(buildCategoryNavLink("Offer Zone", "#offer-zone"));
+  nav.appendChild(buildCategoryNavLink("Offer Zone", "/offers.html"));
   nav.appendChild(buildCategoryNavItem("Power & Safety", "Power & Safety"));
   nav.appendChild(buildCategoryNavItem("Health & Protection", "Health & Protection"));
   nav.appendChild(buildCategoryNavItem("Clean Living", "Clean Living"));
@@ -133,8 +133,9 @@ function ensureSocialStyles() {
       align-items: center !important;
       justify-content: center !important;
       gap: 7px !important;
-      min-height: 42px !important;
-      padding: 10px 15px !important;
+      min-height: 38px !important;
+      width: 38px !important;
+      padding: 0 !important;
       border-radius: 999px !important;
       background: #1877f2 !important;
       border: 1px solid #1877f2 !important;
@@ -146,7 +147,7 @@ function ensureSocialStyles() {
       white-space: nowrap !important;
     }
     .hb-top-facebook-link:hover { background: #0f63d8 !important; transform: translateY(-1px); }
-    .hb-top-facebook-link .hb-fb-mark { font-family: Arial, sans-serif; font-size: 18px; font-weight: 900; }
+    .hb-top-facebook-link .hb-fb-mark { font-family: Arial, sans-serif; font-size: 22px; font-weight: 900; }
     .hb-social-icon-fix {
       width: 42px !important;
       height: 42px !important;
@@ -296,7 +297,7 @@ function addTopFacebookLink() {
   link.target = "_blank";
   link.rel = "noopener noreferrer";
   link.setAttribute("aria-label", "Visit HB Gadget BD Facebook page");
-  link.innerHTML = `<span class="hb-fb-mark">f</span><span>Facebook</span>`;
+  link.innerHTML = `<span class="hb-fb-mark" aria-hidden="true">f</span>`;
   target.appendChild(link);
 }
 

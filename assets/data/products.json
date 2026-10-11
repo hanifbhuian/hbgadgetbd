@@ -10,61 +10,44 @@
       "image": "assets/uploads/mg-mini-dc-ups-10000mah.webp",
       "icon": "🔋",
       "tag": "Sale",
-      "description": "MG MG-606 multi-output Mini UPS / Network Portable Power Bank with a built-in lithium battery labelled 10,000mAh (37Wh). Designed for backup power to compatible Wi-Fi routers, modems and other low-power equipment with selectable 5V, 9V or 12V DC outputs. Check voltage, connector, polarity and power requirements before ordering.",
+      "description": "MG-606 Mini UPS with a 10,000mAh (37Wh) battery for compatible Wi-Fi routers, modems and network devices.",
       "details": [
-        "Brand / model: MG MG-606",
-        "Product: Multi-output Mini UPS / Network Portable Power Bank",
-        "Battery: Built-in lithium; labelled 10,000mAh / 37Wh",
-        "Input: 12V DC, 2A",
-        "DC outputs: Selectable 5V, 9V or 12V",
-        "Maximum output: 25W (manufacturer label)",
-        "USB-C output: 5V/3A, 9V/2A or 12V/1.67A (manufacturer label)",
-        "Additional USB output: 5V",
-        "Functions: Auto start when plugged in, manual power off and LED status indicators (box claims)",
-        "Protection: Overload and short-circuit protection (box claim)",
-        "Intended use: Compatible routers, modems, wireless phones and CCTV (check specifications)",
-        "Backup duration: Not stated; varies with connected load",
-        "Warranty badge: 1 year printed on box; confirm actual seller coverage before purchase",
-        "Packaging instructions: Recharge every 3 months if unused; avoid detergent cleaners"
+        "Model: MG-606",
+        "Battery: 10,000mAh / 37Wh (box label)",
+        "Input: 12V / 2A",
+        "DC outputs: 5V / 9V / 12V",
+        "USB-C: 5V/3A, 9V/2A, 12V/1.67A",
+        "USB-A: 5V",
+        "Max power: 25W",
+        "For compatible routers, modems and CCTV devices",
+        "Warranty: 1-year badge; confirm seller coverage",
+        "Backup time and included cables: confirm with support"
       ],
-      "shortDescription": "MG-606 Mini UPS for compatible Wi-Fi routers and network equipment. The box lists a 10,000mAh (37Wh) lithium battery, 5V/9V/12V DC output options and 25W maximum output power.",
+      "shortDescription": "Compact backup power for compatible Wi-Fi routers and modems.",
       "benefits": [
-        "Backup-power support for compatible networking equipment during electricity interruptions; actual runtime depends on connected load.",
-        "Selectable 5V / 9V / 12V DC outputs plus 5V USB charging.",
-        "USB-C output ratings printed on the box: 5V/3A, 9V/2A and 12V/1.67A.",
-        "Automatic start when plugged in and manual power-off switch (features listed by manufacturer).",
-        "Multi-LED status indicators and claimed overload / short-circuit protection."
+        "Helps keep compatible devices powered during outages.",
+        "Selectable 5V, 9V and 12V outputs, plus USB charging.",
+        "Automatic start, LED indicators and protection features (as advertised)."
       ],
       "specifications": [
-        "Brand: MG",
-        "Model: MG-606",
-        "Product type: Multi-output Mini UPS / Network Portable Power Bank",
-        "Battery: Built-in lithium battery (manufacturer description)",
-        "Battery capacity printed on package: 10,000mAh / 37Wh",
-        "Power input: 12V DC, 2A",
-        "Selectable DC output voltages: 5V / 9V / 12V",
-        "Maximum output power: 25W (printed on package)",
-        "USB-C output printed on package: 5V/3A, 9V/2A, 12V/1.67A",
-        "USB charging output: 5V USB",
-        "Controls: Output-voltage selector and manual power-off switch (manufacturer description)",
-        "Indicators: Multiple LED status indicators (manufacturer description)",
-        "Appearance shown on package: White / silver"
+        "Brand / Model: MG / MG-606",
+        "Battery: 10,000mAh (37Wh)",
+        "Input: 12V / 2A",
+        "DC outputs: 5V / 9V / 12V",
+        "USB-C: 5V/3A, 9V/2A, 12V/1.67A",
+        "USB-A: 5V",
+        "Max output power: 25W",
+        "Warranty: 1-year badge on box; seller terms to be confirmed"
       ],
       "whoShouldBuy": [
-        "Customers seeking backup power for compatible Wi-Fi routers and modems during power cuts.",
-        "Users of supported low-power networking, wireless-phone or CCTV devices, subject to their power requirements.",
-        "Confirm the device voltage, current, connector dimensions and polarity before buying."
+        "Users of compatible Wi-Fi routers, modems and low-power CCTV/network devices."
       ],
       "included": [
-        "Exact box contents, cable set and included adapters are not shown or verified in the supplied packaging photographs; please confirm with HB Gadget BD support."
+        "Included cables/adapters: confirm with support."
       ],
       "importantNote": [
-        "Specifications and features are transcribed from the MG-606 packaging; independent electrical performance and capacity have not been tested.",
-        "Backup duration is not specified on the box and depends on the connected load and battery condition. Do not assume a fixed runtime.",
-        "Match your device's voltage, connector and polarity; keep the connected load within the printed maximum output power of 25W.",
-        "The packaging displays a '1 Year Warranty' badge, but applicable seller warranty, claim procedure and coverage require confirmation from HB Gadget BD support.",
-        "Manufacturer storage guidance: Charge at least once every three months when not in use.",
-        "Read the product instructions before use. The box says mild warmth during charging can be normal and advises cleaning without detergents."
+        "Check your device's voltage, connector and polarity before ordering.",
+        "Backup time varies by device. Printed specifications and warranty terms are subject to verification."
       ]
     }
   ]

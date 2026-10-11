@@ -198,7 +198,7 @@ function renderProductStructure(product) {
     <div class="hb-simple-product-details">
       ${intro ? `<p>${htmlEscape(intro)}</p>` : ""}
       <ul>${list.join("")}</ul>
-      <p class="hb-review-help">Need help using this product? <button type="button" class="hb-review-support" data-contact-panel="support">Contact Order Support</button></p>
+      <p class="hb-review-help">Need help using this product? <button type="button" class="hb-review-support" data-contact-panel="support">Contact Support</button></p>
     </div>
   `;
 }
@@ -360,7 +360,7 @@ function renderTutorialContent(product) {
       <h3>Product Tutorials</h3>
       ${videos.length ? videos.map(video => `<a class="hb-review-video" href="${htmlEscape(validVideoUrl(video.url))}" target="_blank" rel="noopener noreferrer">▶ ${htmlEscape(video.title || "Watch product tutorial")}</a>`).join("") : '<p class="hb-review-empty">Product tutorials will be added soon.</p>'}
     </div>
-    <p class="hb-review-help">Need help using this product? <button type="button" class="hb-review-support" data-contact-panel="support">Contact Order Support</button></p>
+    <p class="hb-review-help">Need help using this product? <button type="button" class="hb-review-support" data-contact-panel="support">Contact Support</button></p>
   `;
 }
 function switchProductTab(name) {
@@ -498,13 +498,6 @@ document.addEventListener("click", event => {
   }
 
   if (event.target.closest("[data-order-current]")) orderNow(currentProduct);
-
-  if (event.target.closest("[data-contact-panel='support']")) {
-    const productName = currentProduct?.name || "this product";
-    const message = `Hello HB Gadget BD, I need help with ${productName}. Please provide product/order support.`;
-    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank", "noopener");
-    return;
-  }
 
   const productTab=event.target.closest("[data-product-tab]");
   if(productTab) switchProductTab(productTab.dataset.productTab);

@@ -4,7 +4,7 @@
       "id": 1,
       "sku": "MG-DCUPS-10000-01",
       "name": "MG Mini DC UPS – 10000mAh Network Power Bank",
-      "category": "Backup",
+      "category": "Power & Safety",
       "price": 1699,
       "regularPrice": 1950,
       "image": "assets/uploads/mg-mini-dc-ups-10000mah.webp",
@@ -48,6 +48,25 @@
       "importantNote": [
         "Check your device's voltage, connector and polarity before ordering.",
         "Backup time varies by device. Printed specifications and warranty terms are subject to verification."
+      ],
+      "subCategory": "Power & Safety",
+      "brand": "MG",
+      "model": "MG-606",
+      "seoTitle": "MG Mini DC UPS 10000mAh for Wi-Fi Router | HB Gadget BD",
+      "seoDescription": "Buy MG MG-606 10000mAh Mini DC UPS for compatible Wi-Fi routers, modems and network devices in Bangladesh. 5V/9V/12V outputs and 1-year company warranty.",
+      "seoKeywords": [
+        "mini UPS for router",
+        "router UPS Bangladesh",
+        "WiFi router UPS",
+        "mini DC UPS",
+        "10000mAh mini UPS",
+        "MG-606 mini UPS",
+        "router backup power",
+        "WiFi backup for load shedding",
+        "network power bank",
+        "12V router UPS",
+        "mini UPS price in Bangladesh",
+        "UPS for router and modem"
       ]
     }
   ]

@@ -169,7 +169,7 @@
     width: 100%;
     justify-content: stretch;
     display: grid;
-    grid-template-columns: 1fr 1.18fr 1fr;
+    grid-template-columns: minmax(70px,1fr) minmax(105px,1.2fr) minmax(80px,1fr) 38px;
     gap: 8px;
   }
 

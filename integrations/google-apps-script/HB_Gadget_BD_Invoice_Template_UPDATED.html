@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  @page { size: A4; margin: 24pt; }
+  body { font-family: Arial, sans-serif; font-size: 11px; color: #263449; margin: 0; }
+  .masthead { background: #143d7c; color: #ffffff; padding: 22px 24px; border-bottom: 5px solid #ee6b35; }
+  .brand { font-size: 25px; font-weight: bold; letter-spacing: .3px; }
+  .sub { color: #d8e8ff; font-size: 10px; margin-top: 5px; }
+  .invoice-name { text-align: right; color: #ffc9ad; font-weight: bold; font-size: 20px; }
+  .invoice-tag { text-align: right; font-size: 10px; margin-top: 4px; }
+  table { width: 100%; border-collapse: collapse; }
+  .info { margin: 18px 0 20px; }
+  .info td { padding: 12px; vertical-align: top; width: 50%; background: #f0f5fc; line-height: 1.6; }
+  .info td:first-child { border-right: 6px solid #ffffff; }
+  .label { font-weight: bold; color: #16427f; }
+  .line { margin-top: 14px; }
+  .line th { padding: 11px 9px; background: #153d79; color: white; text-align: left; }
+  .line td { border-bottom: 1px solid #e1e6ef; padding: 11px 9px; }
+  .totals { margin: 18px 0 0 auto; width: 54%; }
+  .totals td { padding: 8px; border-bottom: 1px solid #e3e8f1; }
+  .totals td:last-child { font-weight: bold; text-align: right; }
+  .total { background: #e8f0fb; font-size: 13px; color: #143d7c; }
+  .status { padding: 12px 14px; background: #f0f5fc; border-left: 4px solid #ee6b35; margin-top: 20px; line-height: 1.6; }
+  .foot { border-top: 1px solid #e2e8f0; margin-top: 24px; padding-top: 14px; color: #64748b; font-size: 10px; line-height: 1.6; }
+  .thanks { color: #143d7c; font-weight: bold; font-size: 13px; margin-top: 18px; }
+  .customer-note { white-space: pre-wrap; overflow-wrap: anywhere; word-break: break-word; margin-top: 4px; }
+</style>
+</head>
+<body>
+  <div class="masthead">
+    <table><tr>
+      <td><div class="brand">HB Gadget BD</div><div class="sub">Practical gadgets for everyday life</div></td>
+      <td><div class="invoice-name"><?= data.phase === 'received' ? 'ORDER RECEIVED INVOICE' : data.phase === 'confirmed' ? 'ORDER CONFIRMED INVOICE' : 'FINAL INVOICE' ?></div>
+      <div class="invoice-tag"><?= data.phase === 'received' ? 'ORDER RECEIVED' : data.phase === 'confirmed' ? 'ORDER CONFIRMED' : 'DELIVERED / PAID' ?></div></td>
+    </tr></table>
+  </div>
+  <table class="info"><tr>
+    <td><div class="label">BILL/SHIP TO</div>
+      <div style="margin-top:8px"><?= data.customer ?></div>
+      <div><?= data.phone ?></div><div><?= data.email ?></div>
+      <div><?= data.address ?></div><div><?= data.area ?></div>
+      <? if (data.customerNote !== '') { ?>
+      <div class="label" style="margin-top:10px">Customer note</div>
+      <div class="customer-note"><?= data.customerNote ?></div>
+      <? } ?>
+    </td>
+    <td><div class="label">ORDER DETAILS</div>
+      <div style="margin-top:8px">Order ID: <b><?= data.id ?></b></div>
+      <div>Date: <?= data.date ?></div>
+      <div>Order status: <?= data.status ?></div>
+      <div>Method: <?= data.paymentMethod ?></div>
+      <? if (data.transactionId) { ?><div>Transaction ID: <?= data.transactionId ?></div><? } ?>
+      <div><b>Payment: <?= data.paymentStatus ?></b></div>
+    </td>
+  </tr></table>
+  <table class="line">
+    <thead><tr><th>PRODUCT / DESCRIPTION</th><th style="width:52px;text-align:right">QTY</th><th style="width:115px;text-align:right">AMOUNT</th></tr></thead>
+    <tbody>
+      <? for (var i = 0; i < data.items.length; i++) { ?>
+      <tr><td><?= data.items[i].name ?></td><td style="text-align:right"><?= data.items[i].qty ?></td>
+        <td style="text-align:right">BDT <?= data.items[i].amount.toLocaleString('en-US') ?></td></tr>
+      <? } ?>
+    </tbody>
+  </table>
+  <table class="totals">
+    <tr><td>Subtotal</td><td>BDT <?= data.subtotal.toLocaleString('en-US') ?></td></tr>
+    <tr><td>Delivery charge</td><td>BDT <?= data.shipping.toLocaleString('en-US') ?></td></tr>
+    <tr class="total"><td>Total</td><td>BDT <?= data.total.toLocaleString('en-US') ?></td></tr>
+    <tr><td>Paid (verified)</td><td>BDT <?= data.paid.toLocaleString('en-US') ?></td></tr>
+    <tr><td>Balance due</td><td>BDT <?= data.due.toLocaleString('en-US') ?></td></tr>
+  </table>
+  <div class="status"><strong><?= data.paymentStatus ?></strong><div><?= data.note ?></div>
+    <? if (data.phase === 'received' && (data.paymentMethod === 'bKash' || data.paymentMethod === 'Nagad')) { ?>
+      <div style="margin-top:6px">For manual payment instructions, please check your order-received email.</div>
+    <? } ?>
+  </div>
+  <div class="thanks">Thank you for choosing HB Gadget BD!</div>
+  <div class="foot">
+    For support: +8801816569237 | support@hbgadgetbd.com<br>
+    Order tracking: https://hbgadgetbd.com/#track-order<br>
+    <?= data.phase === 'delivered' ? 'Order delivered; payment recorded as paid.' : 'Prepaid funds are acknowledged only after verification by our support team.' ?>
+  </div>
+</body>
+</html>

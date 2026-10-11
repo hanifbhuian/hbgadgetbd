@@ -1,3 +1,7 @@
+## Invoice lifecycle update (2026-10-11)
+
+New three-stage invoice source files and deployment instructions: [INVOICE-LIFECYCLE-DEPLOYMENT.md](INVOICE-LIFECYCLE-DEPLOYMENT.md). GitHub does not deploy Google Apps Script; the owner must update the existing Apps Script deployment. Original A:AC fields and Pending_order A:K remain unchanged.
+
 # HB Gadget BD — Current deployment status (October 2026)
 
 The owner's Apps Script screenshot confirms **Version 12 deployed successfully** on October 9, 2026. The Google Sheets `setupHBOrders` routine was run earlier and the owner confirmed that `Pending_order` edits update `Orders`.

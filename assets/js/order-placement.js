@@ -212,7 +212,9 @@ async function buildOrderPayload() {
   const shippingZoneValue = document.getElementById("checkoutShippingZone")?.value || "";
   const shippingOption = getSelectedDeliveryOption();
   const address = document.getElementById("checkoutAddress")?.value.trim() || "";
-  const note = document.getElementById("checkoutNote")?.value.trim() || "";
+  // Preserve the customer's note verbatim in a dedicated invoice field.
+  const customerNote = document.getElementById("checkoutNote")?.value ?? "";
+  const note = customerNote.trim();
   const amounts = calculateCheckoutAmounts();
   const itemsText = checkoutItems.map(item => `${item.name} x ${item.qty} = ${formatCheckoutMoney(item.lineTotal)}`).join(", ");
   const finalNote = [
@@ -248,6 +250,7 @@ async function buildOrderPayload() {
     courier: "Not assigned yet",
     trackingNumber: "Pending",
     note: finalNote,
+    customerNote: customerNote,
     paymentProof: null // No funds collected at checkout; optional proof can be handled after order creation.
   };
 }

@@ -498,6 +498,14 @@ document.addEventListener("click", event => {
   }
 
   if (event.target.closest("[data-order-current]")) orderNow(currentProduct);
+
+  if (event.target.closest("[data-contact-panel='support']")) {
+    const productName = currentProduct?.name || "this product";
+    const message = `Hello HB Gadget BD, I need help with ${productName}. Please provide product/order support.`;
+    window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank", "noopener");
+    return;
+  }
+
   const productTab=event.target.closest("[data-product-tab]");
   if(productTab) switchProductTab(productTab.dataset.productTab);
   const qty=event.target.closest("[data-product-cart-qty]");

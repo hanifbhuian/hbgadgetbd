@@ -134,18 +134,21 @@ function hbLifeSendReceived_(o) {
   var pre=hbLifeIsPrepay_(o.method);
   var intro="Thank you for ordering from HB Gadget BD. Order ID: "+o.orderId+". " +
     "A support team member will call or email you soon to confirm your order.";
+  var approvedNumber=hbLifeProps_().getProperty("HB_APPROVED_PAYMENT_NUMBER")||"";
+  if(pre && hbLifePrepaymentEnabled_() && !/^01\d{9}$/.test(approvedNumber))
+    throw new Error("Approved business payment number is missing or invalid.");
   var info=pre && hbLifePrepaymentEnabled_() ?
-    " For your "+o.method+" payment, use Send Money to the APPROVED business payment account "+
-    hbLifeProps_().getProperty("HB_APPROVED_PAYMENT_NUMBER")+
-    "; enter Order ID "+o.orderId+" as Reference/Note if available. Share the transaction ID with support "+
-    "at https://wa.me/8801816569237 . Your payment remains unverified until our team checks it." :
-    (pre ? " Payment instructions will follow after our support team confirms an approved receiving account." :
+    " For your "+o.method+" payment, use Send Money to our APPROVED business receiving account "+
+    approvedNumber+"; enter Order ID "+o.orderId+" in Reference/Note if supported. "+
+    "Share the transaction ID with HB Gadget BD support. Your payment remains unverified until checked." :
+    (pre ? " Support will provide payment details after approved business payment accounts are active." :
       " This is a Cash on Delivery order; no advance payment is required.");
   var text=intro+info+"\nAmount: "+hbLifeMoney_(hbLifeTotal_(o));
   var blob=hbLifeInvoice_(o,"Received","Payment Pending",0,hbLifeTotal_(o));
-  hbLifeSend_(o.email,"HB Gadget BD — Order Received #"+o.orderId,text,
+  var whatsapp="https://wa.me/8801816569237?text="+encodeURIComponent("Hello HB Gadget BD, I need help with order "+o.orderId+". Transaction ID: ");
+  hbLifeSend_(o.email,"HB Gadget BD — Order Received #"+o.orderId,text+"\nWhatsApp support: "+whatsapp,
     "<p>"+hbLifeEscape_(intro)+"</p><p>"+hbLifeEscape_(info)+"</p><p>Total: <strong>"+
-    hbLifeMoney_(hbLifeTotal_(o))+"</strong></p>",blob);
+    hbLifeMoney_(hbLifeTotal_(o))+"</strong></p><p><a href='"+hbLifeEscape_(whatsapp)+"'>Contact WhatsApp support</a></p>",blob);
 }
 function hbLifeSendConfirmed_(o) {
   var pre=hbLifeIsPrepay_(o.method);

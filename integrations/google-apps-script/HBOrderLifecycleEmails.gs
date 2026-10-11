@@ -39,12 +39,21 @@ function hbInstallLifecycleEmailAutomation() {
   if (rows) {
     // Do not send unsolicited lifecycle emails for historical orders.
     var states = sheet.getRange(2,26,rows,3).getValues();
-    var ids = sheet.getRange(2,1,rows,1).getDisplayValues();
+    var idsAndStatuses = sheet.getRange(2,1,rows,4).getDisplayValues();
     var changed = false;
     for (var i=0;i<rows;i++) {
-      if (!ids[i][0]) continue;
-      for (var j=0;j<3;j++) {
-        if (!states[i][j]) { states[i][j]="Legacy"; changed=true; }
+      var id = idsAndStatuses[i][0];
+      var status = idsAndStatuses[i][3];
+      if (!id) continue;
+      // Initial emails already come from the existing system. Do not resend.
+      if (!states[i][0]) { states[i][0]="Legacy"; changed=true; }
+      // Existing confirmed/terminal orders have already advanced past stage 2.
+      if (!states[i][1] && ["Confirmed","Delivered","Cancelled","Returned"].indexOf(status)>=0) {
+        states[i][1]="Legacy"; changed=true;
+      }
+      // Suppress the terminal stage already reached, but allow future status transitions.
+      if (!states[i][2] && ["Delivered","Cancelled","Returned"].indexOf(status)>=0) {
+        states[i][2]=status; changed=true;
       }
     }
     if (changed) sheet.getRange(2,26,rows,3).setValues(states);
@@ -208,8 +217,7 @@ function hbProcessLifecycleEmails() {
           sheet.getRange(row,27).setValue(new Date());sent++;
         }
         if(["Delivered","Cancelled","Returned"].indexOf(o.status)>=0 &&
-          o.finalSent.split(",").indexOf(o.status)<0 &&
-          o.finalSent!=="Legacy") {
+          o.finalSent.split(",").indexOf(o.status)<0) {
           hbLifeSendFinal_(o);
           sheet.getRange(row,28).setValue([o.finalSent,o.status].filter(Boolean).join(","));
           sent++;

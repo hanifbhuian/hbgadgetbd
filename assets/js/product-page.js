@@ -78,6 +78,12 @@ function ensureProductPageStyles() {
     .product-structure-box ul { margin: 0; padding-left: 18px; color: #667085; }
     .product-structure-box li { margin: 5px 0; }
     .product-structure-box strong { color: #101828; }
+    .hb-simple-product-details { color: #1f2937; }
+    .hb-simple-product-details > p { margin: 0 0 12px; line-height: 1.65; }
+    .hb-simple-product-details ul { margin: 0; padding-left: 22px; }
+    .hb-simple-product-details li { margin: 0 0 10px; line-height: 1.55; }
+    .hb-simple-product-details li strong { color: #101828; }
+    .hb-simple-product-details .hb-review-help { margin-top: 18px; padding-top: 14px; border-top: 1px solid #e5eaf2; }
     .related-item .hb-price-stack { gap: 6px; justify-content: center; }
     .related-item .hb-sale-price { font-size: 1em; }
     .related-item .hb-regular-price { font-size: 0.88em; }
@@ -140,18 +146,59 @@ function renderStructureBox(title, value, fallback) {
   return `<div class="product-structure-box"><h3>${htmlEscape(title)}</h3><ul>${content}</ul></div>`;
 }
 
+function renderSimpleDetailItem(value) {
+  const text = String(value || "").trim();
+  if (!text) return "";
+  const colonIndex = text.indexOf(":");
+  if (colonIndex > 0 && colonIndex < 48) {
+    const label = text.slice(0, colonIndex).trim();
+    const body = text.slice(colonIndex + 1).trim();
+    return `<li><strong>${htmlEscape(label)}:</strong> ${htmlEscape(body)}</li>`;
+  }
+  return `<li>${htmlEscape(text)}</li>`;
+}
+
 function renderProductStructure(product) {
-  const details = Array.isArray(product.details) ? product.details : [];
+  const intro = product.shortDescription || product.description || "";
+  const benefits = toListItems(product.benefits || product.keyBenefits);
+  const specifications = product.specifications || product.specs;
+  const included = toListItems(product.included || product.boxContents || product.whatIncluded);
+  const legacyDetails = Array.isArray(product.details) ? product.details : [];
+
+  const list = [];
+
+  if (benefits.length) {
+    benefits.forEach(item => list.push(renderSimpleDetailItem(item)));
+  }
+
+  if (specifications && typeof specifications === "object" && !Array.isArray(specifications)) {
+    Object.entries(specifications).forEach(([key, value]) => {
+      if (value !== undefined && value !== null && String(value).trim()) {
+        list.push(`<li><strong>${htmlEscape(key)}:</strong> ${htmlEscape(value)}</li>`);
+      }
+    });
+  } else {
+    toListItems(specifications).forEach(item => list.push(renderSimpleDetailItem(item)));
+  }
+
+  if (included.length) {
+    list.push(`<li><strong>What is included:</strong> ${included.map(htmlEscape).join("; ")}</li>`);
+  }
+
+  // Backward compatibility for older products that only use the legacy details array.
+  if (!list.length && legacyDetails.length) {
+    legacyDetails.forEach(item => list.push(renderSimpleDetailItem(item)));
+  }
+
+  if (!list.length) {
+    list.push("<li>Product details will be added soon.</li>");
+  }
+
   return `
-    <div class="product-structure-grid">
-      ${renderStructureBox("Short description", product.shortDescription || product.description, "A short 2–3 line product summary will be added soon.")}
-      ${renderStructureBox("Key benefits", product.benefits || product.keyBenefits, "Key benefits will be added soon.")}
-      ${renderStructureBox("Specifications", product.specifications || product.specs, details.length ? details : "Brand, model, battery/voltage, size, material, warranty, and compatibility details will be added soon.")}
-      ${renderStructureBox("Who should buy", product.whoShouldBuy || product.targetCustomer, "Target customer segment will be added soon.")}
-      ${renderStructureBox("What is included", product.included || product.boxContents || product.whatIncluded, "Box contents and accessories will be added soon.")}
-      ${renderStructureBox("Important note", product.importantNote || product.limitations || product.warrantyNote, "Please check limitations, compatibility, and warranty conditions before ordering.")}
-      ${renderStructureBox("Delivery info", product.deliveryInfo || product.delivery, "Delivery charge is added at checkout. Cash on Delivery is available. For bKash/Nagad, place the order first, then follow the manual Send Money instructions using your Order ID.")}
-      ${renderStructureBox("WhatsApp support", product.whatsappSupport || product.supportNote, "Contact HB Gadget BD on WhatsApp before order confirmation if you need support.")}
+    <div class="hb-simple-product-details">
+      ${intro ? `<p>${htmlEscape(intro)}</p>` : ""}
+      <ul>${list.join("")}</ul>
+      <p class="hb-review-help">Need help using this product? <button type="button" class="hb-review-support" data-contact-panel="support">Contact Order Support</button></p>
     </div>
   `;
 }

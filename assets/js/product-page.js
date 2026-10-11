@@ -118,7 +118,9 @@ function getDetailValue(product, keywords, fallback = "") {
 function getStats(product) {
   return {
     rating: getDetailValue(product, ["rating"], "Not rated yet"),
-    reviews: getDetailValue(product, ["reviewCount"], Array.isArray(product.customerReviews) ? String(product.customerReviews.length) : "Not available"),
+    reviews: getDetailValue(product, ["reviewCount", ...(Array.isArray(product.reviews) ? [] : ["reviews"])],
+      Array.isArray(product.customerReviews) ? String(product.customerReviews.length) :
+      Array.isArray(product.reviews) ? String(product.reviews.length) : "Not available"),
     sold: getDetailValue(product, ["sales", "sold", "soldCount"], "Not available"),
     stock: getDetailValue(product, ["stock", "availability"], "Available"),
     location: getDetailValue(product, ["location"], "Bangladesh")
@@ -297,11 +299,12 @@ function validVideoUrl(url) {
 }
 function renderReviewTutorialContent(product, stats) {
   // Reviews and video links are published only when real content exists in products.json.
-  const reviews = Array.isArray(product.customerReviews) ? product.customerReviews : [];
+  const reviews = Array.isArray(product.customerReviews) ? product.customerReviews : Array.isArray(product.reviews) ? product.reviews : [];
   const candidates = [
     ...(Array.isArray(product.tutorials) ? product.tutorials : []),
     product.tutorialUrl ? {title:"Product tutorial",url:product.tutorialUrl} : null,
-    product.reviewVideoUrl ? {title:"Product video review",url:product.reviewVideoUrl} : null
+    product.reviewVideoUrl ? {title:"Product video review",url:product.reviewVideoUrl} : null,
+    product.videoUrl ? {title:"Product video",url:product.videoUrl} : null
   ].filter(Boolean);
   const videos = candidates.map(value => typeof value === "string" ? {url:value,title:"Watch product video"} : value)
     .filter(value => validVideoUrl(value.url));

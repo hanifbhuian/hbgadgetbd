@@ -174,6 +174,62 @@
         "mini turbo fan 1800mah BD"
       ],
       "tutorials": []
+    },
+    {
+      "id": 4,
+      "name": "SA 20W Emergency LED Bulb – Energy Saving Light",
+      "category": "Power & Safety",
+      "subCategory": "Emergency Lighting",
+      "regularPrice": 850,
+      "price": 549,
+      "image": "assets/uploads/sa-20w-emergency-led-bulb-main.webp",
+      "images": [
+        "assets/uploads/sa-20w-emergency-led-bulb-main.webp"
+      ],
+      "icon": "💡",
+      "tag": "Sale",
+      "brand": "SA",
+      "stock": "Available",
+      "location": "Bangladesh",
+      "description": "SA 20W emergency LED bulb with a wide 165–265V operating range, box-rated 90 lm/W efficiency and up to 25,000-hour claimed service life.",
+      "shortDescription": "Bright, energy-saving 20W SA LED bulb for everyday and emergency lighting, with wide-voltage operation.",
+      "benefits": [
+        "20W high-brightness LED bulb with energy-saving design.",
+        "Wide operating voltage range: 165–265V AC.",
+        "Box-rated lifespan of up to 25,000 hours.",
+        "IC driver and heat-dissipation design (as advertised on the box).",
+        "Moisture-resistant, corrosion-resistant and low-stroboscopic design (manufacturer claims)."
+      ],
+      "specifications": {
+        "Brand": "SA",
+        "Product type": "Emergency LED bulb",
+        "Power": "20W",
+        "Input voltage": "165–265V AC",
+        "Frequency": "50/60 Hz",
+        "Luminous efficacy": "90 lm/W (box claim)",
+        "Color rendering index (CRI)": ">80 (printed on front of box)",
+        "Rated lifespan": "25,000 hours (box claim)"
+      },
+      "included": [
+        "1 × SA 20W emergency LED bulb"
+      ],
+      "seoTitle": "SA 20W Emergency LED Bulb Energy Saving Light | HB Gadget BD",
+      "seoDescription": "Buy SA 20W Emergency LED Bulb in Bangladesh. Wide-voltage 165–265V, 90 lm/W rated efficiency and up to 25,000-hour box-rated lifespan. Offer price ৳549.",
+      "seoKeywords": [
+        "SA 20W emergency LED bulb",
+        "20 watt LED bulb Bangladesh",
+        "emergency LED light BD",
+        "SA LED bulb",
+        "energy saving LED bulb",
+        "20W LED bulb price in Bangladesh",
+        "wide voltage LED bulb",
+        "high brightness LED light",
+        "165-265V LED bulb",
+        "LED bulb for home",
+        "emergency lighting Bangladesh",
+        "SA emergency bulb price BD"
+      ],
+      "tutorials": []
     }
   ]
 }

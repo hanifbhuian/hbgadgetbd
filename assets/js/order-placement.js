@@ -13,7 +13,7 @@ function loadCheckoutCss() {
   if (document.querySelector("link[href*='order-placement.css']")) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "assets/css/order-placement.css?v=20261010-3stage";
+  link.href = "assets/css/order-placement.css?v=20261011-1";
   document.head.appendChild(link);
 }
 
@@ -60,7 +60,7 @@ function calculateCheckoutAmounts() {
   const option = getSelectedDeliveryOption();
   const shippingCharge = option ? option.charge : 0;
   const grandTotal = checkoutSubtotal + shippingCharge;
-  // No advance payments are collected while business payment accounts are unavailable.
+  // Order is recorded with zero collected; manual Send Money happens after an Order ID is assigned.
   const paidAmount = 0;
   const dueAmount = grandTotal;
   const paymentStatus = getPaymentMethodValue() === "Cash on Delivery" ? "Due" : "Pending Verification";
@@ -161,7 +161,7 @@ function renderCheckoutSummary() {
       <div class="checkout-summary__row"><span>Advance Paid</span><strong>${formatCheckoutMoney(amounts.paidAmount)}</strong></div>
       <div class="checkout-summary__row"><span>${getPaymentMethodValue() === "Cash on Delivery" ? "Due on Delivery" : "Amount to Send After Order"}</span><strong>${formatCheckoutMoney(amounts.dueAmount)}</strong></div>
     </div>
-    <small class="shipping-note">${getPaymentMethodValue() === "Cash on Delivery" ? "No payment required now. The full amount, including delivery charge, is due on delivery." : "Your order will be created before payment. Your Order ID and payment instructions will be shown on the confirmation page and emailed to you. Payment remains unverified until checked by support."}</small>`;
+    <small class="shipping-note">${getPaymentMethodValue() === "Cash on Delivery" ? "No payment required now. The full amount, including delivery charge, is due on delivery." : "Your order will be created before payment. Your Order ID and Send Money instructions will appear immediately after submitting. Contact WhatsApp support if you need help. Payment stays unverified until checked by support."}</small>`;
 }
 
 function openCheckout(items) {
@@ -199,7 +199,7 @@ function refreshCheckoutAmounts() {
   if (getPaymentMethodValue() === "Cash on Delivery") {
     note.innerHTML = "<strong>Cash on Delivery — No advance payment required</strong><p>Pay the product price and delivery charge together when your order arrives. No advance payment is needed.</p>";
   } else {
-    note.innerHTML = "<strong>Place your order first</strong><p>After you receive your Order ID, you will see Send Money instructions for 01816569237. The same instructions will arrive by email. If you need help, contact HB Gadget BD on WhatsApp. We issue the Paid invoice only after verifying your transaction.</p>";
+    note.innerHTML = "<strong>Place your order first</strong><p>After you receive your Order ID, you will see Send Money instructions for 01816569237. If you need help or would like the instructions by email, contact HB Gadget BD on WhatsApp. We issue the Paid invoice only after verifying your transaction.</p>";
   }
 }
 
@@ -248,7 +248,7 @@ async function buildOrderPayload() {
     courier: "Not assigned yet",
     trackingNumber: "Pending",
     note: finalNote,
-    paymentProof: null // COD has no payment receipt; Apps Script must accept this.
+    paymentProof: null // No funds collected at checkout; optional proof can be handled after order creation.
   };
 }
 

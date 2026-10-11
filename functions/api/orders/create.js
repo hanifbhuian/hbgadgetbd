@@ -40,6 +40,22 @@ export async function onRequestPost({ request }) {
     return json({success:false,message:"Missing required checkout information."},400);
   }
 
+  // COD-only policy: never claim that funds were collected online.
+  if (data.paymentMethod !== "Cash on Delivery") {
+    return json({success:false,message:"Online prepayment is not available yet. Choose Cash on Delivery."},400);
+  }
+  const subtotal = Number(data.subtotal);
+  const deliveryCharge = Number(data.deliveryCharge);
+  const grandTotal = Number(data.grandTotal);
+  if (![subtotal, deliveryCharge, grandTotal].every(Number.isFinite) ||
+      subtotal <= 0 || deliveryCharge < 0 || grandTotal !== subtotal + deliveryCharge) {
+    return json({success:false,message:"Invalid order totals. Please refresh and try again."},400);
+  }
+  data.paidAmount = 0;
+  data.dueAmount = grandTotal;
+  data.paymentStatus = "Due";
+  data.paymentProof = null;
+
   try {
     const upstream = await fetch(ORDERS_WEBAPP_URL, {
       method: "POST",

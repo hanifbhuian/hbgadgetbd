@@ -773,6 +773,46 @@ function setupHBOrderNotifications() {
     ScriptApp.newTrigger('hbProcessOrderNotifications').timeBased().everyMinutes(1).create();
   return 'Lifecycle notifications configured; Pending_order status-related fields are grouped and invoices route by stage.';
 }
+
+/**
+ * OPTIONAL FINAL CLEANUP — run only after testing the upgraded live backend.
+ * The four historical columns are hidden until old invoice links and notes are
+ * safely preserved. This routine refuses to remove unmatched historical links.
+ */
+function hbRemoveArchivedLegacyColumns() {
+  const ss=hbSpreadsheet_(), master=hbMaster_();
+  if(!ss.getSheetByName('_Backup_Orders_20261011'))
+    throw new Error('Initial hidden Orders backup missing. Legacy columns were NOT deleted.');
+  const h=hbHeaderIndexes_(master);
+  const legacy=['Invoice Link','Note','Email Status','Invoice Status'];
+  const old=legacy.filter(name=>h.map[name]!==undefined);
+  if(!old.length)return 'Legacy columns already removed.';
+  if(old.length!==legacy.length)throw new Error('Some legacy columns are missing. Review before deleting any others.');
+  HB_HEADERS.forEach(name=>{if(h.map[name]===undefined)throw new Error('Required modern column missing: '+name);});
+  const n=Math.max(0,master.getLastRow()-1);
+  if(n){
+    const rows=master.getRange(2,1,n,h.names.length).getDisplayValues();
+    for(let i=0;i<rows.length;i++){
+      const row=rows[i];
+      if(!hbGet_(row,h,'Order ID'))continue;
+      const oldUrl=String(hbGet_(row,h,'Invoice Link')||'').trim();
+      const stageUrls=['Order Received Invoice Link','Order Confirmed Invoice Link',
+        'Order Delivered Invoice Link'].map(name=>String(hbGet_(row,h,name)||'').trim());
+      if(oldUrl && stageUrls.indexOf(oldUrl)<0)
+        throw new Error('Order row '+(i+2)+' has an invoice link not yet copied into its stage column.');
+      if(String(hbGet_(row,h,'Note')||'').includes('Customer note: ') &&
+         !String(hbGet_(row,h,'Customer Note')||''))
+        throw new Error('Customer note in row '+(i+2)+' has not been recovered.');
+    }
+  }
+  // Take a fresh archival snapshot to include orders created after the initial backup.
+  const timestamp=Utilities.formatDate(new Date(),'Asia/Dhaka','yyyyMMdd_HHmmss');
+  const archive=master.copyTo(ss);
+  archive.setName('_Archive_Orders_Legacy_'+timestamp).hideSheet();
+  legacy.map(name=>h.map[name]+1).sort((a,b)=>b-a).forEach(index=>master.deleteColumn(index));
+  return 'Four legacy columns removed. Stage links and exact customer notes remain, with a hidden archive.';
+}
+
 function hbIsPrepayment_(method) {return method==='bKash'||method==='Nagad';}
 function hbCustomerOrder_(row,h) {
   function value(k){return hbGet_(row,h,k);}

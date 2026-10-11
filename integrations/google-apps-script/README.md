@@ -1,6 +1,6 @@
-## Invoice lifecycle update (2026-10-11)
+## Orders schema and invoice workflow update (2026-10-11)
 
-New three-stage invoice source files and deployment instructions: [INVOICE-LIFECYCLE-DEPLOYMENT.md](INVOICE-LIFECYCLE-DEPLOYMENT.md). GitHub does not deploy Google Apps Script; the owner must update the existing Apps Script deployment. Original A:AC fields and Pending_order A:K remain unchanged.
+The Orders Google Sheet is reorganized, hidden legacy data is backed up, existing invoice PDFs are in verified stage folders, and the [deployment guide](INVOICE-LIFECYCLE-DEPLOYMENT.md) explains the remaining Pending_order migration and Apps Script rollout. **The Google Apps Script backend is not deployed by the GitHub commit.**
 
 # HB Gadget BD — Current deployment status (October 2026)
 

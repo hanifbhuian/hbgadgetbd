@@ -28,7 +28,7 @@ AA Order Confirmed Email Sent
 AB Final Status Email Sent
 AC Email Automation Error
 
-Historical rows are marked Legacy to avoid accidental old-customer notifications.
+Historical rows have the already-sent Received phase marked Legacy. Existing Confirmed or terminal rows also have Confirmed marked Legacy; existing terminal statuses are marked as previously sent. Future transitions of existing Pending/Confirmed orders can still generate the appropriate new emails.
 
 ## Actions required before production
 1. Open the HB Gadget BD Orders Google Sheet, then Extensions > Apps Script. BACK UP live Code.gs. Share current Code.gs excluding secrets so its existing doPost, invoicing, proof uploads and email delivery can be adapted without breaking order creation.

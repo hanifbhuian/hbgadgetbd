@@ -118,8 +118,8 @@ function getDetailValue(product, keywords, fallback = "") {
 function getStats(product) {
   return {
     rating: getDetailValue(product, ["rating"], "Not rated yet"),
-    reviews: getDetailValue(product, ["reviews", "reviewCount"], "0"),
-    sold: getDetailValue(product, ["sales", "sold", "soldCount"], "0"),
+    reviews: getDetailValue(product, ["reviewCount"], Array.isArray(product.customerReviews) ? String(product.customerReviews.length) : "Not available"),
+    sold: getDetailValue(product, ["sales", "sold", "soldCount"], "Not available"),
     stock: getDetailValue(product, ["stock", "availability"], "Available"),
     location: getDetailValue(product, ["location"], "Bangladesh")
   };
@@ -204,9 +204,9 @@ function addToCart(id) {
 }
 
 function orderNow(product) {
+  // Product order flow: add product, show the SAME website cart, then checkout.
   addToCart(product.id);
-  const message = `Hello HB Gadget BD, I want to order: ${product.name} (1 × ${formatPrice(sellingPrice(product))}). Please confirm stock and delivery.`;
-  window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(message)}`, "_blank", "noopener");
+  openProductCart();
 }
 
 function updateGallery() {
@@ -268,15 +268,15 @@ function renderProduct(product) {
       </div>
     </div>
     <div class="section-box">
-      <h2>Product Information</h2>
-      ${renderProductStructure(product)}
-    </div>
-    <div class="section-box">
-      <h2>Product Reviews & Sales</h2>
-      <div class="review-grid">
-        <div class="review-card"><strong>${htmlEscape(stats.rating)}</strong><span>Average rating</span></div>
-        <div class="review-card"><strong>${htmlEscape(stats.reviews)}</strong><span>Customer reviews</span></div>
-        <div class="review-card"><strong>${htmlEscape(stats.sold)}</strong><span>Total sold</span></div>
+      <div class="hb-product-tabs" role="tablist" aria-label="Product information and reviews">
+        <button type="button" role="tab" id="hbProductDetailsTab" aria-controls="hbProductDetailsPanel" aria-selected="true" data-product-tab="details">Product Details</button>
+        <button type="button" role="tab" id="hbProductReviewsTab" aria-controls="hbProductReviewsPanel" aria-selected="false" data-product-tab="reviews">Reviews & Tutorials</button>
+      </div>
+      <div id="hbProductDetailsPanel" role="tabpanel" aria-labelledby="hbProductDetailsTab">
+        ${renderProductStructure(product)}
+      </div>
+      <div id="hbProductReviewsPanel" role="tabpanel" aria-labelledby="hbProductReviewsTab" hidden>
+        ${renderReviewTutorialContent(product,stats)}
       </div>
     </div>
     <div class="section-box">
@@ -287,6 +287,97 @@ function renderProduct(product) {
     </div>
   `;
   updateGallery();
+}
+
+function validVideoUrl(url) {
+  try {
+    const parsed = new URL(String(url));
+    return parsed.protocol === "https:" && /^(www\\.)?(youtube\\.com|youtu\\.be|youtube-nocookie\\.com)$/.test(parsed.hostname) ? parsed.href : "";
+  } catch { return ""; }
+}
+function renderReviewTutorialContent(product, stats) {
+  // Reviews and video links are published only when real content exists in products.json.
+  const reviews = Array.isArray(product.customerReviews) ? product.customerReviews : [];
+  const candidates = [
+    ...(Array.isArray(product.tutorials) ? product.tutorials : []),
+    product.tutorialUrl ? {title:"Product tutorial",url:product.tutorialUrl} : null,
+    product.reviewVideoUrl ? {title:"Product video review",url:product.reviewVideoUrl} : null
+  ].filter(Boolean);
+  const videos = candidates.map(value => typeof value === "string" ? {url:value,title:"Watch product video"} : value)
+    .filter(value => validVideoUrl(value.url));
+  return `
+    <div class="review-grid" aria-label="Product rating and sales statistics">
+      <div class="review-card"><strong>${htmlEscape(stats.rating)}</strong><span>Product rating</span></div>
+      <div class="review-card"><strong>${htmlEscape(stats.reviews)}</strong><span>Published reviews</span></div>
+      <div class="review-card"><strong>${htmlEscape(stats.sold)}</strong><span>Reported sales</span></div>
+    </div>
+    <div class="hb-review-section"><h3>Customer Reviews</h3>
+      ${reviews.length ? reviews.map(review => `<article class="hb-review-entry"><strong>${htmlEscape(review.reviewer || "Verified customer")}</strong><span>${htmlEscape(review.rating ? review.rating+" / 5 stars" : "")}</span><p>${htmlEscape(review.comment || "")}</p></article>`).join("") : '<p class="hb-review-empty">No customer reviews have been published for this product yet.</p>'}
+    </div>
+    <div class="hb-review-section"><h3>Product Tutorials & Video Reviews</h3>
+      ${videos.length ? videos.map(video => `<a class="hb-review-video" href="${htmlEscape(validVideoUrl(video.url))}" target="_blank" rel="noopener noreferrer">▶ ${htmlEscape(video.title || "Watch product tutorial")}</a>`).join("") : '<p class="hb-review-empty">No tutorial or video review has been published for this product yet.</p>'}
+    </div>
+    <p class="hb-review-help">Have a question or want to share feedback? <button type="button" class="hb-review-support" data-contact-panel="support">Contact Order Support</button></p>
+  `;
+}
+function switchProductTab(name) {
+  const isReviews = name === "reviews";
+  document.getElementById("hbProductDetailsPanel").hidden = isReviews;
+  document.getElementById("hbProductReviewsPanel").hidden = !isReviews;
+  document.querySelectorAll("[data-product-tab]").forEach(tab => {
+    const active = tab.dataset.productTab === name;
+    tab.setAttribute("aria-selected",String(active));
+    tab.tabIndex=active?0:-1;
+  });
+}
+function getCartDetails() {
+  return getCart().map(item => {
+    const product=allProducts.find(p=>Number(p.id)===Number(item.id));
+    const qty=Math.max(1,Number(item.qty)||1);
+    const price=product?sellingPrice(product):0;
+    return product?{...product,qty,price,lineTotal:price*qty}:null;
+  }).filter(Boolean);
+}
+function renderProductCart() {
+  const items=getCartDetails();
+  const container=document.getElementById("cartItems");
+  if (!container) return;
+  container.innerHTML=items.length?items.map(item=>`
+    <div class="cart-item">
+      <div class="cart-item__icon">🛒</div>
+      <div><h3>${htmlEscape(item.name)}</h3><small>${formatPrice(item.price)} × ${item.qty}</small></div>
+      <div class="qty">
+        <button type="button" data-product-cart-qty="-1" data-item-id="${Number(item.id)}" aria-label="Reduce quantity">−</button>
+        <strong>${item.qty}</strong>
+        <button type="button" data-product-cart-qty="1" data-item-id="${Number(item.id)}" aria-label="Increase quantity">+</button>
+      </div>
+    </div>`).join(""):'<div class="empty">Your cart is empty.</div>';
+  const subtotal=items.reduce((sum,item)=>sum+item.lineTotal,0);
+  document.getElementById("cartTotal").textContent=formatPrice(subtotal);
+  updateCartHeader();
+}
+function openProductCart() {
+  renderProductCart();
+  const panel=document.getElementById("cartPanel"),overlay=document.getElementById("overlay");
+  panel?.classList.add("is-open");
+  panel?.setAttribute("aria-hidden","false");
+  overlay?.classList.add("is-open");
+}
+function closeProductCart() {
+  const panel=document.getElementById("cartPanel"),overlay=document.getElementById("overlay");
+  panel?.classList.remove("is-open");
+  panel?.setAttribute("aria-hidden","true");
+  overlay?.classList.remove("is-open");
+}
+function modifyCartQuantity(id,change) {
+  const cart=getCart();
+  const found=cart.find(item=>Number(item.id)===Number(id));
+  if (found) {
+    found.qty=Number(found.qty||0)+change;
+    if(found.qty<=0)cart.splice(cart.indexOf(found),1);
+    saveCart(cart);
+  }
+  renderProductCart();
 }
 
 function relatedImage(product) {
@@ -343,6 +434,7 @@ async function loadProducts() {
   renderProduct(product);
   renderRelated(product);
   updateCartHeader();
+  renderProductCart();
 }
 
 document.addEventListener("click", event => {
@@ -363,6 +455,12 @@ document.addEventListener("click", event => {
   }
 
   if (event.target.closest("[data-order-current]")) orderNow(currentProduct);
+  const productTab=event.target.closest("[data-product-tab]");
+  if(productTab) switchProductTab(productTab.dataset.productTab);
+  const qty=event.target.closest("[data-product-cart-qty]");
+  if(qty) modifyCartQuantity(qty.dataset.itemId,Number(qty.dataset.productCartQty));
+  if(event.target.closest("#closeCart") || event.target.id==="overlay") closeProductCart();
+  if(event.target.closest("#clearCart")) { saveCart([]); renderProductCart(); }
 
   const related = event.target.closest("[data-related-id]");
   if (related) {
@@ -371,11 +469,9 @@ document.addEventListener("click", event => {
 });
 
 const productPageCartButton = document.getElementById("productPageCart");
-if (productPageCartButton) {
-  productPageCartButton.addEventListener("click", () => {
-    window.location.href = "/#products";
-  });
-}
+if (productPageCartButton) productPageCartButton.addEventListener("click", openProductCart);
+window.addEventListener("hb-cart-updated", renderProductCart);
+document.addEventListener("keydown",e=>{if(e.key==="Escape")closeProductCart();});
 
 loadProducts();
 window.addEventListener("storage", updateCartHeader);

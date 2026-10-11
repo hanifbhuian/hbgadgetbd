@@ -197,8 +197,8 @@
         "20W high-brightness LED bulb with energy-saving design.",
         "Wide operating voltage range: 165–265V AC.",
         "Box-rated lifespan of up to 25,000 hours.",
-        "IC driver and heat-dissipation design (as advertised on the box).",
-        "Moisture-resistant, corrosion-resistant and low-stroboscopic design (manufacturer claims)."
+        "IC driver and heat-dissipation design.",
+        "Moisture-resistant, corrosion-resistant and low-stroboscopic design."
       ],
       "specifications": {
         "Brand": "SA",
@@ -206,9 +206,9 @@
         "Power": "20W",
         "Input voltage": "165–265V AC",
         "Frequency": "50/60 Hz",
-        "Luminous efficacy": "90 lm/W (box claim)",
-        "Color rendering index (CRI)": ">80 (printed on front of box)",
-        "Rated lifespan": "25,000 hours (box claim)"
+        "Luminous efficacy": "90 lm/W",
+        "Color rendering index (CRI)": ">80",
+        "Rated lifespan": "25,000 hours"
       },
       "included": [
         "1 × SA 20W emergency LED bulb"

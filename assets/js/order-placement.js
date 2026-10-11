@@ -107,7 +107,6 @@ function ensureCheckoutModal() {
         <div><p class="eyebrow">Place Order | অর্ডার করুন</p><h2>Confirm your order information</h2></div>
         <button class="checkout-close" type="button" data-checkout-close aria-label="Close checkout">×</button>
       </div>
-      <div class="checkout-summary" id="checkoutSummary"></div>
       <form class="checkout-form" id="checkoutForm">
         <div class="checkout-form__grid">
           <label><span>Customer Name *</span><input id="checkoutName" name="customerName" type="text" placeholder="Your full name" required></label>
@@ -121,6 +120,7 @@ function ensureCheckoutModal() {
         <div class="checkout-form__grid">
           <label><span>Shipping Location *</span><select id="checkoutShippingZone" name="shippingZone" required><option value="">Select shipping area</option><option value="insideDhaka">Inside Dhaka — ৳70</option><option value="outsideDhaka">Outside Dhaka — ৳150</option></select></label>
         </div>
+        <div class="checkout-summary" id="checkoutSummary"></div>
         <fieldset class="checkout-methods">
           <legend>Payment method</legend>
           <label class="checkout-method">

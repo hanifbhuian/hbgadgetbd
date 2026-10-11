@@ -1,0 +1,81 @@
+/* Mobile cart: keep both actions accessible above the persistent bottom navigation.
+   Cart > overlay > bottom nav, while checkout modal remains above the cart. */
+@media (max-width: 640px) {
+  #cartPanel {
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+    height: 100vh; /* Fallback for browsers without dynamic viewport units. */
+    height: 100dvh;
+    max-height: 100dvh;
+    overflow: hidden;
+    z-index: 110;
+  }
+
+  #overlay.is-open {
+    z-index: 100;
+  }
+
+  #cartPanel .cart-panel__header {
+    flex: 0 0 auto;
+    padding: 16px 18px;
+  }
+
+  #cartPanel .cart-items {
+    flex: 1 1 auto;
+    min-height: 0; /* Allows a long cart to scroll without pushing the footer offscreen. */
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 12px 18px;
+  }
+
+  #cartPanel .cart-item {
+    grid-template-columns: 46px minmax(0, 1fr) auto;
+    gap: 10px;
+  }
+
+  #cartPanel .cart-item__icon {
+    width: 46px;
+    height: 46px;
+  }
+
+  #cartPanel .cart-item h3 {
+    overflow-wrap: anywhere;
+  }
+
+  #cartPanel .qty {
+    gap: 5px;
+  }
+
+  #cartPanel .qty button {
+    min-width: 32px;
+    min-height: 32px;
+  }
+
+  #cartPanel .cart-summary {
+    flex: 0 1 auto;
+    min-height: 0;
+    max-height: 62%;
+    margin-top: 0;
+    overflow-y: auto; /* Makes the controls reachable on extra-short screens. */
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+    padding: 14px 18px calc(18px + env(safe-area-inset-bottom, 0px));
+    gap: 10px;
+    background: #fff;
+  }
+
+  #cartPanel #whatsappOrder,
+  #cartPanel #clearCart {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    min-height: 48px;
+    box-sizing: border-box;
+    flex: 0 0 auto;
+    text-align: center;
+    white-space: normal;
+  }
+}

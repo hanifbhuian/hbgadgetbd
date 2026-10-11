@@ -122,6 +122,60 @@
         "360 degree base kettle",
         "quick boil kettle"
       ]
+    },
+    {
+      "id": 3,
+      "name": "Handheld Mini Turbo Fan – 1800mAh Rechargeable (Green)",
+      "category": "Power & Safety",
+      "subCategory": "Portable Fans",
+      "regularPrice": 580,
+      "price": 449,
+      "image": "assets/uploads/handheld-mini-turbo-fan-1800mah-front.webp",
+      "images": [
+        "assets/uploads/handheld-mini-turbo-fan-1800mah-front.webp",
+        "assets/uploads/handheld-mini-turbo-fan-1800mah-folded.webp",
+        "assets/uploads/handheld-mini-turbo-fan-1800mah-green-box.webp"
+      ],
+      "icon": "🌀",
+      "tag": "Limited Time Offer",
+      "stock": "Available",
+      "color": "Green",
+      "description": "Compact handheld mini turbo fan with an 1800mAh rechargeable battery and a foldable design. Green colour, easy to carry for personal cooling at home or on the go.",
+      "shortDescription": "Limited-time offer! Portable 1800mAh rechargeable mini turbo fan in green, with a foldable handheld design.",
+      "benefits": [
+        "Compact, lightweight handheld design for personal cooling.",
+        "Rechargeable 1800mAh battery (as specified by the seller).",
+        "Foldable design for convenient carrying and positioning.",
+        "Green colour variant, as marked on the supplied product box.",
+        "USB rechargeable, based on the supplied product listing."
+      ],
+      "specifications": {
+        "Product type": "Handheld portable turbo fan",
+        "Battery capacity": "1800mAh (seller-provided)",
+        "Colour": "Green",
+        "Design": "Foldable handheld",
+        "Charging": "USB rechargeable"
+      },
+      "included": [
+        "1 × handheld portable turbo fan"
+      ],
+      "seoTitle": "Handheld Mini Turbo Fan 1800mAh Rechargeable Green | HB Gadget BD",
+      "seoDescription": "Buy a green 1800mAh USB rechargeable handheld mini turbo fan in Bangladesh. Compact foldable portable fan, limited-time offer ৳449 at HB Gadget BD.",
+      "seoKeywords": [
+        "handheld mini turbo fan",
+        "portable turbo fan Bangladesh",
+        "1800mAh mini fan",
+        "rechargeable handheld fan",
+        "USB rechargeable mini fan",
+        "foldable portable fan",
+        "mini fan price in Bangladesh",
+        "green mini turbo fan",
+        "pocket turbo fan BD",
+        "handheld cooling fan",
+        "portable personal fan",
+        "mini turbo fan 1800mah BD"
+      ],
+      "tutorials": []
     }
   ]
 }

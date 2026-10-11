@@ -9,7 +9,12 @@
  */
 const HB_SHEET_NAME = 'Orders';
 const HB_PENDING_SHEET = 'Pending_order';
-const HB_INVOICE_FOLDER = 'HB Gadget BD Invoices';
+// Verified stage folders inside the HB Gadget BD Invoices Drive folder.
+const HB_INVOICE_FOLDER_IDS = Object.freeze({
+  received: '1vS1ZfTrGvZ4LP0XDXifqCubaSwIN_lwX',
+  confirmed: '1lNia585H5nTmgqXrq2qhUuHpKBVFG-JX',
+  delivered: '1EUZs3ecaNoqNc3OhBlU8d79o_HGYoUpl'
+});
 const HB_PAYMENT_FOLDER = 'HB Gadget BD Payment Proofs';
 const HB_SEND_MONEY_NUMBER = '01816569237';
 const HB_WHATSAPP_URL = 'https://wa.me/8801816569237';
@@ -24,16 +29,18 @@ const HB_INVOICE_HEADERS = ['Customer Note', 'Order Received Invoice Link',
   'Order Confirmed Invoice Link', 'Order Delivered Invoice Link'];
 const HB_WEB_ORIGINS = ['https://hbgadgetbd.com', 'https://www.hbgadgetbd.com'];
 const HB_HEADERS = [
-  'Order ID', 'Phone', 'Customer Name', 'Status', 'Bangla Status',
-  'Order Date', 'Last Updated', 'Items', 'Subtotal', 'Delivery Charge',
-  'Payment Method', 'Delivery Area', 'Courier', 'Tracking Number', 'Note',
-  'Email', 'Address', 'Payment Proof Link', 'Invoice Link',
-  'Email Status', 'Invoice Status', 'Cancellation Reason'
+  'Order ID','Customer Name','Phone','Email','Status','Bangla Status','Cancellation Reason',
+  'Order Date','Last Updated','Items','Subtotal','Delivery Charge','Total',
+  'Payment Method','Delivery Area','Courier','Tracking Number','Customer Note','Address',
+  'Payment Proof Link','Payment Verification','Verified Amount (BDT)','Payment Transaction ID',
+  'Order Received Email Sent','Order Confirmed Email Sent','Final Status Email Sent',
+  'Email Automation Error','Order Received Invoice Link','Order Confirmed Invoice Link',
+  'Order Delivered Invoice Link'
 ];
 const HB_PENDING_HEADERS = [
-  'Order ID', 'Customer Name', 'Status', 'Bangla Status', 'Payment Method',
-  'Courier', 'Tracking Number', 'Cancellation Reason',
-  'Payment Verification', 'Verified Amount (BDT)', 'Payment Transaction ID'
+  'Order ID','Customer Name','Status','Bangla Status','Cancellation Reason',
+  'Payment Method','Courier','Tracking Number','Payment Verification',
+  'Verified Amount (BDT)','Payment Transaction ID'
 ];
 // All staff-visible values originate from Orders and are joined by exact Order ID.
 const HB_PENDING_MAP = HB_PENDING_HEADERS.slice();
@@ -180,9 +187,7 @@ function hbCreateOrder_(data) {
   data.paymentStatus = method === 'Cash on Delivery' ? 'Pending — COD' : 'Pending Verification';
   const master = hbMaster_();
   const headerInfo = hbHeaderIndexes_(master);
-  const required = ['Order ID','Phone','Customer Name','Status','Bangla Status','Order Date','Last Updated',
-    'Items','Subtotal','Delivery Charge','Payment Method','Delivery Area','Courier','Tracking Number',
-    'Email','Address','Payment Proof Link','Invoice Link','Email Status','Invoice Status','Note','Cancellation Reason'];
+  const required = HB_HEADERS;
   required.forEach(name => { if (headerInfo.map[name] === undefined) throw new Error('Missing Orders header: ' + name + '. Run setupHBOrders.'); });
   const clientKey = hbSafeRequestId_(data.orderId);
   const props = PropertiesService.getScriptProperties();
@@ -201,13 +206,14 @@ function hbCreateOrder_(data) {
         'Status':'Pending', 'Bangla Status':HB_BANGLA_STATUS.Pending,
         'Order Date':now, 'Last Updated':now, 'Items':String(data.items || ''),
         'Subtotal':hbMoney_(data.subtotal), 'Delivery Charge':hbMoney_(data.deliveryCharge),
+        'Total':hbMoney_(data.subtotal)+hbMoney_(data.deliveryCharge),
         'Payment Method':method,
         'Delivery Area':String(data.deliveryArea || ''), 'Courier':'Not assigned yet',
-        'Tracking Number':'Pending', 'Note':String(data.note || ''),
-        'Customer Note':typeof data.customerNote === 'string' ? data.customerNote : '',
+        'Tracking Number':'Pending','Customer Note':hbCustomerNote_(data),
         'Email':String(data.customerEmail || data.email), 'Address':String(data.address),
-        'Payment Proof Link':'', 'Invoice Link':'', 'Email Status':'Pending', 'Invoice Status':'Pending',
-        'Cancellation Reason':'',
+        'Payment Proof Link':'','Cancellation Reason':'',
+        'Order Received Invoice Link':'','Order Confirmed Invoice Link':'',
+        'Order Delivered Invoice Link':'',
         'Payment Verification':'Not Verified', 'Verified Amount (BDT)':0,
         'Payment Transaction ID':'', 'Order Received Email Sent':'',
         'Order Confirmed Email Sent':'', 'Final Status Email Sent':'',
@@ -254,8 +260,7 @@ function hbCreateOrder_(data) {
     invoiceStatus = 'Failed';
     errors.push('Invoice: ' + error.message);
   }
-  hbWrite_(master, headerInfo, rowNumber, 'Invoice Link', invoiceLink);
-  hbWrite_(master, headerInfo, rowNumber, 'Invoice Status', invoiceStatus);
+  // Stage-1 invoice URL is saved in Order Received Invoice Link.
   try {
     hbEmailInvoice_(orderId, data, invoiceLink, invoice && invoice.blob);
     emailStatus = 'Sent';
@@ -264,8 +269,7 @@ function hbCreateOrder_(data) {
     emailStatus = 'Failed';
     errors.push('Email: ' + error.message);
   }
-  hbWrite_(master, headerInfo, rowNumber, 'Email Status', emailStatus);
-  if (errors.length) hbWrite_(master, headerInfo, rowNumber, 'Note', String(data.note || '') + ' | ' + errors.join(' | '));
+  if(errors.length)hbWrite_(master,headerInfo,rowNumber,'Email Automation Error',errors.join(' | ').slice(0,400));
   return {success:true, orderId:orderId, invoiceLink:invoiceLink,
     invoiceStatus:invoiceStatus, emailStatus:emailStatus, message:'Order saved successfully.'};
 }
@@ -379,7 +383,10 @@ function hbCreateInvoice_(orderId, data, phase) {
   };
   const pdf = template.evaluate().getAs(MimeType.PDF)
     .setName('HB-Gadget-BD-'+labels[phase]+'-Invoice-'+orderId+'.pdf');
-  const file = hbFolder_(HB_INVOICE_FOLDER).createFile(pdf);
+  const folderId=HB_INVOICE_FOLDER_IDS[phase];
+  if(!folderId)throw new Error('Invoice folder not configured for '+phase);
+  // Directly store stage-specific PDFs in the existing, verified Drive folders.
+  const file = DriveApp.getFolderById(folderId).createFile(pdf);
   return {url:file.getUrl(), blob:pdf};
 }
 
@@ -850,9 +857,7 @@ function hbSendConfirmedOrder_(order,h,master,rowNum) {
     body:lines.join('\n'),attachments:[invoice.blob],
     name:'HB Gadget BD',replyTo:HB_SUPPORT_EMAIL
   });
-  hbWrite_(master,h,rowNum,'Invoice Link',invoice.url);
-  hbWrite_(master,h,rowNum,'Invoice Status','Order Confirmed — Created');
-  hbWrite_(master,h,rowNum,'Email Status','Confirmed email sent');
+  // Confirmed stage link is permanent and can be printed for the package.
   const now=hbNow_();
   hbWrite_(master,h,rowNum,'Order Confirmed Email Sent',now);
   order.confirmedSent=now;
@@ -896,14 +901,11 @@ function hbSendFinalStatus_(order,h,master,rowNum) {
     body:body,name:'HB Gadget BD',replyTo:HB_SUPPORT_EMAIL};
   if(invoice)message.attachments=[invoice.blob];
   MailApp.sendEmail(message);
-  if(invoice) {
-    hbWrite_(master,h,rowNum,'Invoice Link',invoice.url);
-    hbWrite_(master,h,rowNum,'Invoice Status','Delivered / Paid — Created');
-  }
+  // Delivered stage link is stored in Order Delivered Invoice Link.
   const sent=order.finalSent.split('|').filter(Boolean);
   if(sent.indexOf(status)<0)sent.push(status);
   hbWrite_(master,h,rowNum,'Final Status Email Sent',sent.join('|'));
-  hbWrite_(master,h,rowNum,'Email Status',status+' email sent');
+  // Final Status Email Sent is authoritative; no duplicate Email Status field.
 }
 
 /** Uses a polling trigger so edits synchronized from Pending_order are also detected. */

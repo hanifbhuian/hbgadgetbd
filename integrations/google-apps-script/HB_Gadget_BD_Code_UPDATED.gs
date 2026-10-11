@@ -226,6 +226,7 @@ function hbCreateOrder_(data) {
       master.getRange(target, headerInfo.map['Phone'] + 1, 1, 1).setNumberFormat('@');
       master.getRange(target, 1, 1, headerInfo.names.length)
         .setValues([headerInfo.names.map(name => row[name] !== undefined ? row[name] : '')]);
+      hbSetRecognizedPaid_(master,headerInfo,target);
       rowNumber = target;
       if (clientKey) props.setProperty(clientKey, orderId);
       SpreadsheetApp.flush();
@@ -486,14 +487,74 @@ function hbMigratePendingOrderLayout_() {
   return true;
 }
 
+
+/** Auto-display the payable Total in Pending_order J using Order ID, not row position.
+ * This is an amount to CHECK, not proof of money received.
+ */
+function hbPendingTotalFormula_(row) {
+  return '=IF($A'+row+'="","",IFERROR(VLOOKUP($A'+row+',Orders!$A$2:$M,13,FALSE),""))';
+}
+/** Orders Verified Amount only acknowledges funds once truly verified.
+ * COD counts as paid only after Delivered. Prepaid needs Verified + transaction ID.
+ */
+function hbRecognizedPaidFormula_(row) {
+  return '=IF($A'+row+'="","",IF(AND($N'+row+'="Cash on Delivery",$E'+row+
+    '="Delivered"),$M'+row+',IF(AND(OR($N'+row+'="bKash",$N'+row+
+    '="Nagad"),$U'+row+'="Verified",$W'+row+'<>""),$M'+row+',0)))';
+}
+function hbSetRecognizedPaid_(master,headers,row) {
+  const index=headers.map['Verified Amount (BDT)'];
+  if(index===undefined)throw new Error('Missing Orders Verified Amount field.');
+  master.getRange(row,index+1).setFormula(hbRecognizedPaidFormula_(row));
+}
+/** Run once after deploying Code.gs. Existing active orders only, no empty-row formulas.
+ * Pending_order J looks up Orders M. A protected actual-receipt amount is calculated
+ * separately in Orders V when payment verification + transaction are present.
+ */
+function setupHBPendingAmountSync() {
+  const ss=hbSpreadsheet_();
+  const master=ss.getSheetByName(HB_SHEET_NAME);
+  const pending=ss.getSheetByName(HB_PENDING_SHEET);
+  if(!master||!pending)throw new Error('Orders or Pending_order missing.');
+  const h=hbHeaderIndexes_(master);
+  ['Order ID','Total','Verified Amount (BDT)'].forEach(name=>{
+    if(h.map[name]===undefined)throw new Error('Orders field missing: '+name);
+  });
+  const headers=pending.getRange(1,1,1,HB_PENDING_HEADERS.length).getDisplayValues()[0];
+  if(headers.join('|')!==HB_PENDING_HEADERS.join('|'))
+    throw new Error('Pending_order layout differs; run setupHBOrders() first.');
+  const size=Math.max(0,master.getLastRow()-1);
+  const ids=size?master.getRange(2,h.map['Order ID']+1,size,1).getDisplayValues():[];
+  const orderRows=new Map();
+  ids.forEach((v,i)=>{const id=String(v[0]||'').trim();if(id)orderRows.set(id,i+2);});
+  const last=pending.getLastRow();
+  const pendingIds=last>1?pending.getRange(2,1,last-1,1).getDisplayValues():[];
+  let linked=0;
+  pendingIds.forEach((v,i)=>{
+    const id=String(v[0]||'').trim();
+    if(!id)return;
+    const match=orderRows.get(id);
+    if(!match)throw new Error('Pending Order ID '+id+' not found in Orders.');
+    pending.getRange(i+2,10).setFormula(hbPendingTotalFormula_(i+2));
+    hbSetRecognizedPaid_(master,h,match);
+    linked++;
+  });
+  pending.getRange(1,10).setNote(
+    'AUTO: Matching Orders Total by Order ID. Reference amount, not proof of payment. '+
+    'For bKash/Nagad mark Verified only after checking full funds and recording a transaction ID.'
+  );
+  return 'Pending amount sync installed. '+linked+' active order(s) linked to Orders Total.';
+}
+
 function hbPendingRows_(master,headers) {
   const size=Math.max(0,master.getLastRow()-1);
   if (!size) return [];
   const rows=master.getRange(2,1,size,headers.names.length).getDisplayValues();
   return rows.filter(row=>hbGet_(row,headers,'Order ID') && hbIsPending_(hbGet_(row,headers,'Status')))
     .map(row=>HB_PENDING_MAP.map(name=>{
-      const value=hbGet_(row,headers,name);
-      return name==='Verified Amount (BDT)' && String(value).trim()!=='' ? hbMoney_(value) : value;
+      // J shows Total in Orders, not the amount already received.
+      return name==='Verified Amount (BDT)' ? hbMoney_(hbGet_(row,headers,'Total'))
+        : hbGet_(row,headers,name);
     }));
 }
 function hbRefreshPendingOrders() {
@@ -549,6 +610,7 @@ function hbRefreshPendingOrders() {
       pending.getRange(row, 1, 1, 1).setNumberFormat('@');
       pending.getRange(row, 11, 1, 1).setNumberFormat('@');
       pending.getRange(row, 1, 1, width).setValues([record]);
+      pending.getRange(row,10).setFormula(hbPendingTotalFormula_(row));
       row++;
     });
   } finally {
@@ -569,7 +631,7 @@ function hbOnEditOrders(e) {
       const actual=source.getRange(1,1,1,HB_PENDING_HEADERS.length).getDisplayValues()[0];
       if(actual.join('|')!==HB_PENDING_HEADERS.join('|'))
         throw new Error('Pending_order needs layout upgrade; run setupHBOrderNotifications().');
-      // C:K are editable. For prepaid orders, fill I:K and verify the funds BEFORE confirming.
+      // Staff only edit I (verification) and K (transaction) for payment; J is auto-linked.
       // After cancellation the order vanishes from Pending_order and reason can be edited only in Orders.
       // A/B remain identifiers.
       const first=e.range.getColumn(),last=e.range.getLastColumn();
@@ -597,20 +659,15 @@ function hbOnEditOrders(e) {
           if(first<=7&&last>=7)hbWrite_(master,headers,masterRow,'Courier',source.getRange(r,7).getValue());
           if(first<=8&&last>=8)hbWrite_(master,headers,masterRow,'Tracking Number',
             String(source.getRange(r,8).getDisplayValue() || '').trim());
-          // Update all three payment fields by exact Order ID, never by current row position.
-          // Payment Verification, Verified Amount, and Transaction ID are authoritative
-          // in Orders; the staff-facing Pending_order is the only routine edit surface.
+          // Copy staff verification and transaction by Order ID. J is read-only reference.
           if(first<=9&&last>=9)hbWrite_(master,headers,masterRow,'Payment Verification',
             String(source.getRange(r,9).getDisplayValue() || '').trim());
-          if(first<=10&&last>=10){
-            const amountText=String(source.getRange(r,10).getDisplayValue()||'').trim();
-            if(amountText && (!Number.isFinite(Number(amountText.replace(/,/g,''))) || Number(amountText.replace(/,/g,''))<0))
-              throw new Error('Verified Amount must be a nonnegative numeric amount in BDT.');
-            hbWrite_(master,headers,masterRow,'Verified Amount (BDT)',
-              amountText ? Number(amountText.replace(/,/g,'')) : '');
-          }
           if(first<=11&&last>=11)hbWrite_(master,headers,masterRow,'Payment Transaction ID',
             String(source.getRange(r,11).getDisplayValue() || '').trim());
+          if(first<=10&&last>=10)
+            source.getRange(r,10).setFormula(hbPendingTotalFormula_(r)); // Repair accidental edit.
+          if(last>=6&&first<=11)
+            hbSetRecognizedPaid_(master,headers,masterRow);
           hbWrite_(master,headers,masterRow,'Last Updated',hbNow_());
         }
       }
@@ -619,6 +676,9 @@ function hbOnEditOrders(e) {
       const statusCol=headers.map['Status']+1,bnCol=headers.map['Bangla Status']+1;
       const englishChanged=col<=statusCol&&end>=statusCol;
       const bnChanged=col<=bnCol&&end>=bnCol;
+      const affectsPaid=['Status','Payment Method','Total','Payment Verification',
+        'Verified Amount (BDT)','Payment Transaction ID'].some(name=>
+          headers.map[name]!==undefined&&col<=headers.map[name]+1&&end>=headers.map[name]+1);
       for(let r=Math.max(2,e.range.getRow());r<=e.range.getLastRow();r++){
         if(englishChanged){
           const en=String(master.getRange(r,statusCol).getDisplayValue()).trim();
@@ -627,6 +687,8 @@ function hbOnEditOrders(e) {
           const en=hbEnglishStatus_(master.getRange(r,bnCol).getDisplayValue());
           if(en)hbWrite_(master,headers,r,'Status',en);
         }
+        if(affectsPaid&&master.getRange(r,headers.map['Order ID']+1).getDisplayValue())
+          hbSetRecognizedPaid_(master,headers,r);
         hbWrite_(master,headers,r,'Last Updated',hbNow_());
       }
     }
@@ -681,10 +743,8 @@ function setupHBOrders() {
   hbSetDropdown_(pending,5,HB_PAYMENT_METHODS); // F
   hbSetDropdown_(pending,6,HB_COURIERS); // G
   hbSetDropdown_(pending,8,['Not Verified','Verified']); // I
-  pending.getRange(2,10,pending.getMaxRows()-1,1).setDataValidation(
-    SpreadsheetApp.newDataValidation().requireNumberGreaterThanOrEqualTo(0).setAllowInvalid(false).build()
-  );
-  pending.getRange(1,10).setNote('Actual received amount in BDT, after account verification.');
+  pending.getRange(2,10,pending.getMaxRows()-1,1).clearDataValidations();
+  pending.getRange(1,10).setNote('Auto-linked to Orders Total; NOT evidence of payment.');
   hbSetDropdown_(master,h.map['Status'],Object.keys(HB_BANGLA_STATUS));
   hbSetDropdown_(master,h.map['Bangla Status'],Object.values(HB_BANGLA_STATUS));
   hbSetDropdown_(master,h.map['Payment Method'],HB_PAYMENT_METHODS);
@@ -696,7 +756,8 @@ function setupHBOrders() {
     ScriptApp.newTrigger('hbRefreshPendingOrders').timeBased().everyMinutes(5).create();
   PropertiesService.getScriptProperties().setProperty('HB_PENDING_SYNC_INSTALLED','yes');
   hbRefreshPendingOrders();
-  return 'Pending_order updated: Cancellation Reason now after Bangla Status.';
+  setupHBPendingAmountSync();
+  return 'Pending_order ready. Verified Amount (BDT) auto-links to Orders Total.';
 }
 
 /** One-time, low-risk upgrade for the STAFF dashboard only.
@@ -726,14 +787,13 @@ function setupHBPendingPaymentFields() {
   pending.setColumnWidths(9,3,200);
   pending.getRange(2,11,pending.getMaxRows()-1,1).setNumberFormat('@');
   hbSetDropdown_(pending,8,['Not Verified','Verified']);
-  const amountRule=SpreadsheetApp.newDataValidation().requireNumberGreaterThanOrEqualTo(0)
-    .setAllowInvalid(false).build();
-  pending.getRange(2,10,pending.getMaxRows()-1,1).setDataValidation(amountRule);
-  pending.getRange(1,10).setNote('Actual amount received in BDT. Verify bank/wallet account before marking payment Verified.');
+  pending.getRange(2,10,pending.getMaxRows()-1,1).clearDataValidations();
+  pending.getRange(1,10).setNote('Auto-linked to Orders Total; verify actual funds before marking Verified.');
   if(PropertiesService.getScriptProperties().getProperty('HB_PENDING_SYNC_INSTALLED')!=='yes')
     throw new Error('Pending_order synchronization was not installed; run setupHBOrders().');
   hbRefreshPendingOrders();
-  return 'Pending_order I:K added and refreshed from Orders W:Y; order IDs and existing records unchanged.';
+  setupHBPendingAmountSync();
+  return 'Pending_order I:K ready; J auto-links to Orders Total.';
 }
 
 /** Set up additional payment-verification/email log columns and a 1-minute status watcher.

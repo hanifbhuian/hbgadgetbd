@@ -39,7 +39,9 @@ const overlay = document.getElementById("overlay");
 const clearCart = document.getElementById("clearCart");
 const whatsappOrder = document.getElementById("whatsappOrder");
 
-document.getElementById("year").textContent = new Date().getFullYear();
+// Footer markup can differ between layouts; it must never block product loading.
+const yearLabel = document.getElementById("year") || document.querySelector("[data-hb-footer-year]");
+if (yearLabel) yearLabel.textContent = String(new Date().getFullYear());
 
 function loadProductDetailCss() {
   if (document.querySelector("link[href*='product-detail-drawer.css']")) return;

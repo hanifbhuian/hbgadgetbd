@@ -22,7 +22,7 @@ async function loadOffers() {
   const grid=document.getElementById("offerGrid"),count=document.getElementById("offerCount");
   try {
     let catalog;
-    for(const url of [HB_RAW_CATALOG,HB_CATALOG_PATH]){
+    for(const url of [HB_CATALOG_PATH,HB_RAW_CATALOG]){
       try{
         const r=await fetch(url+"?v="+Date.now(),{cache:"no-store"});
         if(!r.ok)throw Error("Catalogue unavailable");

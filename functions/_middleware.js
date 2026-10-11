@@ -391,7 +391,7 @@ export async function onRequest(context) {
     nav.innerHTML = "";
     nav.appendChild(makeNavItem("Home", null, "/"));
     nav.appendChild(makeNavItem("All Products", "All"));
-    nav.appendChild(makeNavItem("Offer Zone", null, "#offer-zone"));
+    nav.appendChild(makeNavItem("Offer Zone", null, "/offers.html"));
     nav.appendChild(makeNavItem("Power & Safety", "Power & Safety"));
     nav.appendChild(makeNavItem("Health & Protection", "Health & Protection"));
     nav.appendChild(makeNavItem("Clean Living", "Clean Living"));
@@ -446,7 +446,7 @@ export async function onRequest(context) {
     var quick = drawer.querySelector("[data-mobile-quick]");
     quick.appendChild(makeMobileLink("Home", "/"));
     quick.appendChild(makeMobileFilterButton("All Products", "All"));
-    quick.appendChild(makeMobileLink("Offer Zone", "#offer-zone"));
+    quick.appendChild(makeMobileLink("Offer Zone", "/offers.html"));
     quick.appendChild(makeMobileLink("Track Order", "#track-order", "track-order-highlight"));
 
     var categories = drawer.querySelector("[data-mobile-categories]");

@@ -13,8 +13,8 @@
   <link rel="stylesheet" href="assets/css/mobile-header-fix.css?v=20260710-5" />
   <link rel="stylesheet" href="assets/css/category-active-fix.css?v=20260710-5" />
   <link rel="stylesheet" href="assets/css/daily-life-nav.css?v=20260710-5" />
-  <link rel="stylesheet" href="assets/css/product-page.css?v=20260710-5" />
-  <link rel="stylesheet" href="assets/css/product-page-header-match.css?v=20260710-5" />
+  <link rel="stylesheet" href="assets/css/product-page.css?v=20261011-ux" />
+  <link rel="stylesheet" href="assets/css/product-page-header-match.css?v=20261011-ux" />
   <link rel="stylesheet" href="assets/css/product-page-font-match.css?v=20260710-5" />
 </head>
 <body>
@@ -30,12 +30,12 @@
       </form>
 
       <div class="header-actions">
-        <a class="hotline-chip" href="tel:+8801816569237">Hotline</a>
+        <button class="hotline-chip" type="button" data-contact-panel="hotline">Hotline</button>
         <button class="cart-button" id="productPageCart" type="button" aria-label="Open cart">
           Cart <span id="cartCount">0</span> <strong id="cartSummaryLabel">৳0 Cart</strong>
         </button>
         <a class="account-button" href="/#account" aria-label="Account login or register">Account <small>Login/Register</small></a>
-        <a id="hbTopFacebookLink" class="hb-top-facebook-link" href="https://www.facebook.com/hbgadgetbd/" target="_blank" rel="noopener noreferrer" aria-label="Visit HB Gadget BD Facebook page"><span class="hb-fb-mark">f</span><span>Facebook</span></a>
+        <a id="hbTopFacebookLink" class="hb-top-facebook-link" href="https://www.facebook.com/hbgadgetbd/" target="_blank" rel="noopener noreferrer" aria-label="Visit HB Gadget BD Facebook page" title="Facebook"><span class="hb-fb-mark" aria-hidden="true">f</span></a>
       </div>
     </div>
 
@@ -43,7 +43,7 @@
       <div class="container category-nav__inner">
         <a class="category-pill" href="https://hbgadgetbd.com/">Home</a>
         <a class="category-pill active" href="/?filter=All#products">All Products</a>
-        <a class="category-pill" href="/#offer-zone">Offer Zone</a>
+        <a class="category-pill" href="/offers.html">Offer Zone</a>
         <a class="category-pill" href="/?filter=Power%20%26%20Safety#products">Power & Safety</a>
         <a class="category-pill" href="/?filter=Health%20%26%20Protection#products">Health & Protection</a>
         <a class="category-pill" href="/?filter=Clean%20Living#products">Clean Living</a>
@@ -55,22 +55,16 @@
 
   <main class="product-page-main">
     <div class="container product-layout">
-      <aside class="side-column" aria-label="Current offers">
-        <h2>Sponsored / Current Offers</h2>
+      <aside class="side-column" aria-label="Current offers and order support">
         <div class="ad-card">
           <strong>Dhamaka Offer</strong>
           <p>Combo deals and useful daily-life gadgets are coming soon. Order fast when offers are live.</p>
-          <a href="/#offer-zone">View Offers</a>
+          <a href="/offers.html">View Offers</a>
         </div>
         <div class="ad-card ad-card--light">
-          <strong>Fast Delivery</strong>
-          <p>Inside Dhaka delivery support and nationwide courier processing.</p>
-          <a href="https://wa.me/8801816569237" target="_blank" rel="noreferrer">Ask Support</a>
-        </div>
-        <div class="ad-card ad-card--light">
-          <strong>WhatsApp Support</strong>
-          <p>Need help before ordering? Ask about compatibility, delivery, or payment.</p>
-          <a href="https://wa.me/8801816569237?text=Hello%20HB%20Gadget%20BD%2C%20I%20need%20product%20support." target="_blank" rel="noreferrer">Ask Now</a>
+          <strong>Order Support</strong>
+          <p>Questions about your order or product? Choose to copy our phone number or support email.</p>
+          <button type="button" data-contact-panel="support">Ask Support</button>
         </div>
       </aside>
 
@@ -85,6 +79,20 @@
     </div>
   </main>
 
-  <script src="assets/js/product-page.js?v=20261009-1"></script>
+<footer class="site-footer"><div class="container"><strong>HB Gadget BD</strong><p>Customer support: +8801816569237 · support@hbgadgetbd.com</p><div class="hb-footer-social" aria-label="Social media"><a href="https://www.facebook.com/hbgadgetbd/" target="_blank" rel="noopener noreferrer" aria-label="HB Gadget BD Facebook">f</a><span class="hb-youtube-awaiting" title="Official YouTube channel URL needed" aria-label="YouTube channel link pending">▶</span></div><p class="copyright">© HB Gadget BD. All rights reserved.</p></div></footer>
+  <aside class="cart-panel" id="cartPanel" aria-label="Shopping cart" aria-hidden="true">
+    <div class="cart-panel__header"><h2>Your Cart</h2><button id="closeCart" type="button" aria-label="Close cart">×</button></div>
+    <div class="cart-items" id="cartItems"></div>
+    <div class="cart-summary">
+      <div><span>Subtotal</span><strong id="cartTotal">৳0</strong></div>
+      <small>Delivery charges are calculated at checkout.</small>
+      <a class="button button--primary button--full" id="whatsappOrder" href="#checkout">Checkout</a>
+      <button class="button button--ghost button--full" id="clearCart" type="button">Clear Cart</button>
+    </div>
+  </aside>
+  <div class="overlay" id="overlay"></div>
+  <script src="assets/js/product-page.js?v=20261011-ux"></script>
+  <script src="assets/js/order-placement.js?v=20261011-1"></script>
+  <script src="assets/js/storefront-support.js?v=20261011-ux"></script>
 </body>
 </html>

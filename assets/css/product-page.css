@@ -147,3 +147,21 @@ button { font: inherit; }
   .product-info h1 { font-size: 24px; }
   .side-column h2, .related-column h2, .section-box h2 { font-size: 20px; }
 }
+/* UX revision: product tabs, support action, cart consistency */
+.ad-card button[data-contact-panel] {display:inline-flex;cursor:pointer;border:0;padding:9px 13px;border-radius:99px;background:var(--primary);color:#fff;font-weight:800}
+.hb-product-tabs {display:flex;gap:10px;flex-wrap:wrap;border-bottom:1px solid var(--line);padding-bottom:12px;margin-bottom:18px}
+.hb-product-tabs button {border:1px solid #cbd7e9;background:#f4f7fb;color:#214474;border-radius:12px;padding:12px 16px;cursor:pointer;font-weight:800}
+.hb-product-tabs button[aria-selected="true"] {background:var(--accent);border-color:var(--accent);color:#fff}
+.hb-review-section {margin:18px 0;border-top:1px solid var(--line);padding-top:16px}
+.hb-review-section h3 {margin:0 0 12px;color:#17263f;font-size:17px}
+.hb-review-empty {background:#f8fafc;border:1px dashed #d7e0ef;padding:16px;border-radius:12px;color:#60718c}
+.hb-review-entry {background:#f8fafc;border:1px solid #e0e7f1;padding:14px;border-radius:12px;margin-bottom:10px}
+.hb-review-entry span {margin-left:10px;color:#d97706}
+.hb-review-entry p {margin:8px 0 0}
+.hb-review-video {display:inline-flex;gap:8px;margin:4px 8px 4px 0;border-radius:10px;padding:11px 14px;background:#fef1ee;color:#ba361f;font-weight:800}
+.hb-review-support {border:0;background:#e8f0ff;color:#174b9e;border-radius:10px;padding:7px 12px;font-weight:800;cursor:pointer}
+#cartPanel .cart-item h3{font-size:14px}
+#cartPanel .cart-summary{margin-top:auto}
+#cartPanel {z-index:90}
+#overlay {z-index:80}
+#hbProductReviewsPanel[hidden],#hbProductDetailsPanel[hidden] {display:none}

@@ -296,8 +296,8 @@ async function handleCheckoutSubmit(event) {
   event.preventDefault();
   const status = document.getElementById("checkoutStatus");
   const submit = event.target.querySelector("button[type='submit']");
-  if (status) status.textContent = "Submitting your order... Please do not close this window.";
-  if (submit) submit.disabled = true;
+  if (status) status.textContent = "Saving your order and preparing the invoice. Please keep this window open.";
+  if (submit) { submit.disabled = true; submit.dataset.originalText = submit.textContent; submit.textContent = "Processing order…"; }
 
   try {
     const payload = await buildOrderPayload();
@@ -314,7 +314,7 @@ async function handleCheckoutSubmit(event) {
     console.error(error);
     if (status) status.textContent = error.message || "Order could not be submitted automatically. Please contact WhatsApp support.";
   } finally {
-    if (submit) submit.disabled = false;
+    if (submit) { submit.disabled = false; submit.textContent = submit.dataset.originalText || "Finalize Checkout"; }
   }
 }
 
@@ -336,12 +336,14 @@ function wireOrderPlacement() {
     if (event.target.closest("[data-checkout-close]")) { closeCheckout(); return; }
     const cartCheckout = event.target.closest("#whatsappOrder");
     if (cartCheckout) { event.preventDefault(); openCheckout(getCartCheckoutItems()); return; }
-    const orderNow = event.target.closest(".order-now");
+    // Only handle homepage product-card shortcuts here. On product.html,
+    // [data-order-current] is handled by product-page.js and opens Your Cart.
+    const orderNow = event.target.closest(".product-card .order-now");
     if (orderNow) { event.preventDefault(); event.stopImmediatePropagation(); const item = getDirectCheckoutItem(orderNow); openCheckout(item ? [item] : getCartCheckoutItems()); }
   }, true);
   document.addEventListener("submit", handleCheckoutSubmit, true);
   document.addEventListener("keydown", event => { if (event.key === "Escape") closeCheckout(); });
-  setInterval(setCheckoutButtonLabel, 1000);
+  // The Checkout button exists at initialization; avoid unnecessary repeated DOM work.
 }
 
 document.addEventListener("DOMContentLoaded", wireOrderPlacement);

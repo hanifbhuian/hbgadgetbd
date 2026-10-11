@@ -16,7 +16,7 @@ function json(data, status = 200) {
   });
 }
 
-export async function onRequestPost({ request }) {
+export async function onRequestPost({ request, env }) {
   const type = String(request.headers.get("Content-Type") || "");
   if (!type.toLowerCase().includes("application/json")) {
     return json({success:false,message:"Invalid checkout data format."},415);
@@ -40,9 +40,12 @@ export async function onRequestPost({ request }) {
     return json({success:false,message:"Missing required checkout information."},400);
   }
 
-  // COD-only policy: never claim that funds were collected online.
-  if (data.paymentMethod !== "Cash on Delivery") {
-    return json({success:false,message:"Online prepayment is not available yet. Choose Cash on Delivery."},400);
+  // Feature flag: business receiving accounts must be approved before enabling.
+  const method = String(data.paymentMethod || "");
+  const paymentEnabled = env?.HB_ENABLE_PREPAYMENT === "true";
+  const prepayMethod = method === "bKash" || method === "Nagad";
+  if (method !== "Cash on Delivery" && !(paymentEnabled && prepayMethod)) {
+    return json({success:false,message:"This payment method is not available yet. Choose Cash on Delivery."},400);
   }
   const subtotal = Number(data.subtotal);
   const deliveryCharge = Number(data.deliveryCharge);
@@ -53,7 +56,7 @@ export async function onRequestPost({ request }) {
   }
   data.paidAmount = 0;
   data.dueAmount = grandTotal;
-  data.paymentStatus = "Due";
+  data.paymentStatus = prepayMethod ? "Pending Verification" : "Due";
   data.paymentProof = null;
 
   try {

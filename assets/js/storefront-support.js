@@ -66,7 +66,7 @@
     const o = element();
     lastTrigger = trigger;
     const hotline = mode === "hotline";
-    o.querySelector("#hbContactTitle").textContent = hotline ? "Hotline" : "Order Support";
+    o.querySelector("#hbContactTitle").textContent = hotline ? "Hotline" : "Contact Support";
     o.querySelector("#hbContactIntro").textContent = hotline ? "+8801816569237 (WhatsApp available)" : "Copy the phone number or email below to contact our support team.";
     o.querySelector("[data-support-email]").hidden = hotline;
     o.querySelector("#hbContactStatus").textContent = "";

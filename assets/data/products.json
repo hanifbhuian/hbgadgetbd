@@ -230,6 +230,63 @@
         "SA emergency bulb price BD"
       ],
       "tutorials": []
+    },
+    {
+      "id": 5,
+      "name": "MG Mini DC UPS – 16000mAh Network Power Bank",
+      "category": "Power & Safety",
+      "subCategory": "Mini UPS & Backup Power",
+      "regularPrice": 3100,
+      "price": 2199,
+      "image": "assets/uploads/mg-mini-dc-ups-16000mah-main.webp",
+      "images": [
+        "assets/uploads/mg-mini-dc-ups-16000mah-main.webp"
+      ],
+      "icon": "🔋",
+      "tag": "Sale",
+      "brand": "MG",
+      "model": "MG-606",
+      "stock": "Available",
+      "location": "Bangladesh",
+      "description": "MG-606 Mini DC UPS with a 16000mAh (59.2Wh) built-in lithium battery for backup power to compatible Wi-Fi routers, modems and CCTV devices.",
+      "shortDescription": "16000mAh mini UPS for compatible Wi-Fi routers, modems and CCTV devices, helping keep them powered during outages.",
+      "benefits": [
+        "Automatically provides backup power when the main power supply is interrupted.",
+        "Selectable 5V, 9V and 12V DC outputs for compatible devices.",
+        "LED status indicators and manual power switch.",
+        "Overload and short-circuit protection."
+      ],
+      "specifications": {
+        "Brand / Model": "MG / MG-606",
+        "Battery": "16000mAh (59.2Wh), built-in lithium",
+        "Input": "12V / 2A",
+        "DC outputs": "5V / 9V / 12V",
+        "Maximum output power": "25W",
+        "USB output": "5V",
+        "USB-C output": "5V/3A, 9V/2A, 12V/1.67A",
+        "Applications": "Compatible Wi-Fi routers, modems and CCTV devices",
+        "Warranty": "1-year warranty. See the warranty policy below or contact support for coverage details."
+      },
+      "included": [
+        "1 × MG Mini DC UPS"
+      ],
+      "seoTitle": "MG Mini DC UPS 16000mAh Router Backup Power Bank | HB Gadget BD",
+      "seoDescription": "Shop MG MG-606 16000mAh Mini DC UPS for compatible Wi-Fi routers, modems and CCTV in Bangladesh. 59.2Wh battery, 5V/9V/12V outputs and 1-year warranty.",
+      "seoKeywords": [
+        "MG Mini UPS 16000mAh",
+        "MG-606 UPS",
+        "16000mAh router UPS",
+        "mini UPS for WiFi router",
+        "router backup power Bangladesh",
+        "mini DC UPS 12V",
+        "59.2Wh mini UPS",
+        "CCTV backup power bank",
+        "MG mini UPS price Bangladesh",
+        "5V 9V 12V mini UPS",
+        "WiFi UPS Bangladesh",
+        "network power bank 16000mAh"
+      ],
+      "tutorials": []
     }
   ]
 }

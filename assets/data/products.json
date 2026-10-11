@@ -68,6 +68,60 @@
         "mini UPS price in Bangladesh",
         "UPS for router and modem"
       ]
+    },
+    {
+      "id": 2,
+      "sku": "MIYAKO-MJK-2506-20-BT",
+      "name": "Miyako 2.0L Cordless Electric Kettle (1800W)",
+      "category": "Health & Protection",
+      "subCategory": "Health & Protection",
+      "regularPrice": 1700,
+      "price": 1399,
+      "image": "assets/uploads/miyako-electric-cordless-kettle-2l-main.webp",
+      "images": [
+        "assets/uploads/miyako-electric-cordless-kettle-2l-main.webp"
+      ],
+      "icon": "🫖",
+      "tag": "Limited Time Offer",
+      "brand": "Miyako",
+      "model": "MJK-2506-20 BT",
+      "stock": "Available",
+      "description": "Miyako MJK-2506-20 BT 2.0L cordless electric kettle with 1800W quick boiling, BPA-free construction, stainless steel interior and a 360° base.",
+      "shortDescription": "Limited-time offer! Quickly boil water for tea or coffee with this 2.0L, 1800W Miyako cordless kettle.",
+      "benefits": [
+        "1800W power for quick boiling; box states approximately 3–6 minutes.",
+        "BPA-free, durable construction with a stainless steel interior.",
+        "Convenient cordless kettle with a 360° base.",
+        "Easy-fill, easy-pour spout and stylish design."
+      ],
+      "specifications": {
+        "Brand / model": "Miyako MJK-2506-20 BT",
+        "Capacity": "2.0 L",
+        "Power": "1800 W",
+        "Voltage": "220–240 V",
+        "Frequency": "50–60 Hz",
+        "Interior": "Stainless steel",
+        "Heating plate": "Stainless steel"
+      },
+      "included": [
+        "1 × Miyako electric cordless kettle"
+      ],
+      "seoTitle": "Miyako 2L Cordless Electric Kettle 1800W | HB Gadget BD",
+      "seoDescription": "Buy Miyako MJK-2506-20 BT 2.0L 1800W cordless electric kettle in Bangladesh. BPA-free design, stainless steel interior and 360° base. Limited-time offer ৳1,399.",
+      "seoKeywords": [
+        "Miyako electric kettle",
+        "Miyako 2 liter kettle",
+        "MJK-2506-20 BT",
+        "1800W electric kettle",
+        "cordless kettle Bangladesh",
+        "electric kettle price in Bangladesh",
+        "BPA-free electric kettle",
+        "stainless steel interior kettle",
+        "Miyako kettle price BD",
+        "2L water boiling kettle",
+        "360 degree base kettle",
+        "quick boil kettle"
+      ]
     }
   ]
 }

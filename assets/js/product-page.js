@@ -292,7 +292,7 @@ function renderProduct(product) {
 function validVideoUrl(url) {
   try {
     const parsed = new URL(String(url));
-    return parsed.protocol === "https:" && /^(www\\.)?(youtube\\.com|youtu\\.be|youtube-nocookie\\.com)$/.test(parsed.hostname) ? parsed.href : "";
+    return parsed.protocol === "https:" && /^(www\.)?(youtube\.com|youtu\.be|youtube-nocookie\.com)$/.test(parsed.hostname) ? parsed.href : "";
   } catch { return ""; }
 }
 function renderReviewTutorialContent(product, stats) {

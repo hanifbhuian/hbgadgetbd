@@ -12,6 +12,7 @@ Each product page should answer the most important customer questions in a simpl
 | Short description | 1–3 lines explaining the product and the daily problem it solves |
 | Product Details | One simple bullet list. Include the most useful benefits/features, important specifications, and box contents. Avoid many separate subsections. |
 | Tutorials | Add real tutorial/video links only when available |
+| Search tags / keywords | 6–12 accurate, product-specific search phrases shown in very small muted text at the end of Product Details and used for page metadata |
 | Return, Exchange & Warranty Policy | Standard HB Gadget BD policy shown automatically |
 
 ### Product Details style
@@ -32,7 +33,7 @@ Do **not** create separate customer-facing subsections for:
 
 Under the Product Details list, the website automatically shows:
 
-**Need help using this product? — Contact Order Support**
+**Need help using this product? — Contact Support**
 
 ## Price rule
 
@@ -95,6 +96,14 @@ Supported alternatives if needed:
     "1 x Main product",
     "Included accessory if supplied"
   ],
+  "seoKeywords": [
+    "main product search phrase",
+    "product category Bangladesh",
+    "brand model search phrase",
+    "problem-solving search phrase"
+  ],
+  "seoTitle": "SEO-friendly product title | HB Gadget BD",
+  "seoDescription": "Concise product-specific search description for Bangladesh customers.",
   "tutorials": [],
   "rating": "Not rated yet",
   "reviews": "0",
@@ -116,3 +125,7 @@ Only include specifications that actually apply to the product. Do not invent mi
 | Electronics warranty | Supplier/brand warranty only |
 | Burnt/damaged due to misuse | No warranty |
 | Water purifier used/installed | Return not accepted unless defective |
+
+## Search keyword rule
+
+For every new product, add a short `seoKeywords` list using only relevant phrases customers are likely to search. Prefer natural phrases such as product type + use case + Bangladesh/BD where appropriate. Avoid unrelated keywords and keyword stuffing. The website displays these as small muted tags at the end of Product Details and also uses them for product-page metadata.

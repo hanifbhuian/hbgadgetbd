@@ -15,6 +15,23 @@
     .hb-contact-dismiss {position:absolute;top:12px;right:13px;background:#eff2f8;border:0;border-radius:50%;width:34px;height:34px;cursor:pointer;font-size:22px;}
     .hb-contact-note {font-size:12px;color:#51627d}
     .hb-contact-status {font-size:13px;min-height:16px;color:#14532d}
+    .header-actions {display:flex; align-items:center; justify-content:flex-end;gap:9px;}
+    .header-actions .hotline-chip, .header-actions .account-button {background:#fff;border:1px solid #dce4f2;border-radius:999px;padding:10px 13px;color:#174078;font-weight:800;cursor:pointer;white-space:nowrap;min-height:42px;}
+    .header-actions .account-button {display:inline-flex;align-items:center;flex-direction:column;line-height:1.1;text-align:center;}
+    .header-actions .account-button small {font-size:10px; color:#66748b;}
+    .header-actions .cart-button {white-space:nowrap;display:inline-flex;gap:5px;align-items:center;justify-content:center}
+    .hb-footer-social {display:flex;align-items:center;gap:10px;margin-top:14px;}
+    .hb-footer-social a,.hb-footer-social span {display:inline-grid;place-items:center;width:38px;height:38px;border-radius:50%;font-weight:900;font-size:20px;color:#fff;}
+    .hb-footer-social a {background:#1877f2;text-decoration:none;margin:0;}
+    .hb-footer-social .hb-youtube-awaiting {background:#9c3440;opacity:.55;cursor:not-allowed;}
+    @media(max-width:1100px) and (min-width:641px) {
+      .header__inner:not(.marketplace-header) {grid-template-columns:1fr;gap:10px;padding:12px 0}
+      .header__inner:not(.marketplace-header) .header-actions {justify-content:flex-start;}
+    }
+    @media(max-width:640px) {
+      .header-actions .hotline-chip,.header-actions .account-button,.header-actions .cart-button {min-width:0;width:100%;padding:6px 5px;font-size:clamp(12px,3.4vw,15px);min-height:48px}
+      .header-actions .account-button small {font-size:10px}
+    }
     .hb-top-facebook-link { width:38px !important;height:38px !important; min-width:38px !important; min-height:38px !important; padding:0 !important;border-radius:50% !important; background:#1877f2 !important;color:#fff !important;display:inline-flex !important;align-items:center !important;justify-content:center !important; }
     .hb-top-facebook-link .hb-fb-mark {font:bold 23px Arial,sans-serif !important;}
     .hb-top-facebook-link .hb-fb-name {display:none !important;}

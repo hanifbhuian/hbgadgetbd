@@ -84,6 +84,10 @@ function ensureProductPageStyles() {
     .hb-simple-product-details li { margin: 0 0 10px; line-height: 1.55; }
     .hb-simple-product-details li strong { color: #101828; }
     .hb-simple-product-details .hb-review-help { margin-top: 18px; padding-top: 14px; border-top: 1px solid #e5eaf2; }
+    .hb-product-keywords { margin-top: 12px; padding-top: 9px; border-top: 1px dashed #edf0f5; color: #98a2b3; font-size: 10.5px; line-height: 1.55; }
+    .hb-product-keywords strong { color: #7d8899; font-size: 10.5px; font-weight: 700; }
+    .hb-product-keywords span { display: inline; }
+    .hb-product-keywords span:not(:last-child)::after { content: " · "; color: #c3cad5; }
     .related-item .hb-price-stack { gap: 6px; justify-content: center; }
     .related-item .hb-sale-price { font-size: 1em; }
     .related-item .hb-regular-price { font-size: 0.88em; }
@@ -158,12 +162,80 @@ function renderSimpleDetailItem(value) {
   return `<li>${htmlEscape(text)}</li>`;
 }
 
+function getProductKeywords(product) {
+  const values = product.seoKeywords || product.keywords || product.tags || [];
+  return toListItems(values).slice(0, 16);
+}
+
+function setMetaTag(selector, attributes, content) {
+  let tag = document.head.querySelector(selector);
+  if (!tag) {
+    tag = document.createElement("meta");
+    Object.entries(attributes).forEach(([key, value]) => tag.setAttribute(key, value));
+    document.head.appendChild(tag);
+  }
+  tag.setAttribute("content", content);
+}
+
+function updateProductSeo(product) {
+  const keywords = getProductKeywords(product);
+  const title = product.seoTitle || `${product.name} | HB Gadget BD`;
+  const description = product.seoDescription || product.shortDescription || product.description || `Shop ${product.name} at HB Gadget BD.`;
+  const canonicalUrl = `${window.location.origin}${window.location.pathname}?id=${encodeURIComponent(product.id)}`;
+  const image = getProductImages(product)[0] ? resolveAssetUrl(getProductImages(product)[0]) : "";
+  const price = sellingPrice(product);
+
+  document.title = title;
+  setMetaTag('meta[name="description"]', {name:"description"}, description);
+  if (keywords.length) setMetaTag('meta[name="keywords"]', {name:"keywords"}, keywords.join(", "));
+  setMetaTag('meta[property="og:title"]', {property:"og:title"}, title);
+  setMetaTag('meta[property="og:description"]', {property:"og:description"}, description);
+  setMetaTag('meta[property="og:type"]', {property:"og:type"}, "product");
+  setMetaTag('meta[property="og:url"]', {property:"og:url"}, canonicalUrl);
+  if (image) setMetaTag('meta[property="og:image"]', {property:"og:image"}, image);
+
+  let canonical = document.head.querySelector('link[rel="canonical"]');
+  if (!canonical) {
+    canonical = document.createElement("link");
+    canonical.rel = "canonical";
+    document.head.appendChild(canonical);
+  }
+  canonical.href = canonicalUrl;
+
+  let schema = document.getElementById("hbProductSchema");
+  if (!schema) {
+    schema = document.createElement("script");
+    schema.id = "hbProductSchema";
+    schema.type = "application/ld+json";
+    document.head.appendChild(schema);
+  }
+  schema.textContent = JSON.stringify({
+    "@context": "https://schema.org",
+    "@type": "Product",
+    name: product.name,
+    description,
+    sku: product.sku || undefined,
+    model: product.model || undefined,
+    brand: product.brand ? {"@type":"Brand","name":product.brand} : undefined,
+    image: image ? [image] : undefined,
+    category: product.category || undefined,
+    offers: price ? {
+      "@type": "Offer",
+      priceCurrency: "BDT",
+      price: String(price),
+      availability: "https://schema.org/InStock",
+      url: canonicalUrl
+    } : undefined
+  });
+}
+
 function renderProductStructure(product) {
   const intro = product.shortDescription || product.description || "";
   const benefits = toListItems(product.benefits || product.keyBenefits);
   const specifications = product.specifications || product.specs;
   const included = toListItems(product.included || product.boxContents || product.whatIncluded);
   const legacyDetails = Array.isArray(product.details) ? product.details : [];
+  const keywords = getProductKeywords(product);
 
   const list = [];
 
@@ -199,6 +271,7 @@ function renderProductStructure(product) {
       ${intro ? `<p>${htmlEscape(intro)}</p>` : ""}
       <ul>${list.join("")}</ul>
       <p class="hb-review-help">Need help using this product? <button type="button" class="hb-review-support" data-contact-panel="support">Contact Support</button></p>
+      ${keywords.length ? `<div class="hb-product-keywords"><strong>Tags:</strong> ${keywords.map(keyword => `<span>${htmlEscape(keyword)}</span>`).join("")}</div>` : ""}
     </div>
   `;
 }
@@ -293,7 +366,7 @@ function renderProduct(product) {
       </div>
     </div>` : `<div class="gallery-box"><div class="main-image-wrap"><span style="font-size:96px">${product.icon || "🛒"}</span></div></div>`;
 
-  document.title = `${product.name} | HB Gadget BD`;
+  updateProductSeo(product);
   root.innerHTML = `
     <div class="breadcrumb"><a href="/">Home</a> / <a href="/#products">Products</a> / ${htmlEscape(product.name)}</div>
     <div class="product-hero">

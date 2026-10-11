@@ -451,6 +451,41 @@ function hbTrackOrder_(value) {
   }
   return {success:true,order:order};
 }
+
+/**
+ * Migrate staff-friendly columns without rebuilding or overwriting edited rows.
+ * New layout: A Order ID, B Name, C Status, D Bangla Status,
+ * E Cancellation Reason, F Method, G Courier, H Tracking, I:K payment verification.
+ * Auto Bangla Status depends only on C/D, which never move.
+ */
+function hbMigratePendingOrderLayout_() {
+  const pending=hbSpreadsheet_().getSheetByName(HB_PENDING_SHEET);
+  if(!pending)throw new Error('Pending_order tab is missing.');
+  if(pending.getMaxColumns()!==11)throw new Error('Pending_order must contain eleven columns.');
+  const desired=HB_PENDING_HEADERS;
+  let actual=pending.getRange(1,1,1,11).getDisplayValues()[0];
+  if(actual.join('|')===desired.join('|'))return false;
+  const old=[
+    'Order ID','Customer Name','Status','Bangla Status','Payment Method','Courier',
+    'Tracking Number','Cancellation Reason','Payment Verification',
+    'Verified Amount (BDT)','Payment Transaction ID'
+  ];
+  if(actual.join('|')!==old.join('|'))
+    throw new Error('Unexpected Pending_order headers. No changes made.');
+  const lock=LockService.getScriptLock();
+  lock.waitLock(15000);
+  try{
+    pending.moveColumns(pending.getRange(1,8,pending.getMaxRows(),1),5);
+    SpreadsheetApp.flush();
+    actual=pending.getRange(1,1,1,11).getDisplayValues()[0];
+    if(actual.join('|')!==desired.join('|'))
+      throw new Error('Pending_order rearrangement failed verification.');
+    pending.getRange(2,8,pending.getMaxRows()-1,1).setNumberFormat('@');
+    pending.getRange(2,11,pending.getMaxRows()-1,1).setNumberFormat('@');
+  }finally{lock.releaseLock();}
+  return true;
+}
+
 function hbPendingRows_(master,headers) {
   const size=Math.max(0,master.getLastRow()-1);
   if (!size) return [];
@@ -530,6 +565,10 @@ function hbOnEditOrders(e) {
   try {
     const headers=hbHeaderIndexes_(master);
     if(name===HB_PENDING_SHEET){
+      // Never let staff edits be misrouted during the schema transition.
+      const actual=source.getRange(1,1,1,HB_PENDING_HEADERS.length).getDisplayValues()[0];
+      if(actual.join('|')!==HB_PENDING_HEADERS.join('|'))
+        throw new Error('Pending_order needs layout upgrade; run setupHBOrderNotifications().');
       // C:K are editable. For prepaid orders, fill I:K and verify the funds BEFORE confirming.
       // After cancellation the order vanishes from Pending_order and reason can be edited only in Orders.
       // A/B remain identifiers.
@@ -552,12 +591,12 @@ function hbOnEditOrders(e) {
             const en=hbEnglishStatus_(bn);
             if(en)hbWrite_(master,headers,masterRow,'Status',en);
           }
-          if(first<=5&&last>=5)hbWrite_(master,headers,masterRow,'Payment Method',source.getRange(r,5).getValue());
-          if(first<=6&&last>=6)hbWrite_(master,headers,masterRow,'Courier',source.getRange(r,6).getValue());
-          if(first<=7&&last>=7)hbWrite_(master,headers,masterRow,'Tracking Number',
-            String(source.getRange(r,7).getDisplayValue() || '').trim());
-          if(first<=8&&last>=8)hbWrite_(master,headers,masterRow,'Cancellation Reason',
-            String(source.getRange(r,8).getValue() || '').trim().slice(0,300));
+          if(first<=5&&last>=5)hbWrite_(master,headers,masterRow,'Cancellation Reason',
+            String(source.getRange(r,5).getValue() || '').trim().slice(0,300));
+          if(first<=6&&last>=6)hbWrite_(master,headers,masterRow,'Payment Method',source.getRange(r,6).getValue());
+          if(first<=7&&last>=7)hbWrite_(master,headers,masterRow,'Courier',source.getRange(r,7).getValue());
+          if(first<=8&&last>=8)hbWrite_(master,headers,masterRow,'Tracking Number',
+            String(source.getRange(r,8).getDisplayValue() || '').trim());
           // Update all three payment fields by exact Order ID, never by current row position.
           // Payment Verification, Verified Amount, and Transaction ID are authoritative
           // in Orders; the staff-facing Pending_order is the only routine edit surface.
@@ -612,125 +651,52 @@ function hbSetDropdown_(sheet,headerIndex,values) {
  * If both columns contain different links for the same order, retain the
  * invoice link as the primary link and preserve the older receipt URL in Note.
  */
-function hbConsolidateInvoiceLinks_(master) {
-  let headers = hbHeaderIndexes_(master);
-  const receiptIndex = headers.map['Receipt Link'];
-  if (receiptIndex === undefined) return {migrated:0, archived:0, removed:false};
-  // An old-only workbook may still use Receipt Link as its primary field.
-  if (headers.map['Invoice Link'] === undefined) {
-    master.getRange(1, receiptIndex+1).setValue('Invoice Link');
-    return {migrated:0, archived:0, removed:false, renamed:true};
-  }
-  const receiptColumn=receiptIndex+1;
-  const invoiceColumn=headers.map['Invoice Link']+1;
-  const noteColumn=headers.map['Note']===undefined ? 0 : headers.map['Note']+1;
-  const count=Math.max(0,master.getLastRow()-1);
-  let migrated=0, archived=0;
-  if (count) {
-    const receipts=master.getRange(2,receiptColumn,count,1).getDisplayValues();
-    const invoices=master.getRange(2,invoiceColumn,count,1).getDisplayValues();
-    const notes=noteColumn ? master.getRange(2,noteColumn,count,1).getDisplayValues() : [];
-    for (let i=0;i<count;i++) {
-      const receipt=String(receipts[i][0]||'').trim();
-      const invoice=String(invoices[i][0]||'').trim();
-      if (!receipt) continue;
-      if (!invoice) {
-        master.getRange(i+2,invoiceColumn).setValue(receipt);
-        migrated++;
-      } else if (invoice !== receipt) {
-        // Never silently erase a historical document when two links differ.
-        if (!noteColumn) throw new Error('Different invoice and receipt links exist, but Orders has no Note column. Merge manually.');
-        const original=String(notes[i][0]||'').trim();
-        const backup='Historical receipt document: '+receipt;
-        if (original.indexOf(receipt)<0) {
-          master.getRange(i+2,noteColumn).setValue(original ? original+' | '+backup : backup);
-          archived++;
-        }
-      }
-    }
-  }
-  // Delete the DUPLICATE column by its name/index, not a fixed letter.
-  // Sheets automatically shifts Cancellation Reason one column to the left.
-  master.deleteColumn(receiptColumn);
-  SpreadsheetApp.flush();
-  return {migrated:migrated, archived:archived, removed:true};
-}
+
+/** Configure the approved 11-column staff layout after Code.gs replacement.
+ * Never clear staff-edited rows; only move Cancellation Reason from H to E.
+ */
 function setupHBOrders() {
-  // Run from the HB Gadget BD Orders bound Apps Script after backing up Code.gs.
   const ss=SpreadsheetApp.getActiveSpreadsheet();
-  if(!ss)throw new Error('Open the script from the HB Gadget BD Orders spreadsheet.');
+  if(!ss)throw new Error('Run from the bound HB Gadget BD Orders Apps Script.');
   const master=ss.getSheetByName(HB_SHEET_NAME),pending=ss.getSheetByName(HB_PENDING_SHEET);
-  if(!master||!pending)throw new Error('Orders or Pending_order sheet is missing.');
+  if(!master||!pending)throw new Error('Orders or Pending_order sheet missing.');
   PropertiesService.getScriptProperties().setProperty('HB_ORDERS_SHEET_ID',ss.getId());
-  // Merge legacy links before checking mandatory fields. This is idempotent:
-  // when Receipt Link is already removed, nothing is deleted or overwritten.
-  const merged=hbConsolidateInvoiceLinks_(master);
-  let headers=hbHeaderIndexes_(master);
-  if(headers.map['Receipt Status']!==undefined&&headers.map['Invoice Status']===undefined){
-    master.getRange(1,headers.map['Receipt Status']+1).setValue('Invoice Status');
-    headers=hbHeaderIndexes_(master);
-  }
-  if(headers.map['Cancellation Reason']===undefined){
-    master.getRange(1,master.getLastColumn()+1).setValue('Cancellation Reason');
-    headers=hbHeaderIndexes_(master);
-  }
-  HB_HEADERS.forEach(h=>{if(headers.map[h]===undefined)throw new Error('Missing Orders header: '+h);});
-  // Idempotent schema migration to A:K. Legacy seven-column sheets have
-  // Cancellation Reason in G; insert the new Tracking Number column before it.
-  const oldPendingCols=pending.getMaxColumns();
-  if (oldPendingCols===6) {
-    pending.insertColumnAfter(6); // new G = Tracking Number
-    pending.insertColumnAfter(7); // new H = Cancellation Reason
-  } else if (oldPendingCols===7) {
-    const formerG=String(pending.getRange(1,7).getDisplayValue()||'').trim();
-    if(formerG==='Cancellation Reason')pending.insertColumnAfter(6);
-    else if(formerG==='Tracking Number')pending.insertColumnAfter(7);
-    else throw new Error('Unexpected Pending_order column G; expected Tracking Number or Cancellation Reason.');
-  }
-  // Extend the eight-column staff dashboard to eleven columns in the same setup run.
-  if(pending.getMaxColumns()===8)pending.insertColumnsAfter(8,3);
-  if(pending.getMaxColumns()!==HB_PENDING_HEADERS.length)
-    throw new Error('Pending_order must have exactly eleven columns. Back up and inspect unexpected columns.');
-  pending.getRange(1,7).setValue('Tracking Number');
-  pending.getRange(1,8).setValue('Cancellation Reason');
-  const extra=HB_PENDING_HEADERS.slice(8);
-  const existingExtra=pending.getRange(1,9,1,3).getDisplayValues()[0];
-  if(existingExtra.some((value,i)=>value && value!==extra[i]))
-    throw new Error('I:K contain unexpected header values; no staff payment fields overwritten.');
-  pending.getRange(1,9,1,3).setValues([extra]);
+  const h=hbHeaderIndexes_(master);
+  HB_HEADERS.forEach(name=>{
+    if(h.map[name]===undefined)throw new Error('Missing Orders header: '+name);
+  });
+  hbMigratePendingOrderLayout_();
   const actual=pending.getRange(1,1,1,HB_PENDING_HEADERS.length).getDisplayValues()[0];
   if(actual.join('|')!==HB_PENDING_HEADERS.join('|'))
-    throw new Error('Pending_order headers do not match the eleven-column design.');
-  const s=hbHeaderIndexes_(master);
-  ['Order ID','Phone'].forEach(h=>master.getRange(2,s.map[h]+1,master.getMaxRows()-1,1).setNumberFormat('@'));
+    throw new Error('Pending_order headings could not be verified.');
+  ['Order ID','Phone'].forEach(name=>master.getRange(2,h.map[name]+1,master.getMaxRows()-1,1).setNumberFormat('@'));
   pending.getRange(2,1,pending.getMaxRows()-1,1).setNumberFormat('@');
-  // Courier tracking references may begin with zero or include letters.
-  master.getRange(2,s.map['Tracking Number']+1,master.getMaxRows()-1,1).setNumberFormat('@');
-  pending.getRange(2,7,pending.getMaxRows()-1,1).setNumberFormat('@');
-  pending.getRange(2,7,pending.getMaxRows()-1,2).clearDataValidations();
-  // Transaction IDs are identifiers, not numbers (keep leading zeroes).
+  pending.getRange(2,8,pending.getMaxRows()-1,1).setNumberFormat('@');
   pending.getRange(2,11,pending.getMaxRows()-1,1).setNumberFormat('@');
-  // Clear invalid stale rules before applying the expected staff payment options.
-  hbSetDropdown_(pending,8,['Not Verified','Verified']);
-  const amountRule=SpreadsheetApp.newDataValidation()
-    .requireNumberGreaterThanOrEqualTo(0).setAllowInvalid(false).build();
-  pending.getRange(2,10,pending.getMaxRows()-1,1).setDataValidation(amountRule);
-  pending.getRange(1,10).setNote('Record the actual amount received in BDT after checking the receiving account, not only a screenshot.');
-  pending.getRange(1,9,1,3).setBackground('#163C78').setFontColor('#ffffff').setFontWeight('bold').setWrap(true);
-  pending.setColumnWidths(9,3,200);
-  pending.setFrozenRows(1);
-  hbSetDropdown_(master,s.map['Status'],Object.keys(HB_BANGLA_STATUS));
-  hbSetDropdown_(master,s.map['Bangla Status'],Object.values(HB_BANGLA_STATUS));
-  hbSetDropdown_(master,s.map['Payment Method'],HB_PAYMENT_METHODS);
-  hbSetDropdown_(master,s.map['Courier'],HB_COURIERS);
-  [Object.keys(HB_BANGLA_STATUS),Object.values(HB_BANGLA_STATUS),HB_PAYMENT_METHODS,HB_COURIERS]
-    .forEach((arr,i)=>hbSetDropdown_(pending,i+2,arr));
+  // Status C, Bangla D, Cancellation E, Payment Method F, Courier G, Tracking H.
+  pending.getRange(2,5,pending.getMaxRows()-1,1).clearDataValidations();
+  pending.getRange(2,8,pending.getMaxRows()-1,1).clearDataValidations();
+  hbSetDropdown_(pending,2,Object.keys(HB_BANGLA_STATUS)); // C
+  hbSetDropdown_(pending,3,Object.values(HB_BANGLA_STATUS)); // D
+  hbSetDropdown_(pending,5,HB_PAYMENT_METHODS); // F
+  hbSetDropdown_(pending,6,HB_COURIERS); // G
+  hbSetDropdown_(pending,8,['Not Verified','Verified']); // I
+  pending.getRange(2,10,pending.getMaxRows()-1,1).setDataValidation(
+    SpreadsheetApp.newDataValidation().requireNumberGreaterThanOrEqualTo(0).setAllowInvalid(false).build()
+  );
+  pending.getRange(1,10).setNote('Actual received amount in BDT, after account verification.');
+  hbSetDropdown_(master,h.map['Status'],Object.keys(HB_BANGLA_STATUS));
+  hbSetDropdown_(master,h.map['Bangla Status'],Object.values(HB_BANGLA_STATUS));
+  hbSetDropdown_(master,h.map['Payment Method'],HB_PAYMENT_METHODS);
+  hbSetDropdown_(master,h.map['Courier'],HB_COURIERS);
   const handlers=ScriptApp.getProjectTriggers().map(t=>t.getHandlerFunction());
-  if(handlers.indexOf('hbOnEditOrders')===-1)ScriptApp.newTrigger('hbOnEditOrders').forSpreadsheet(ss).onEdit().create();
-  if(handlers.indexOf('hbRefreshPendingOrders')===-1)ScriptApp.newTrigger('hbRefreshPendingOrders').timeBased().everyMinutes(5).create();
+  if(handlers.indexOf('hbOnEditOrders')<0)
+    ScriptApp.newTrigger('hbOnEditOrders').forSpreadsheet(ss).onEdit().create();
+  if(handlers.indexOf('hbRefreshPendingOrders')<0)
+    ScriptApp.newTrigger('hbRefreshPendingOrders').timeBased().everyMinutes(5).create();
   PropertiesService.getScriptProperties().setProperty('HB_PENDING_SYNC_INSTALLED','yes');
   hbRefreshPendingOrders();
-  return 'Setup complete. Pending_order A:K synchronized by Order ID, including payment fields I:K; Orders remains the master ledger.';
+  return 'Pending_order updated: Cancellation Reason now after Bangla Status.';
 }
 
 /** One-time, low-risk upgrade for the STAFF dashboard only.
@@ -744,6 +710,7 @@ function setupHBPendingPaymentFields() {
   ['Payment Verification','Verified Amount (BDT)','Payment Transaction ID'].forEach(name=>{
     if(h.map[name]===undefined)throw new Error('Missing master payment field: '+name);
   });
+  hbMigratePendingOrderLayout_();
   const firstEight=HB_PENDING_HEADERS.slice(0,8);
   if(pending.getMaxColumns()!==8&&pending.getMaxColumns()!==11)
     throw new Error('Pending_order must have eight or eleven columns; stopped without changes.');
@@ -773,6 +740,8 @@ function setupHBPendingPaymentFields() {
  * Run ONCE after uploading Code.gs + HTML template; safe to rerun without duplicate triggers.
  */
 function setupHBOrderNotifications() {
+  // Only after installing this Code.gs: move Cancellation Reason H → E safely.
+  hbMigratePendingOrderLayout_();
   const ss=hbSpreadsheet_(), master=hbMaster_();
   const headers=hbHeaderIndexes_(master);
   const missing=HB_LIFECYCLE_HEADERS.concat(HB_INVOICE_HEADERS).filter(name=>headers.map[name]===undefined);
@@ -802,7 +771,7 @@ function setupHBOrderNotifications() {
   const installable=ScriptApp.getProjectTriggers().map(t=>t.getHandlerFunction());
   if(installable.indexOf('hbProcessOrderNotifications')<0)
     ScriptApp.newTrigger('hbProcessOrderNotifications').timeBased().everyMinutes(1).create();
-  return 'Lifecycle email notifications configured. New orders and future status changes will be tracked.';
+  return 'Lifecycle notifications configured; Pending_order status-related fields are grouped and invoices route by stage.';
 }
 function hbIsPrepayment_(method) {return method==='bKash'||method==='Nagad';}
 function hbCustomerOrder_(row,h) {

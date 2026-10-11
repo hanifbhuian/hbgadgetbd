@@ -13,7 +13,7 @@ function loadCheckoutCss() {
   if (document.querySelector("link[href*='order-placement.css']")) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "assets/css/order-placement.css?v=20261011-1";
+  link.href = "assets/css/order-placement.css?v=20261011-mobile-checkout-2";
   document.head.appendChild(link);
 }
 
@@ -285,10 +285,20 @@ async function submitOrderToSheet(payload) {
 function renderCheckoutSuccess(orderId, invoiceLink, paymentMethod, amountDue) {
   const modal = ensureCheckoutModal();
   const dialog = modal.querySelector(".checkout-modal__dialog");
+  // iOS Safari may retain the form's scroll/focus when the tall checkout form is replaced.
+  // Dismiss the mobile keyboard before showing the shorter confirmation panel.
+  const activeElement = document.activeElement;
+  if (activeElement && modal.contains(activeElement) && typeof activeElement.blur === "function") {
+    activeElement.blur();
+  }
   const isPrepayment = paymentMethod === "bKash" || paymentMethod === "Nagad";
   const message = isPrepayment ? `Hello HB Gadget BD, I placed order ${orderId} using ${paymentMethod}. Please help me confirm my payment. Transaction ID: ` : `Hello HB Gadget BD, I placed Cash on Delivery order ${orderId}. Please confirm delivery and availability.`;
   const paymentInstructions = isPrepayment ? `<div class="checkout-payment-steps"><h4>${safeText(paymentMethod)} — Payment instructions</h4><p>Order ID: <strong>${safeText(orderId)}</strong>. Amount: <strong>${formatCheckoutMoney(amountDue)}</strong>.</p><ol><li>Open ${safeText(paymentMethod)} and use Send Money to <strong>${HB_PREPAYMENT_NUMBER}</strong> using the HB Gadget BD payment number.</li><li>Enter the Order ID in the Reference/Note field if the app provides one.</li><li>Save your transaction ID and send it to our WhatsApp support team for manual verification.</li></ol><button type="button" data-copy-payment-number>Copy payment number</button><p>Once sent, WhatsApp your Transaction ID to HB Gadget BD. Your order is marked Paid only after the support team verifies the payment.</p></div>` : `<p>Payment method: Cash on Delivery. Pay the total when the order arrives.</p>`;
   dialog.innerHTML = `<div class="checkout-success-card"><h3>Order submitted successfully!</h3><p>Your Order ID is <strong>${safeText(orderId)}</strong>.</p><p>Please save your Order ID for tracking. A support team member will call or email you soon to confirm your order. Your preliminary invoice will be emailed when processing succeeds.</p><div class="order-meta-grid"><div><small>Order ID</small><strong>${safeText(orderId)}</strong></div></div>${paymentInstructions}${invoiceLink ? `<p><a href="${safeText(invoiceLink)}" target="_blank" rel="noreferrer">View provisional invoice</a></p>` : ""}<div class="checkout-actions"><a href="https://wa.me/${ORDER_CREATE_SUPPORT_NUMBER}?text=${encodeURIComponent(message)}" target="_blank" rel="noreferrer">Contact WhatsApp Support</a><button type="button" data-checkout-close>Close</button></div></div>`;
+  // Always show Order ID and payment instructions from the beginning of the confirmation.
+  // A second reset after layout addresses Safari retaining the previous form's scroll offset.
+  dialog.scrollTop = 0;
+  window.requestAnimationFrame(() => { dialog.scrollTop = 0; });
 }
 
 async function handleCheckoutSubmit(event) {

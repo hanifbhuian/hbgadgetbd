@@ -287,3 +287,47 @@
 .checkout-payment-steps { margin: 14px 0; padding: 14px; background: #f8fafc; border: 1px solid #dbe4ee; border-radius: 12px; color: #203047; }
 .checkout-payment-steps ol { margin: 8px 0; padding-left: 18px; line-height: 1.7; }
 .checkout-payment-steps button { padding: 9px 12px; border-radius: 9px; background: #f26a37; color: #fff; border: 0; font-weight: 700; cursor: pointer; }
+
+/* Mobile checkout: keep confirmation and payment steps within the visible viewport.
+   iOS Safari previously retained the scroll position of the longer checkout form. */
+@media (max-width: 640px) {
+  .checkout-modal__dialog {
+    width: calc(100% - 16px);
+    margin: 8px auto;
+    max-height: calc(100vh - 16px);
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    -webkit-overflow-scrolling: touch;
+  }
+
+  .checkout-success-card,
+  .checkout-payment-steps {
+    overflow-wrap: anywhere;
+  }
+
+  .checkout-actions {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .checkout-actions a,
+  .checkout-actions button {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    width: 100%;
+    text-align: center;
+    white-space: normal;
+  }
+}
+
+@supports (height: 100dvh) {
+  @media (max-width: 640px) {
+    .checkout-modal__dialog {
+      max-height: calc(100dvh - 16px - env(safe-area-inset-top, 0px) - env(safe-area-inset-bottom, 0px));
+      margin-top: calc(8px + env(safe-area-inset-top, 0px));
+      margin-bottom: calc(8px + env(safe-area-inset-bottom, 0px));
+    }
+  }
+}

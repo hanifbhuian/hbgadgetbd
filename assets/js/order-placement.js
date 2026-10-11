@@ -1,6 +1,7 @@
 const ORDER_CREATE_WEB_APP_URL = "/api/orders/create";
 const ORDER_CREATE_SUPPORT_NUMBER = "8801816569237";
-const MAX_PAYMENT_FILE_SIZE = 5 * 1024 * 1024;
+const HB_PREPAYMENT_ENABLED = true; // Customers see manual Send Money instructions after receiving Order ID.
+const HB_PREPAYMENT_NUMBER = "01816569237"; // bKash / Nagad manual Send Money number.
 const DELIVERY_OPTIONS = {
   insideDhaka: { label: "Inside Dhaka", charge: 70 },
   outsideDhaka: { label: "Outside Dhaka", charge: 150 }
@@ -12,7 +13,7 @@ function loadCheckoutCss() {
   if (document.querySelector("link[href*='order-placement.css']")) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "assets/css/order-placement.css?v=20260704-11";
+  link.href = "assets/css/order-placement.css?v=20261011-1";
   document.head.appendChild(link);
 }
 
@@ -25,7 +26,7 @@ function setCheckoutButtonLabel() {
 
 function generateClientOrderId() {
   // Numeric-only Order ID used consistently by checkout, Google Sheet,
-  // payment-proof filenames, invoice filenames, and Track Order.
+  // invoice filenames and Track Order.
   const timePart = Date.now().toString();
   let randomPart = "";
   if (window.crypto && window.crypto.getRandomValues) {
@@ -52,18 +53,17 @@ function getSelectedDeliveryOption() {
 }
 
 function getPaymentMethodValue() {
-  return document.getElementById("checkoutPayment")?.value || "Cash on Delivery";
+  return document.querySelector('input[name="paymentMethod"]:checked')?.value || "Cash on Delivery";
 }
 
 function calculateCheckoutAmounts() {
   const option = getSelectedDeliveryOption();
   const shippingCharge = option ? option.charge : 0;
   const grandTotal = checkoutSubtotal + shippingCharge;
-  const paymentMethod = getPaymentMethodValue();
-  const isCashOnDelivery = paymentMethod === "Cash on Delivery";
-  const paidAmount = option ? (isCashOnDelivery ? shippingCharge : grandTotal) : 0;
-  const dueAmount = option ? Math.max(0, grandTotal - paidAmount) : grandTotal;
-  const paymentStatus = dueAmount <= 0 ? "Paid" : "Due";
+  // Order is recorded with zero collected; manual Send Money happens after an Order ID is assigned.
+  const paidAmount = 0;
+  const dueAmount = grandTotal;
+  const paymentStatus = getPaymentMethodValue() === "Cash on Delivery" ? "Due" : "Pending Verification";
   return { shippingCharge, grandTotal, paidAmount, dueAmount, paymentStatus, shippingLabel: option ? option.label : "Select shipping area" };
 }
 
@@ -120,14 +120,23 @@ function ensureCheckoutModal() {
         <label><span>Full Delivery Address *</span><textarea id="checkoutAddress" name="address" placeholder="House, road, area, district" required></textarea></label>
         <div class="checkout-form__grid">
           <label><span>Shipping Location *</span><select id="checkoutShippingZone" name="shippingZone" required><option value="">Select shipping area</option><option value="insideDhaka">Inside Dhaka — ৳70</option><option value="outsideDhaka">Outside Dhaka — ৳150</option></select></label>
-          <label><span>Payment Method</span><select id="checkoutPayment" name="paymentMethod"><option value="Cash on Delivery">Cash on Delivery</option><option value="Bkash/Nagad before delivery">Bkash/Nagad before delivery</option><option value="Bank transfer before delivery">Bank transfer before delivery</option></select></label>
         </div>
-        <div class="payment-proof" id="paymentProofBox">
-          <div class="payment-proof__header"><strong>Shipping/payment proof *</strong><button class="payment-help" type="button" data-payment-help aria-label="Payment help">?</button></div>
-          <p>Shipping charge is mandatory for every order. Attach your payment screenshot/image/PDF after paying the shipping charge.</p>
-          <input id="paymentProofFile" type="file" accept="image/*,.pdf" required>
-          <small>Shipping charge: Inside Dhaka ৳70, Outside Dhaka ৳150. Maximum file size: 5 MB.</small>
-        </div>
+        <fieldset class="checkout-methods">
+          <legend>Payment method</legend>
+          <label class="checkout-method">
+            <input type="radio" name="paymentMethod" value="Cash on Delivery" checked>
+            <span><strong>Cash on Delivery</strong><small>Pay when your order arrives</small></span>
+          </label>
+          <label class="checkout-method ${HB_PREPAYMENT_ENABLED ? "" : "checkout-method--disabled"}">
+            <input type="radio" name="paymentMethod" value="bKash" ${HB_PREPAYMENT_ENABLED ? "" : "disabled"}>
+            <span><strong>bKash</strong><small>${HB_PREPAYMENT_ENABLED ? "Send Money after order placement" : "Currently unavailable"}</small></span>
+          </label>
+          <label class="checkout-method ${HB_PREPAYMENT_ENABLED ? "" : "checkout-method--disabled"}">
+            <input type="radio" name="paymentMethod" value="Nagad" ${HB_PREPAYMENT_ENABLED ? "" : "disabled"}>
+            <span><strong>Nagad</strong><small>${HB_PREPAYMENT_ENABLED ? "Send Money after order placement" : "Currently unavailable"}</small></span>
+          </label>
+        </fieldset>
+        <div class="cod-notice" role="note" id="checkoutMethodInfo"></div>
         <label><span>Order Note</span><textarea id="checkoutNote" name="note" placeholder="Color, size, preferred delivery time, or other note"></textarea></label>
         <p class="checkout-status" id="checkoutStatus" aria-live="polite"></p>
         <button class="button button--primary button--full" type="submit">Finalize Checkout</button>
@@ -149,10 +158,10 @@ function renderCheckoutSummary() {
       <div class="checkout-summary__row"><span>Product Subtotal</span><strong>${formatCheckoutMoney(checkoutSubtotal)}</strong></div>
       <div class="checkout-summary__row"><span>Shipping Charge</span><strong>${amounts.shippingCharge ? formatCheckoutMoney(amounts.shippingCharge) : amounts.shippingLabel}</strong></div>
       <div class="checkout-summary__row checkout-summary__total"><span>Grand Total</span><strong>${formatCheckoutMoney(amounts.grandTotal)}</strong></div>
-      <div class="checkout-summary__row"><span>Pay Now</span><strong>${formatCheckoutMoney(amounts.paidAmount)}</strong></div>
-      <div class="checkout-summary__row"><span>Due on Delivery</span><strong>${formatCheckoutMoney(amounts.dueAmount)}</strong></div>
+      <div class="checkout-summary__row"><span>Advance Paid</span><strong>${formatCheckoutMoney(amounts.paidAmount)}</strong></div>
+      <div class="checkout-summary__row"><span>${getPaymentMethodValue() === "Cash on Delivery" ? "Due on Delivery" : "Amount to Send After Order"}</span><strong>${formatCheckoutMoney(amounts.dueAmount)}</strong></div>
     </div>
-    <small class="shipping-note">Shipping payment proof is required for all checkout methods, including Cash on Delivery.</small>`;
+    <small class="shipping-note">${getPaymentMethodValue() === "Cash on Delivery" ? "No payment required now. The full amount, including delivery charge, is due on delivery." : "Your order will be created before payment. Your Order ID and Send Money instructions will appear immediately after submitting. Contact WhatsApp support if you need help. Payment stays unverified until checked by support."}</small>`;
 }
 
 function openCheckout(items) {
@@ -166,7 +175,7 @@ function openCheckout(items) {
   }
   const modal = ensureCheckoutModal();
   renderCheckoutSummary();
-  updatePaymentProofVisibility();
+  refreshCheckoutAmounts();
   const status = document.getElementById("checkoutStatus");
   if (status) status.textContent = "";
   modal.classList.add("is-open");
@@ -183,32 +192,15 @@ function closeCheckout() {
   document.body.classList.remove("checkout-open");
 }
 
-function updatePaymentProofVisibility() {
-  const proofBox = document.getElementById("paymentProofBox");
-  const proofInput = document.getElementById("paymentProofFile");
-  if (proofBox) proofBox.hidden = false;
-  if (proofInput) proofInput.required = true;
+function refreshCheckoutAmounts() {
   renderCheckoutSummary();
-}
-
-function readPaymentProofFile() {
-  const file = document.getElementById("paymentProofFile")?.files?.[0];
-  if (!file) return Promise.reject(new Error("Please attach your shipping/payment proof screenshot or document."));
-  if (file.size > MAX_PAYMENT_FILE_SIZE) return Promise.reject(new Error("Payment file is too large. Maximum size is 5 MB."));
-
-  return new Promise((resolve, reject) => {
-    const reader = new FileReader();
-    reader.onload = () => {
-      const dataUrl = String(reader.result || "");
-      resolve({
-        fileName: file.name,
-        mimeType: file.type || "application/octet-stream",
-        data: dataUrl.split(",")[1] || ""
-      });
-    };
-    reader.onerror = () => reject(new Error("Payment file could not be read."));
-    reader.readAsDataURL(file);
-  });
+  const note = document.getElementById("checkoutMethodInfo");
+  if (!note) return;
+  if (getPaymentMethodValue() === "Cash on Delivery") {
+    note.innerHTML = "<strong>Cash on Delivery — No advance payment required</strong><p>Pay the product price and delivery charge together when your order arrives. No advance payment is needed.</p>";
+  } else {
+    note.innerHTML = "<strong>Place your order first</strong><p>After you receive your Order ID, you will see Send Money instructions for 01816569237. If you need help or would like the instructions by email, contact HB Gadget BD on WhatsApp. We issue the Paid invoice only after verifying your transaction.</p>";
+  }
 }
 
 async function buildOrderPayload() {
@@ -225,10 +217,11 @@ async function buildOrderPayload() {
   const itemsText = checkoutItems.map(item => `${item.name} x ${item.qty} = ${formatCheckoutMoney(item.lineTotal)}`).join(", ");
   const finalNote = [
     `Shipping zone: ${shippingOption ? shippingOption.label : ""}`,
-    `Shipping charge paid: ${amounts.shippingCharge ? formatCheckoutMoney(amounts.shippingCharge) : ""}`,
+    `Payment method selected: ${payment}`,
+    `Shipping charge: ${formatCheckoutMoney(amounts.shippingCharge)}`,
+    "Advance collected at checkout: BDT 0; confirmation pending",
     note ? `Customer note: ${note}` : ""
   ].filter(Boolean).join(" | ");
-  const paymentProof = await readPaymentProofFile();
 
   return {
     orderId: generateClientOrderId(), // provisional request token; NOT the final Order ID
@@ -255,7 +248,7 @@ async function buildOrderPayload() {
     courier: "Not assigned yet",
     trackingNumber: "Pending",
     note: finalNote,
-    paymentProof
+    paymentProof: null // No funds collected at checkout; optional proof can be handled after order creation.
   };
 }
 
@@ -289,11 +282,13 @@ async function submitOrderToSheet(payload) {
   return result;
 }
 
-function renderCheckoutSuccess(orderId, invoiceLink) {
+function renderCheckoutSuccess(orderId, invoiceLink, paymentMethod, amountDue) {
   const modal = ensureCheckoutModal();
   const dialog = modal.querySelector(".checkout-modal__dialog");
-  const message = `Hello HB Gadget BD, I placed order ${orderId}. Please confirm delivery charge and availability.`;
-  dialog.innerHTML = `<div class="checkout-success-card"><h3>Order submitted successfully!</h3><p>Your Order ID is <strong>${safeText(orderId)}</strong>.</p><p>Please save this numeric Order ID. You only need this ID to track the delivery status. Your invoice will be emailed when processing succeeds.</p><div class="order-meta-grid"><div><small>Order ID</small><strong>${safeText(orderId)}</strong></div></div>${invoiceLink ? `<p><a href="${safeText(invoiceLink)}" target="_blank" rel="noreferrer">View invoice</a></p>` : ""}<div class="checkout-actions"><a href="https://wa.me/${ORDER_CREATE_SUPPORT_NUMBER}?text=${encodeURIComponent(message)}" target="_blank" rel="noreferrer">Confirm on WhatsApp</a><button type="button" data-checkout-close>Close</button></div></div>`;
+  const isPrepayment = paymentMethod === "bKash" || paymentMethod === "Nagad";
+  const message = isPrepayment ? `Hello HB Gadget BD, I placed order ${orderId} using ${paymentMethod}. Please help me confirm my payment. Transaction ID: ` : `Hello HB Gadget BD, I placed Cash on Delivery order ${orderId}. Please confirm delivery and availability.`;
+  const paymentInstructions = isPrepayment ? `<div class="checkout-payment-steps"><h4>${safeText(paymentMethod)} — Payment instructions</h4><p>Order ID: <strong>${safeText(orderId)}</strong>. Amount: <strong>${formatCheckoutMoney(amountDue)}</strong>.</p><ol><li>Open ${safeText(paymentMethod)} and use Send Money to <strong>${HB_PREPAYMENT_NUMBER}</strong> using the HB Gadget BD payment number.</li><li>Enter the Order ID in the Reference/Note field if the app provides one.</li><li>Save your transaction ID and send it to our WhatsApp support team for manual verification.</li></ol><button type="button" data-copy-payment-number>Copy payment number</button><p>Once sent, WhatsApp your Transaction ID to HB Gadget BD. Your order is marked Paid only after the support team verifies the payment.</p></div>` : `<p>Payment method: Cash on Delivery. Pay the total when the order arrives.</p>`;
+  dialog.innerHTML = `<div class="checkout-success-card"><h3>Order submitted successfully!</h3><p>Your Order ID is <strong>${safeText(orderId)}</strong>.</p><p>Please save your Order ID for tracking. A support team member will call or email you soon to confirm your order. Your preliminary invoice will be emailed when processing succeeds.</p><div class="order-meta-grid"><div><small>Order ID</small><strong>${safeText(orderId)}</strong></div></div>${paymentInstructions}${invoiceLink ? `<p><a href="${safeText(invoiceLink)}" target="_blank" rel="noreferrer">View provisional invoice</a></p>` : ""}<div class="checkout-actions"><a href="https://wa.me/${ORDER_CREATE_SUPPORT_NUMBER}?text=${encodeURIComponent(message)}" target="_blank" rel="noreferrer">Contact WhatsApp Support</a><button type="button" data-checkout-close>Close</button></div></div>`;
 }
 
 async function handleCheckoutSubmit(event) {
@@ -306,27 +301,21 @@ async function handleCheckoutSubmit(event) {
 
   try {
     const payload = await buildOrderPayload();
+    if (!HB_PREPAYMENT_ENABLED && payload.paymentMethod !== "Cash on Delivery") throw new Error("This payment option is currently unavailable.");
     if (!payload.customerName || !payload.phone || !payload.customerEmail || !payload.deliveryArea || !payload.address || !payload.shippingZone) {
       throw new Error("Please fill in all required fields, including shipping location.");
-    }
-    if (!payload.paymentProof) {
-      throw new Error("Please attach your shipping/payment proof.");
     }
     const result = await submitOrderToSheet(payload);
     if (!result.success) throw new Error(result.message || "Order could not be saved.");
     document.getElementById("clearCart")?.click();
     if (!result.orderId) throw new Error("Server did not return a confirmed Order ID.");
-    renderCheckoutSuccess(result.orderId, result.invoiceLink || "");
+    renderCheckoutSuccess(result.orderId, result.invoiceLink || "", payload.paymentMethod, payload.grandTotal);
   } catch (error) {
     console.error(error);
     if (status) status.textContent = error.message || "Order could not be submitted automatically. Please contact WhatsApp support.";
   } finally {
     if (submit) submit.disabled = false;
   }
-}
-
-function showPaymentHelp() {
-  alert("Payment help:\n\n1. Select your shipping location first:\n   • Inside Dhaka: ৳70\n   • Outside Dhaka: ৳150\n\n2. Shipping charge must be paid before checkout for every order, including Cash on Delivery.\n\n3. For Cash on Delivery, pay only the shipping charge now. Product price will be due on delivery.\n\n4. For Bkash/Nagad or bank transfer before delivery, pay the full total if confirmed by HB Gadget BD.\n\n5. Upload your payment screenshot/image/PDF before final checkout.\n\nFor payment details, contact WhatsApp/Hotline: +8801816569237");
 }
 
 function wireOrderPlacement() {
@@ -336,10 +325,14 @@ function wireOrderPlacement() {
   setCheckoutButtonLabel();
   window.addEventListener("storage", event => { if (event.key === "hbGadgetCart" && typeof renderCart === "function") renderCart(); });
   document.addEventListener("change", event => {
-    if (event.target?.id === "checkoutPayment" || event.target?.id === "checkoutShippingZone") updatePaymentProofVisibility();
+    if (event.target?.name === "paymentMethod" || event.target?.id === "checkoutShippingZone") refreshCheckoutAmounts();
   });
   document.addEventListener("click", event => {
-    if (event.target.closest("[data-payment-help]")) { showPaymentHelp(); return; }
+    if (event.target.closest("[data-copy-payment-number]")) {
+      if (navigator.clipboard?.writeText) navigator.clipboard.writeText(HB_PREPAYMENT_NUMBER).then(() => alert("Payment number copied.")).catch(() => alert(HB_PREPAYMENT_NUMBER));
+      else alert(HB_PREPAYMENT_NUMBER);
+      return;
+    }
     if (event.target.closest("[data-checkout-close]")) { closeCheckout(); return; }
     const cartCheckout = event.target.closest("#whatsappOrder");
     if (cartCheckout) { event.preventDefault(); openCheckout(getCartCheckoutItems()); return; }

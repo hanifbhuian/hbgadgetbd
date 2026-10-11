@@ -16,7 +16,7 @@ function json(data, status = 200) {
   });
 }
 
-export async function onRequestPost({ request }) {
+export async function onRequestPost({ request, env }) {
   const type = String(request.headers.get("Content-Type") || "");
   if (!type.toLowerCase().includes("application/json")) {
     return json({success:false,message:"Invalid checkout data format."},415);
@@ -39,6 +39,25 @@ export async function onRequestPost({ request }) {
       !data.address) {
     return json({success:false,message:"Missing required checkout information."},400);
   }
+
+  // Manual payment instructions are shown after order creation.
+  // This endpoint NEVER marks customer funds received or verified.
+  const method = String(data.paymentMethod || "");
+  const prepayMethod = method === "bKash" || method === "Nagad";
+  if (method !== "Cash on Delivery" && !prepayMethod) {
+    return json({success:false,message:"This payment method is not available yet. Choose Cash on Delivery."},400);
+  }
+  const subtotal = Number(data.subtotal);
+  const deliveryCharge = Number(data.deliveryCharge);
+  const grandTotal = Number(data.grandTotal);
+  if (![subtotal, deliveryCharge, grandTotal].every(Number.isFinite) ||
+      subtotal <= 0 || deliveryCharge < 0 || grandTotal !== subtotal + deliveryCharge) {
+    return json({success:false,message:"Invalid order totals. Please refresh and try again."},400);
+  }
+  data.paidAmount = 0;
+  data.dueAmount = grandTotal;
+  data.paymentStatus = prepayMethod ? "Pending Verification" : "Due";
+  data.paymentProof = null;
 
   try {
     const upstream = await fetch(ORDERS_WEBAPP_URL, {

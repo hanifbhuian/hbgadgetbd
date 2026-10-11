@@ -148,7 +148,7 @@ function renderProductStructure(product) {
       ${renderStructureBox("Who should buy", product.whoShouldBuy || product.targetCustomer, "Target customer segment will be added soon.")}
       ${renderStructureBox("What is included", product.included || product.boxContents || product.whatIncluded, "Box contents and accessories will be added soon.")}
       ${renderStructureBox("Important note", product.importantNote || product.limitations || product.warrantyNote, "Please check limitations, compatibility, and warranty conditions before ordering.")}
-      ${renderStructureBox("Delivery info", product.deliveryInfo || product.delivery, "Delivery charge is added at checkout. COD/advance payment, courier, and delivery time will be confirmed before final order.")}
+      ${renderStructureBox("Delivery info", product.deliveryInfo || product.delivery, "Delivery charge is added at checkout. Cash on Delivery is available. For bKash/Nagad, place the order first, then follow the manual Send Money instructions using your Order ID.")}
       ${renderStructureBox("WhatsApp support", product.whatsappSupport || product.supportNote, "Contact HB Gadget BD on WhatsApp before order confirmation if you need support.")}
     </div>
   `;

@@ -165,3 +165,6 @@ button { font: inherit; }
 #cartPanel {z-index:90}
 #overlay {z-index:80}
 #hbProductReviewsPanel[hidden],#hbProductDetailsPanel[hidden] {display:none}
+
+/* Tutorials tab only: no repeated rating/review/sales cards or unnecessary separator. */
+.hb-tutorials-section { margin-top: 0; padding-top: 0; border-top: 0; }

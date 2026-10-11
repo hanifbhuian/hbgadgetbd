@@ -166,6 +166,17 @@
   box-shadow: 0 0 0 4px rgba(239, 75, 35, 0.12);
 }
 
+.cod-notice {
+  border: 1px solid #b9e4cf;
+  background: #f0fdf4;
+  border-radius: 16px;
+  padding: 14px;
+  color: #14532d;
+}
+.cod-notice strong { display: block; font-size: 14px; }
+.cod-notice p { margin: 7px 0 0; color: #365b45; font-size: 13px; line-height: 1.6; }
+.checkout-form select option:disabled { color: #64748b; }
+
 .payment-proof {
   border: 1px dashed rgba(239, 75, 35, 0.45);
   background: #fff7f4;

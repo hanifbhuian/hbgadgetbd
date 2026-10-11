@@ -274,3 +274,16 @@
     grid-template-columns: 1fr;
   }
 }
+
+/* Accessible payment-method cards for the staged three-email checkout. */
+.checkout-methods { border: 0; padding: 0; margin: 0; display: grid; gap: 10px; min-width: 0; }
+.checkout-methods legend { font-weight: 900; margin-bottom: 9px; }
+.checkout-form .checkout-method { display: flex; align-items: center; gap: 12px; border: 1px solid var(--line); border-radius: 14px; padding: 12px 14px; cursor: pointer; }
+.checkout-form .checkout-method input { width: 18px; height: 18px; flex: 0 0 18px; margin: 0; accent-color: var(--primary); }
+.checkout-method span { display: grid; gap: 3px; }
+.checkout-method small { color: var(--muted); font-weight: normal; font-size: 12px; }
+.checkout-method:has(input:checked) { border-color: var(--primary); background: #fff7f4; }
+.checkout-method--disabled { opacity: .55; cursor: not-allowed !important; }
+.checkout-payment-steps { margin: 14px 0; padding: 14px; background: #f8fafc; border: 1px solid #dbe4ee; border-radius: 12px; color: #203047; }
+.checkout-payment-steps ol { margin: 8px 0; padding-left: 18px; line-height: 1.7; }
+.checkout-payment-steps button { padding: 9px 12px; border-radius: 9px; background: #f26a37; color: #fff; border: 0; font-weight: 700; cursor: pointer; }

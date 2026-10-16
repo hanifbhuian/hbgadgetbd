@@ -200,13 +200,16 @@ function hbCreateOrder_(data) {
       existing = true;
     } else {
       orderId = hbMakeOrderId_(phone, master, headerInfo);
+      const target = master.getLastRow() + 1;
       const now = hbNow_();
       const row = {
         'Order ID':orderId, 'Phone':phone, 'Customer Name':String(data.customerName),
         'Status':'Pending', 'Bangla Status':HB_BANGLA_STATUS.Pending,
         'Order Date':now, 'Last Updated':now, 'Items':String(data.items || ''),
         'Subtotal':hbMoney_(data.subtotal), 'Delivery Charge':hbMoney_(data.deliveryCharge),
-        'Total':hbMoney_(data.subtotal)+hbMoney_(data.deliveryCharge),
+        // Use a per-order SUM formula, so later K/L edits recalculate the Total
+        // used by Pending_order J without formulas in unused spreadsheet rows.
+        'Total':'=SUM(K'+target+':L'+target+')',
         'Payment Method':method,
         'Delivery Area':String(data.deliveryArea || ''), 'Courier':'Not assigned yet',
         'Tracking Number':'Pending','Customer Note':hbCustomerNote_(data),
@@ -219,7 +222,6 @@ function hbCreateOrder_(data) {
         'Order Confirmed Email Sent':'', 'Final Status Email Sent':'',
         'Email Automation Error':''
       };
-      const target = master.getLastRow() + 1;
       if (target > master.getMaxRows()) master.insertRowsAfter(master.getMaxRows(), target - master.getMaxRows());
       // Preserve the leading zero of Order ID/phone; write all fields by heading.
       master.getRange(target, headerInfo.map['Order ID'] + 1, 1, 1).setNumberFormat('@');

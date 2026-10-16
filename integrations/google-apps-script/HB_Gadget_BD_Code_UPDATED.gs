@@ -209,7 +209,7 @@ function hbCreateOrder_(data) {
         'Subtotal':hbMoney_(data.subtotal), 'Delivery Charge':hbMoney_(data.deliveryCharge),
         // Use a per-order SUM formula, so later K/L edits recalculate the Total
         // used by Pending_order J without formulas in unused spreadsheet rows.
-        'Total':'=SUM(K'+target+':L'+target+')',
+        'Total':hbOrderTotalFormula_(target),
         'Payment Method':method,
         'Delivery Area':String(data.deliveryArea || ''), 'Courier':'Not assigned yet',
         'Tracking Number':'Pending','Customer Note':hbCustomerNote_(data),
@@ -496,6 +496,10 @@ function hbMigratePendingOrderLayout_() {
 function hbPendingTotalFormula_(row) {
   return '=IF($A'+row+'="","",IFERROR(VLOOKUP($A'+row+',Orders!$A$2:$M,13,FALSE),""))';
 }
+/** Per-order live total; the Pending_order lookup reads the resulting Orders column M. */
+function hbOrderTotalFormula_(row) {
+  return '=SUM(K'+row+':L'+row+')';
+}
 /** Orders Verified Amount only acknowledges funds once truly verified.
  * COD counts as paid only after Delivered. Prepaid needs Verified + transaction ID.
  */
@@ -678,10 +682,15 @@ function hbOnEditOrders(e) {
       const statusCol=headers.map['Status']+1,bnCol=headers.map['Bangla Status']+1;
       const englishChanged=col<=statusCol&&end>=statusCol;
       const bnChanged=col<=bnCol&&end>=bnCol;
-      const affectsPaid=['Status','Payment Method','Total','Payment Verification',
+      const affectsPaid=['Status','Payment Method','Total','Subtotal','Delivery Charge','Payment Verification',
         'Verified Amount (BDT)','Payment Transaction ID'].some(name=>
           headers.map[name]!==undefined&&col<=headers.map[name]+1&&end>=headers.map[name]+1);
+      const changedPricing=['Subtotal','Delivery Charge','Total'].some(name=>
+        headers.map[name]!==undefined&&col<=headers.map[name]+1&&end>=headers.map[name]+1);
       for(let r=Math.max(2,e.range.getRow());r<=e.range.getLastRow();r++){
+        // Retain a live formula even if someone accidentally types into Total.
+        if(changedPricing && master.getRange(r,headers.map['Order ID']+1).getDisplayValue())
+          master.getRange(r,headers.map['Total']+1).setFormula(hbOrderTotalFormula_(r));
         if(englishChanged){
           const en=String(master.getRange(r,statusCol).getDisplayValue()).trim();
           if(HB_BANGLA_STATUS[en])hbWrite_(master,headers,r,'Bangla Status',HB_BANGLA_STATUS[en]);

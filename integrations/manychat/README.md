@@ -1,94 +1,87 @@
-# HB Gadget BD — Messenger AI product assistant
+# HB Gadget BD Messenger — $0 setup using Cloudflare Workers AI
 
-This integration uses a **Cloudflare Pages Function** at:
-- Source: functions/api/messenger/answer.js
-- Production route (only when this domain is deployed by Cloudflare Pages): POST https://hbgadgetbd.com/api/messenger/answer
+**No OpenAI API credits, paid Manychat or paid subscription required.**
+Cloudflare's Workers Free plan includes 10,000 Workers AI Neurons/day.
+When free inference is exhausted, requests stop working; do NOT upgrade to Paid.
+The AI may occasionally return a polite fallback while over quota.
 
-## What it does
+## Architecture
 
-For each question, the function downloads the published
-https://hbgadgetbd.com/assets/data/products.json, includes official product data
-in a short AI request, and returns:
-{"success":true,"reply":"...","catalogueCount":5}
+Customer's Messenger DM -> Meta Messenger Platform webhook ->
+Cloudflare Pages Function -> latest hbgadgetbd.com/assets/data/products.json ->
+Cloudflare Workers AI (free-eligible multilingual model) ->
+Facebook Messenger Send API -> customer.
 
-The reply is in the customer's Bangla, Banglish or English. No inventory,
-payment-verification or order-record access is provided. The public catalogue
-is updated when the website's new products.json deploys.
+Both APIs are already committed:
+- functions/api/messenger/webhook.js (direct Meta webhook)
+- functions/api/messenger/answer.js (shared catalogue-to-AI logic; optional secured test POST)
 
-This is a backend service only: adding it does not change website UI or
-automatically switch on Messenger automations.
+No storefront, checkout, inventory, or Google Sheets code was changed.
 
-## Required Cloudflare configuration
+## 1. Cloudflare settings (free)
 
-In **Cloudflare dashboard -> Workers & Pages -> the Pages project serving
-hbgadgetbd.com -> Settings -> Variables and Secrets**, add these **encrypted
-secrets** for the production environment:
+Confirm your account remains on **Workers Free**.
 
-- HB_OPENAI_API_KEY : a separate OpenAI Platform API key (usage is billed separately from ChatGPT subscriptions).
-- HB_MANYCHAT_SECRET : a unique randomly generated secret, 32+ characters, shared only between Cloudflare and Manychat.
+Cloudflare Pages project **hbgadgetbd** -> Settings -> **Bindings** ->
+**Add** -> **Workers AI** -> Variable name: **AI** -> Save.
+Deploy again after adding a binding.
 
-Optional nonsecret:
-- HB_AI_MODEL : default gpt-4o-mini.
+**Do not set HB_OPENAI_API_KEY**. Revoke/delete any exposed OpenAI key.
+The code no longer uses the OpenAI API.
 
-Deploy/redeploy after adding secrets. Never put these values in GitHub,
-product JSON, website HTML, screenshots, or chat. Set usage limits and alerts
-in the OpenAI Platform account.
+## 2. Meta for Developers setup
 
-If hbgadgetbd.com is instead deployed by **Netlify or GitHub Pages**, this
-Cloudflare Function will NOT be available on the custom domain. First deploy
-the repository as a Cloudflare Pages project (or separately host the backend)
-and confirm the right API URL. Existing repo includes Cloudflare Pages
-Functions for /api/orders/*; do not assume those are live without testing.
+Create an app at https://developers.facebook.com/apps/ with Messenger
+platform use case/permissions for your **HB Gadget BD** Facebook Page.
+Meta may require Page/business verification and App Review or advanced
+access to process messages from customers beyond app testers.
 
-## Manychat External Request
+Add the **following Cloudflare Pages Production secrets** (Settings ->
+Variables and Secrets -> Add -> Type Secret). Do not commit/share values.
 
-Keep the existing test flow in Draft while configuring:
+- HB_META_VERIFY_TOKEN — random secret string you create for webhook verification.
+- HB_META_APP_SECRET — the Meta app's App Secret.
+- HB_META_PAGE_ACCESS_TOKEN — token generated for the HB Gadget BD Page.
+- HB_META_PAGE_ID — numeric Facebook Page ID (secret optional, but set as encrypted variable to avoid mistakes).
 
-1. Select **POST** (replace the old GET to products.json).
-2. Request URL: https://hbgadgetbd.com/api/messenger/answer
-3. Headers:
-   - Content-Type: application/json
-   - X-HB-Agent-Secret: the exact HB_MANYCHAT_SECRET from Cloudflare.
-4. Body: {"message":"<insert Manychat's Last Text Input variable using its variable selector>"}
-   Do not send names, phone numbers or email addresses. Check that the
-   resulting JSON remains valid if a question contains quotes.
-5. Select a test contact, then Test Request. A valid configured request
-   returns 200 and a response body with a reply string.
-6. Create a Manychat Custom User Field named **HB_AI_Reply** of type Text.
-7. Response mapping: JSONPath **$.reply** -> **HB_AI_Reply**.
-8. Flow: message trigger -> External Request Actions -> Messenger Send Message
-   containing the inserted **HB_AI_Reply** field.
-9. Remove/disconnect the old AI Step if it would duplicate the response.
-   An AI Step is not necessary: this endpoint returns a finished reply.
-10. Test with a single message such as:
-    "hbtest ভাই, ১০০০০mAh UPS-এর দাম আর ওয়ারেন্টি কত?"
-    (The current test trigger requires the word hbtest.)
-11. After passing tests, decide whether to use a broader Messenger trigger
-    or default reply; review existing Meta/Manychat automations to avoid
-    duplicate messages. Then and only then set the flow live.
+The webhook callback URL for Meta:
+https://hbgadgetbd.com/api/messenger/webhook
 
-Important: a generic "hbtest" question does not specify a product, and should
-receive a clarifying reply instead of an invented product price.
+Webhook verify token must exactly match HB_META_VERIFY_TOKEN.
+Subscribe the Meta app to the Page's **messages** webhook field and enable
+pages_messaging permission with the appropriate access level.
+Configure the Messenger primary receiver/routing to avoid double replies
+from Manychat or Meta Business Suite automations.
 
-## Troubleshooting
+Do **not** Set Live in Manychat's current draft: it is not needed for the
+free direct webhook approach. Manychat's External Request and AI Step are
+paid-plan features; the free tier supports simpler rule-based automations only.
+Check Manychat Billing for an active Pro trial and cancel paid renewal if any.
 
-- 401 unauthorized: Manychat X-HB-Agent-Secret differs from Cloudflare.
-- 503 not_configured: Cloudflare encrypted secrets are missing or deployment
-  has not loaded them.
-- 415 json_required / 400 invalid_json: POST/Content-Type/body is incorrect.
-- 200 success:false: catalogue retrieval or OpenAI temporarily failed;
-  reply is a polite fallback, not a confirmed product answer.
-- 404/not found: the custom domain is not serving the Cloudflare Pages Function,
-  or deployment/routing is incomplete.
-- Manychat request timeout: retries may be necessary; the handler uses short
-  upstream timeouts and a safe fallback. Avoid sending customer PII.
+Meta send permissions and the messaging window still apply; responses are
+only sent to customers who just contacted the Page.
 
-## Security and limitations
+## 3. Test checklist
 
-- Server-side header authentication limits outsiders' ability to spend AI API credit.
-- API keys stay in Cloudflare encrypted secrets.
-- Product data is retrieved per request and is not a live warehouse inventory feed.
-- LLM output must be evaluated by a human before enabling production replies.
-- If the product catalogue grows above 80 products, implement server-side
-  product search/retrieval instead of sending an unbounded dataset to AI.
-- Messenger platform rules, Manychat plan requirements and AI usage charges apply.
+- [ ] Cloudflare project remains on Workers Free.
+- [ ] AI binding named **AI** exists and the Pages project is redeployed.
+- [ ] All four Meta variables exist as secrets in Production.
+- [ ] Meta verification challenge succeeds with the callback and matching token.
+- [ ] Page subscription to message events is active.
+- [ ] Messenger app permissions/routing are configured, and no other chatbot duplicates replies.
+- [ ] Send a test DM from a permitted tester Facebook account:
+      "ভাই ১০০০০mAh UPS এর দাম আর ওয়ারেন্টি কত?"
+- [ ] Check the reply's product, price, warranty, link against the site.
+- [ ] Test Banglish and ambiguous products.
+- [ ] Verify missing data causes a human handover rather than a made-up reply.
+
+## Safety/limitations
+
+- Workers AI's 10,000 daily free Neurons are a **limited quota**, not unlimited messaging.
+- Cloudflare AI model selected: @cf/zai-org/glm-4.7-flash (Workers Free eligible as of Oct 2026).
+- Your public product JSON is the only product information source. Warehouse stock and order status are NOT live.
+- Message bodies are processed by Cloudflare's AI inference service.
+- This webhook is not live until a Meta app, permissions and production secrets are configured.
+- It currently does not provide persistent chat memory or deduplicate retried webhook messages.
+- Thoroughly test, confirm Meta's current platform permissions, and implement deduplication
+  if needed before opening to the public.

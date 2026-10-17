@@ -82,7 +82,7 @@ only sent to customers who just contacted the Page.
 - Your public product JSON is the only product information source. Warehouse stock and order status are NOT live.
 - Message bodies are processed by Cloudflare's AI inference service.
 - This webhook is not live until a Meta app, permissions and production secrets are configured.
-- It currently does not provide persistent chat memory or deduplicate retried webhook messages.
+- Context memory is optional (24-hour KV storage after binding). Retried webhook messages are not yet deduplicated.
 - Thoroughly test, confirm Meta's current platform permissions, and implement deduplication
   if needed before opening to the public.
 
@@ -97,3 +97,33 @@ After saving `HB_META_VERIFY_TOKEN` in Cloudflare Pages Production secrets, this
 ## Production deployment after final Page ID setup
 
 On 2026-10-17, the owner confirmed saving `HB_META_PAGE_ID` in Cloudflare Pages Production after separately saving the verification token, refreshed Page Access Token, and Meta App Secret. The exact Page ID is `1280860211779282` (public Page identifier). This documentation-only commit triggers Cloudflare Pages automatic deployment from `main`; check its success before sending a test message. Keep all sensitive values in Cloudflare, never GitHub.
+
+
+## 4. Free context memory for follow-up questions
+
+The 2026-10-17 Messenger update recognizes both UPS models and Banglish
+product questions deterministically using the published product JSON.
+For follow-up questions like "konta better?" after listing UPS devices, the
+webhook needs an optional Cloudflare KV namespace.
+
+1. Cloudflare > Storage & databases > KV > Create namespace.
+   Name: HB_GADGET_MESSENGER_CONTEXT.
+2. Cloudflare > Workers & Pages > Pages project hbgadgetbd >
+   Settings > Bindings > Add > KV namespace.
+3. Set variable name HB_MESSENGER_CONTEXT and choose the namespace
+   HB_GADGET_MESSENGER_CONTEXT. Save.
+4. Redeploy Pages to activate the new binding.
+5. Test from an authorized Messenger account in order:
+   "apnader ki ups ase?" / "konta better?" /
+   "16000mAh etar somporke bolo".
+
+Context memory stores only recent product IDs under a SHA-256-derived
+pseudonym of the Page ID and sender ID, expiring in 24 hours. It stores
+no chat message bodies. KV is available under Workers Free daily quotas;
+do not upgrade or add a payment method for this integration.
+The binding is optional: direct product questions continue to work
+without it, but follow-up context cannot be remembered between requests.
+
+Never promise perfect understanding, confirmed inventory, personalized
+order tracking or guaranteed backup hours. Public Messenger access still
+depends on Meta permission and App Review status as applicable.

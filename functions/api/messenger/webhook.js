@@ -50,6 +50,30 @@ async function sendReply(psid,reply,token) {
   });
   if(!result.ok)throw new Error("Meta Send API did not accept reply");
 }
+// Only store recent product IDs (no messages, names, telephone numbers or PSIDs).
+// KV is optional until a free namespace is bound as HB_MESSENGER_CONTEXT.
+async function contextKey(sender,pageId) {
+  const digest=await crypto.subtle.digest("SHA-256",new TextEncoder().encode(pageId+":"+sender));
+  return "hb:product-context:"+hex(digest).slice(0,40);
+}
+async function getContext(env,key) {
+  if(!env?.HB_MESSENGER_CONTEXT || !key)return [];
+  try {
+    const record=await env.HB_MESSENGER_CONTEXT.get(key,{type:"json"});
+    return Array.isArray(record?.lastProductIds)?record.lastProductIds.slice(0,3):[];
+  } catch (_) {return [];}
+}
+async function saveContext(env,key,ids,previous) {
+  if(!env?.HB_MESSENGER_CONTEXT||!key||!Array.isArray(ids)||!ids.length)return;
+  if(JSON.stringify(ids)===JSON.stringify(previous))return; // conserve free KV writes
+  try {
+    await env.HB_MESSENGER_CONTEXT.put(key,
+      JSON.stringify({lastProductIds:ids.slice(0,3)}),{expirationTtl:86400});
+  } catch (_) {
+    // Answer was delivered; failing to remember context should not break messaging.
+  }
+}
+
 async function processWebhook(body,env) {
   if(body?.object!=="page" || !Array.isArray(body.entry))return;
   for(const entry of body.entry.slice(0,20)) {
@@ -60,8 +84,11 @@ async function processWebhook(body,env) {
       if(!/^\d{5,30}$/.test(sender))continue;
       const question=String(event.message.text).slice(0,800);
       try {
-        const answer=await generateProductReply(question,env);
+        const key=env.HB_MESSENGER_CONTEXT?await contextKey(sender,String(entry.id)):"";
+        const previous=await getContext(env,key);
+        const answer=await generateProductReply(question,env,{lastProductIds:previous});
         await sendReply(sender,answer.reply,env.HB_META_PAGE_ACCESS_TOKEN);
+        await saveContext(env,key,answer.contextIds,previous);
       } catch (_) {
         // Fail without leaking customer data or secrets.
       }

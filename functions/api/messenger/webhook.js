@@ -69,7 +69,7 @@ async function processWebhook(body,env) {
   }
 }
 export async function onRequestPost(context) {
-  const {request,env,waitUntil}=context;
+  const {request,env}=context;
   if(!env?.HB_META_APP_SECRET || !env?.HB_META_PAGE_ACCESS_TOKEN || !env?.HB_META_PAGE_ID ||
      !env?.AI) return json({success:false,error:"not_configured"},503);
   if(Number(request.headers.get("Content-Length")||0)>128000) {
@@ -85,6 +85,6 @@ export async function onRequestPost(context) {
   try {payload=JSON.parse(raw);}
   catch(_){return text("Invalid JSON",400);}
   // Acknowledge the signed webhook quickly and process the customer response asynchronously.
-  waitUntil(processWebhook(payload,env));
+  context.waitUntil(processWebhook(payload,env));
   return text("EVENT_RECEIVED");
 }

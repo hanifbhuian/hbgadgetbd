@@ -85,3 +85,7 @@ only sent to customers who just contacted the Page.
 - It currently does not provide persistent chat memory or deduplicate retried webhook messages.
 - Thoroughly test, confirm Meta's current platform permissions, and implement deduplication
   if needed before opening to the public.
+
+## Deployment note
+
+After adding the Workers AI binding named `AI` in Cloudflare Pages Production, the next push to `main` automatically triggers a fresh Pages deployment. This documentation-only update is that deployment trigger and does not change the storefront or API behavior.

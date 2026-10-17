@@ -1,0 +1,6 @@
+# Never commit local credentials, environment files or dependencies
+.dev.vars
+.dev.vars.*
+.env
+.env.*
+node_modules/

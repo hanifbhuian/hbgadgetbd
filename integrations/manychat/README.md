@@ -89,3 +89,7 @@ only sent to customers who just contacted the Page.
 ## Deployment note
 
 After adding the Workers AI binding named `AI` in Cloudflare Pages Production, the next push to `main` automatically triggers a fresh Pages deployment. This documentation-only update is that deployment trigger and does not change the storefront or API behavior.
+
+## Deployment after Meta verify-token secret
+
+After saving `HB_META_VERIFY_TOKEN` in Cloudflare Pages Production secrets, this documentation-only commit triggers the next GitHub-connected Pages deployment. The secret stays in Cloudflare and is not stored here. Before Meta webhook verification, confirm this deployment succeeds.

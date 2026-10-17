@@ -85,13 +85,47 @@ async function loadProducts() {
     clearTimeout(timeout);
   }
 }
+
+// This model can respond in either the older Workers AI {response} format or
+// the OpenAI-compatible {choices:[{message:{content}}]} format.
+function readAIText(result) {
+  const v = result?.response ?? result?.result?.response ??
+    result?.choices?.[0]?.message?.content ?? result?.choices?.[0]?.text;
+  if (typeof v === "string") return clean(v, 1000);
+  if (Array.isArray(v)) return clean(v.map(x => typeof x === "string" ? x : (x?.text || "")).join(" "), 1000);
+  return "";
+}
+function catalogBasedReply(question, products) {
+  if (!products?.length) return fallback();
+  const ranked = rankProducts(question, products);
+  const first = ranked[0], nextScore = ranked[1]?.score || 0;
+  if (!first || first.score <= 0 || first.score < nextScore * 1.3) {
+    return "আপনি কোন পণ্যটি খুঁজছেন? আমাদের সর্বশেষ প্রোডাক্ট ও দাম দেখুন: " + WEBSITE +
+      " অথবা বিস্তারিত জানতে " + SUPPORT + " নম্বরে যোগাযোগ করুন।";
+  }
+  const p = first.product;
+  let reply = "আমাদের ওয়েবসাইটে " + clean(p.name, 110) + " তালিকাভুক্ত আছে।";
+  if (p.price !== undefined && p.price !== null && p.price !== "" && Number.isFinite(Number(p.price))) {
+    reply += " তালিকাভুক্ত দাম ৳" + Number(p.price).toLocaleString("en-US") + "।";
+  }
+  if (p.shortDescription) reply += " " + clean(p.shortDescription, 155);
+  const warranty = (Array.isArray(p.details) ? p.details : [])
+    .concat(Array.isArray(p.specifications) ? p.specifications : [])
+    .find(s => typeof s === "string" && /^warranty\s*:/i.test(s));
+  if (warranty) reply += " " + clean(warranty, 130);
+  reply += " স্টক নিশ্চিত করতে আমাদের টিমের সাথে যোগাযোগ করুন। " + WEBSITE +
+    "product?id=" + encodeURIComponent(p.id);
+  return reply.slice(0, 950);
+}
+
 export async function generateProductReply(question, env) {
-  if (!env?.AI) return { success:false, reply:fallback(), error:"ai_binding_missing" };
   const message = clean(question, 1000);
   if (!message || message.length > 800) return { success:false, reply:fallback(), error:"invalid_message" };
+  let products = [];
   try {
-    const products = await loadProducts();
+    products = await loadProducts();
     if (!products.length) return { success:false, reply:fallback(), error:"catalogue_empty" };
+    if (!env?.AI) return { success:false, reply:catalogBasedReply(message,products), error:"ai_binding_missing" };
     const ranked = rankProducts(message, products);
     const candidates = ranked.filter(x => x.score > 0).slice(0, 4).map(x => compactProduct(x.product));
     const names = products.slice(0, 80).map(p => clean(p.name,100));
@@ -117,15 +151,18 @@ export async function generateProductReply(question, env) {
           "\nMatching product details (if any):\n" + (candidates.join("\n") || "None") +
           "\nCustomer question:\n" + message}
       ],
-      max_tokens:320,
+      max_completion_tokens:420,
+      reasoning_effort:"low",
+      chat_template_kwargs:{enable_thinking:false},
       temperature:0.2
     }, {rejectIfBusy:true});
-    const reply = clean(result?.response || result?.result?.response, 1000);
+    const reply = readAIText(result);
     if (!reply) throw new Error("Missing AI text");
     return {success:true, reply, matches:candidates.length};
-  } catch (_) {
-    // Free allocations can be exhausted or AI unavailable: never turn on billing.
-    return {success:false, reply:fallback(), error:"temporarily_unavailable"};
+  } catch (e) {
+    // Never log customer messages or secrets. Keep the free-tier fallback useful.
+    console.warn("[HB Messenger] product assistant unavailable", String(e?.name || "error"));
+    return {success:false, reply:catalogBasedReply(message,products), error:"temporarily_unavailable"};
   }
 }
 async function equalSecret(a, b) {

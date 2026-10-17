@@ -48,7 +48,7 @@ async function sendReply(psid,reply,token) {
       message:{text:String(reply).slice(0,1600)}
     })
   });
-  if(!result.ok)throw new Error("Meta Send API did not accept reply");
+  if(!result.ok)throw new Error("Meta Send API HTTP "+result.status);
 }
 // Only store recent product IDs (no messages, names, telephone numbers or PSIDs).
 // KV is optional until a free namespace is bound as HB_MESSENGER_CONTEXT.
@@ -77,20 +77,23 @@ async function saveContext(env,key,ids,previous) {
 async function processWebhook(body,env) {
   if(body?.object!=="page" || !Array.isArray(body.entry))return;
   for(const entry of body.entry.slice(0,20)) {
-    if(env.HB_META_PAGE_ID && String(entry.id)!==String(env.HB_META_PAGE_ID))continue;
+    if(env.HB_META_PAGE_ID && String(entry.id)!==String(env.HB_META_PAGE_ID)){console.warn("[HB Messenger] ignored_page_mismatch");continue;}
     for(const event of (entry.messaging||[]).slice(0,30)) {
       if(!event?.message?.text || event.message?.is_echo || event.sender?.id===entry.id)continue;
       const sender=String(event.sender?.id||"");
       if(!/^\d{5,30}$/.test(sender))continue;
       const question=String(event.message.text).slice(0,800);
       try {
+        console.info("[HB Messenger] processing_text_message");
         const key=env.HB_MESSENGER_CONTEXT?await contextKey(sender,String(entry.id)):"";
         const previous=await getContext(env,key);
         const answer=await generateProductReply(question,env,{lastProductIds:previous});
         await sendReply(sender,answer.reply,env.HB_META_PAGE_ACCESS_TOKEN);
+        console.info("[HB Messenger] reply_sent");
         await saveContext(env,key,answer.contextIds,previous);
-      } catch (_) {
-        // Fail without leaking customer data or secrets.
+      } catch (error) {
+        // Log only internal error codes; never sender, question or token.
+        console.error("[HB Messenger] reply_failed",String(error?.message||error?.name||"unknown").slice(0,100));
       }
     }
   }
@@ -98,7 +101,13 @@ async function processWebhook(body,env) {
 export async function onRequestPost(context) {
   const {request,env}=context;
   if(!env?.HB_META_APP_SECRET || !env?.HB_META_PAGE_ACCESS_TOKEN || !env?.HB_META_PAGE_ID ||
-     !env?.AI) return json({success:false,error:"not_configured"},503);
+     !env?.AI) {
+    console.error("[HB Messenger] not_configured", {
+      appSecret:!!env?.HB_META_APP_SECRET, pageToken:!!env?.HB_META_PAGE_ACCESS_TOKEN,
+      pageId:!!env?.HB_META_PAGE_ID, ai:!!env?.AI
+    });
+    return json({success:false,error:"not_configured"},503);
+  }
   if(Number(request.headers.get("Content-Length")||0)>128000) {
     return text("Payload too large",413);
   }
@@ -106,12 +115,14 @@ export async function onRequestPost(context) {
   try {raw=await request.text(); if(raw.length>128000)throw Error("large");}
   catch(_){return text("Invalid payload",400);}
   if(!await verifyMeta(raw,request.headers.get("X-Hub-Signature-256")||"",env.HB_META_APP_SECRET)) {
+    console.warn("[HB Messenger] signature_rejected");
     return text("Unauthorized",401);
   }
   let payload;
   try {payload=JSON.parse(raw);}
   catch(_){return text("Invalid JSON",400);}
   // Acknowledge the signed webhook quickly and process the customer response asynchronously.
+  console.info("[HB Messenger] webhook_accepted");
   context.waitUntil(processWebhook(payload,env));
   return text("EVENT_RECEIVED");
 }

@@ -93,3 +93,7 @@ After adding the Workers AI binding named `AI` in Cloudflare Pages Production, t
 ## Deployment after Meta verify-token secret
 
 After saving `HB_META_VERIFY_TOKEN` in Cloudflare Pages Production secrets, this documentation-only commit triggers the next GitHub-connected Pages deployment. The secret stays in Cloudflare and is not stored here. Before Meta webhook verification, confirm this deployment succeeds.
+
+## Production deployment after final Page ID setup
+
+On 2026-10-17, the owner confirmed saving `HB_META_PAGE_ID` in Cloudflare Pages Production after separately saving the verification token, refreshed Page Access Token, and Meta App Secret. The exact Page ID is `1280860211779282` (public Page identifier). This documentation-only commit triggers Cloudflare Pages automatic deployment from `main`; check its success before sending a test message. Keep all sensitive values in Cloudflare, never GitHub.

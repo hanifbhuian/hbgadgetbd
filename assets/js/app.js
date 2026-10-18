@@ -1,6 +1,6 @@
 const WHATSAPP_NUMBER = "8801816569237";
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/hanifbhuian/hbgadgetbd/main/";
-const PRODUCT_DATA_URL = `${GITHUB_RAW_BASE}assets/data/products.json`;
+const PRODUCT_DATA_URL = `${GITHUB_RAW_BASE}assets/data/products.json?v=20261018-ups4`;
 
 let products = [];
 let lightboxImages = [];
@@ -47,7 +47,7 @@ function loadProductDetailCss() {
   if (document.querySelector("link[href*='product-detail-drawer.css']")) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "assets/css/product-detail-drawer.css?v=20261009-1";
+  link.href = "assets/css/product-detail-drawer.css?v=20261018-ups4";
   document.head.appendChild(link);
 }
 

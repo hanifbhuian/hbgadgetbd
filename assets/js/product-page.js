@@ -1,6 +1,6 @@
 const WHATSAPP_NUMBER = "8801816569237";
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/hanifbhuian/hbgadgetbd/main/";
-const PRODUCT_DATA_URL = `${GITHUB_RAW_BASE}assets/data/products.json`;
+const PRODUCT_DATA_URL = `${GITHUB_RAW_BASE}assets/data/products.json?v=20261018-ups4`;
 
 const HB_RETURN_POLICY = [
   ["Product damaged on arrival", "Exchange within 24–48 hours after receiving proof"],

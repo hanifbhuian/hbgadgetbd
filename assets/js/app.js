@@ -1,6 +1,6 @@
 const WHATSAPP_NUMBER = "8801816569237";
 const GITHUB_RAW_BASE = "https://raw.githubusercontent.com/hanifbhuian/hbgadgetbd/main/";
-const PRODUCT_DATA_URL = `${GITHUB_RAW_BASE}assets/data/products.json?v=20261018-ups4`;
+const PRODUCT_DATA_URL = `${GITHUB_RAW_BASE}assets/data/products.json?v=20261018-gallery5`;
 
 let products = [];
 let lightboxImages = [];
@@ -304,7 +304,7 @@ function renderProductDrawer(product) {
   const imageMarkup = productDrawerImages.length ? `
     <div class="product-detail-image${Number(product.id) === 1 ? " product-detail-image--square" : ""}">
       <button class="product-detail-arrow product-detail-arrow--prev" type="button" data-product-slide="prev" aria-label="Previous product photo">‹</button>
-      <img class="product-detail-main-image" src="${productDrawerImages[0]}" alt="${htmlEscape(product.name)}">
+      <img class="product-detail-main-image" src="${productDrawerImages[0]}" alt="${htmlEscape(product.name)}" data-hb-photo-open tabindex="0" role="button" title="Click to enlarge" aria-label="Open full-size product photo">
       <button class="product-detail-arrow product-detail-arrow--next" type="button" data-product-slide="next" aria-label="Next product photo">›</button>
     </div>
     <div class="product-detail-thumbs">

@@ -48,7 +48,14 @@ async function sendReply(psid,reply,token) {
       message:{text:String(reply).slice(0,1600)}
     })
   });
-  if(!result.ok)throw new Error("Meta Send API HTTP "+result.status);
+  if(!result.ok) {
+    let data;
+    try {data=await result.json();}catch(_){}
+    // Numeric Meta codes are diagnostic; never log its message, token or recipient.
+    const code=Number(data?.error?.code)||0;
+    const subcode=Number(data?.error?.error_subcode)||0;
+    throw new Error("Meta Send API HTTP "+result.status+" code "+code+" subcode "+subcode);
+  }
 }
 // Only store recent product IDs (no messages, names, telephone numbers or PSIDs).
 // KV is optional until a free namespace is bound as HB_MESSENGER_CONTEXT.
@@ -123,6 +130,15 @@ export async function onRequestPost(context) {
   catch(_){return text("Invalid JSON",400);}
   // Acknowledge the signed webhook quickly and process the customer response asynchronously.
   console.info("[HB Messenger] webhook_accepted");
+  // Counts only: distinguish routing/standby and non-text events without chat data.
+  const entries=Array.isArray(payload?.entry)?payload.entry.slice(0,20):[];
+  console.info("[HB Messenger] event_summary", {
+    pageObject:payload?.object==="page", entries:entries.length,
+    messaging:entries.reduce((n,e)=>n+(Array.isArray(e.messaging)?e.messaging.length:0),0),
+    standby:entries.reduce((n,e)=>n+(Array.isArray(e.standby)?e.standby.length:0),0),
+    textMessages:entries.reduce((n,e)=>n+(Array.isArray(e.messaging)?e.messaging.filter(x=>typeof x?.message?.text==="string"&&!x.message.is_echo).length:0),0),
+    echoes:entries.reduce((n,e)=>n+(Array.isArray(e.messaging)?e.messaging.filter(x=>x?.message?.is_echo).length:0),0)
+  });
   context.waitUntil(processWebhook(payload,env));
   return text("EVENT_RECEIVED");
 }

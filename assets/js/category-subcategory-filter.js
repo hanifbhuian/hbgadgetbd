@@ -367,13 +367,13 @@ function patchProductRendering() {
       productDrawerIndex = 0;
 
       const imageMarkup = productDrawerImages.length ? `
-        <div class="product-detail-image">
+        <div class="product-detail-image${Number(product.id) === 1 ? " product-detail-image--square" : ""}">
           <button class="product-detail-arrow product-detail-arrow--prev" type="button" data-product-slide="prev" aria-label="Previous product photo">‹</button>
-          <img class="product-detail-main-image" src="${productDrawerImages[0]}" alt="${htmlEscape(product.name)}">
+          <img class="product-detail-main-image" src="${productDrawerImages[0]}" alt="${htmlEscape(product.name)}" data-hb-photo-open tabindex="0" role="button" title="Click to enlarge" aria-label="Open full-size product photo">
           <button class="product-detail-arrow product-detail-arrow--next" type="button" data-product-slide="next" aria-label="Next product photo">›</button>
         </div>
         <div class="product-detail-thumbs">
-          ${productDrawerImages.map((image, index) => `<button type="button" data-product-thumb="${index}" class="${index === 0 ? "is-active" : ""}"><img src="${image}" alt="${htmlEscape(product.name)} photo ${index + 1}"></button>`).join("")}
+          ${productDrawerImages.map((image, index) => `<button type="button" data-product-thumb="${index}" class="${index === 0 ? "is-active" : ""}"><img src="${image}" alt="${htmlEscape(product.name)} photo ${index + 1}" loading="lazy" decoding="async"></button>`).join("")}
         </div>
       ` : `<div class="product-detail-image"><span style="font-size:72px">${product.icon || "🛒"}</span></div>`;
 

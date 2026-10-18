@@ -358,11 +358,11 @@ function renderProduct(product) {
     <div class="gallery-box${Number(product.id) === 1 ? " gallery-box--square" : ""}">
       <div class="main-image-wrap">
         <button class="gallery-arrow gallery-arrow--prev" type="button" data-gallery="prev">‹</button>
-        <img id="mainProductImage" src="${galleryImages[0]}" alt="${htmlEscape(product.name)}">
+        <img id="mainProductImage" src="${galleryImages[0]}" alt="${htmlEscape(product.name)}" data-hb-photo-open tabindex="0" role="button" title="Click to enlarge" aria-label="Open full-size product photo" loading="eager" decoding="async">
         <button class="gallery-arrow gallery-arrow--next" type="button" data-gallery="next">›</button>
       </div>
       <div class="thumbs">
-        ${galleryImages.map((image, index) => `<button type="button" data-thumb="${index}" class="${index === 0 ? "active" : ""}"><img src="${image}" alt="${htmlEscape(product.name)} photo ${index + 1}"></button>`).join("")}
+        ${galleryImages.map((image, index) => `<button type="button" data-thumb="${index}" class="${index === 0 ? "active" : ""}"><img src="${image}" alt="${htmlEscape(product.name)} photo ${index + 1}" loading="lazy" decoding="async"></button>`).join("")}
       </div>
     </div>` : `<div class="gallery-box"><div class="main-image-wrap"><span style="font-size:96px">${product.icon || "🛒"}</span></div></div>`;
 
@@ -498,7 +498,7 @@ function modifyCartQuantity(id,change) {
 
 function relatedImage(product) {
   const image = getProductImages(product)[0];
-  if (image) return `<img src="${resolveAssetUrl(image)}" alt="${htmlEscape(product.name)}">`;
+  if (image) return `<span class="related-photo"><img src="${resolveAssetUrl(image)}" alt="${htmlEscape(product.name)}" loading="lazy" decoding="async"></span>`;
   return `<div class="related-icon">${product.icon || "🛒"}</div>`;
 }
 

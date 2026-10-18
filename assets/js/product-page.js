@@ -355,7 +355,7 @@ function renderProduct(product) {
   galleryIndex = 0;
   const stats = getStats(product);
   const imageBlock = galleryImages.length ? `
-    <div class="gallery-box">
+    <div class="gallery-box${Number(product.id) === 1 ? " gallery-box--square" : ""}">
       <div class="main-image-wrap">
         <button class="gallery-arrow gallery-arrow--prev" type="button" data-gallery="prev">‹</button>
         <img id="mainProductImage" src="${galleryImages[0]}" alt="${htmlEscape(product.name)}">

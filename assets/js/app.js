@@ -302,7 +302,7 @@ function renderProductDrawer(product) {
   productDrawerIndex = 0;
 
   const imageMarkup = productDrawerImages.length ? `
-    <div class="product-detail-image">
+    <div class="product-detail-image${Number(product.id) === 1 ? " product-detail-image--square" : ""}">
       <button class="product-detail-arrow product-detail-arrow--prev" type="button" data-product-slide="prev" aria-label="Previous product photo">‹</button>
       <img class="product-detail-main-image" src="${productDrawerImages[0]}" alt="${htmlEscape(product.name)}">
       <button class="product-detail-arrow product-detail-arrow--next" type="button" data-product-slide="next" aria-label="Next product photo">›</button>

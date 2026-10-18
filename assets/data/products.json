@@ -7,7 +7,13 @@
       "category": "Power & Safety",
       "price": 1699,
       "regularPrice": 1950,
-      "image": "assets/uploads/mg-mini-dc-ups-10000mah.webp",
+      "image": "assets/uploads/mg-mini-dc-ups-10000mah-gallery-1.png",
+      "images": [
+        "assets/uploads/mg-mini-dc-ups-10000mah-gallery-1.png",
+        "assets/uploads/mg-mini-dc-ups-10000mah-gallery-2.png",
+        "assets/uploads/mg-mini-dc-ups-10000mah-gallery-3.png",
+        "assets/uploads/mg-mini-dc-ups-10000mah-gallery-4.png"
+      ],
       "icon": "🔋",
       "tag": "Sale",
       "description": "MG-606 Mini UPS with a 10,000mAh (37Wh) battery for compatible Wi-Fi routers, modems and network devices.",

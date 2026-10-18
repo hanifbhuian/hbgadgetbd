@@ -168,3 +168,15 @@ button { font: inherit; }
 
 /* Tutorials tab only: no repeated rating/review/sales cards or unnecessary separator. */
 .hb-tutorials-section { margin-top: 0; padding-top: 0; border-top: 0; }
+
+
+/* Product 1: preserve original PNG photos; use responsive square visual crops only. */
+.gallery-box--square .main-image-wrap { aspect-ratio: 1 / 1; min-height: 0; }
+.gallery-box--square .main-image-wrap img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover;
+}
+.gallery-box--square .thumbs button { flex: 0 0 64px; height: 64px; }
+img[src*="mg-mini-dc-ups-10000mah-gallery-1.png"] { object-position: 50% 28%; }
+img[src*="mg-mini-dc-ups-10000mah-gallery-2.png"] { object-position: 50% 24%; }
+img[src*="mg-mini-dc-ups-10000mah-gallery-3.png"] { object-position: 50% 50%; }
+img[src*="mg-mini-dc-ups-10000mah-gallery-4.png"] { object-position: 50% 47%; }

@@ -73,3 +73,13 @@
   #productGrid .add-cart { min-height:36px; font-size:11px; margin-top:9px; }
 }
 @media (max-width:320px) { #productGrid.product-grid { grid-template-columns:1fr; } }
+
+
+/* Product 1: fill existing square cards without stretching the original photos. */
+#productGrid .product-gallery img[src*="mg-mini-dc-ups-10000mah-gallery-"] {
+  object-fit: cover; padding: 0;
+}
+img[src*="mg-mini-dc-ups-10000mah-gallery-1.png"] { object-position: 50% 28%; }
+img[src*="mg-mini-dc-ups-10000mah-gallery-2.png"] { object-position: 50% 24%; }
+img[src*="mg-mini-dc-ups-10000mah-gallery-3.png"] { object-position: 50% 50%; }
+img[src*="mg-mini-dc-ups-10000mah-gallery-4.png"] { object-position: 50% 47%; }

@@ -3,8 +3,8 @@ const ORDER_CREATE_SUPPORT_NUMBER = "8801816569237";
 const HB_PREPAYMENT_ENABLED = true; // Customers see manual Send Money instructions after receiving Order ID.
 const HB_PREPAYMENT_NUMBER = "01816569237"; // bKash / Nagad manual Send Money number.
 const DELIVERY_OPTIONS = {
-  insideDhaka: { label: "Inside Dhaka", charge: 70 },
-  outsideDhaka: { label: "Outside Dhaka", charge: 150 }
+  insideDhaka: { label: "Inside Dhaka", charge: 60 },
+  outsideDhaka: { label: "Outside Dhaka", charge: 130 }
 };
 let checkoutItems = [];
 let checkoutSubtotal = 0;
@@ -118,7 +118,7 @@ function ensureCheckoutModal() {
         </div>
         <label><span>Full Delivery Address *</span><textarea id="checkoutAddress" name="address" placeholder="House, road, area, district" required></textarea></label>
         <div class="checkout-form__grid">
-          <label><span>Shipping Location *</span><select id="checkoutShippingZone" name="shippingZone" required><option value="">Select shipping area</option><option value="insideDhaka">Inside Dhaka — ৳70</option><option value="outsideDhaka">Outside Dhaka — ৳150</option></select></label>
+          <label><span>Shipping Location *</span><select id="checkoutShippingZone" name="shippingZone" required><option value="">Select shipping area</option><option value="insideDhaka">Inside Dhaka — ৳${DELIVERY_OPTIONS.insideDhaka.charge}</option><option value="outsideDhaka">Outside Dhaka — ৳${DELIVERY_OPTIONS.outsideDhaka.charge}</option></select></label>
         </div>
         <div class="checkout-summary" id="checkoutSummary"></div>
         <fieldset class="checkout-methods">

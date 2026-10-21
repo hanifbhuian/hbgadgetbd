@@ -2,8 +2,8 @@ const ORDER_CREATE_WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzBndP
 const ORDER_CREATE_SUPPORT_NUMBER = "8801816569237";
 const MAX_PAYMENT_FILE_SIZE = 5 * 1024 * 1024;
 const DELIVERY_OPTIONS = {
-  insideDhaka: { label: "Inside Dhaka", charge: 70 },
-  outsideDhaka: { label: "Outside Dhaka", charge: 150 }
+  insideDhaka: { label: "Inside Dhaka", charge: 60 },
+  outsideDhaka: { label: "Outside Dhaka", charge: 130 }
 };
 let checkoutItems = [];
 let checkoutSubtotal = 0;
@@ -119,14 +119,14 @@ function ensureCheckoutModal() {
         </div>
         <label><span>Full Delivery Address *</span><textarea id="checkoutAddress" name="address" placeholder="House, road, area, district" required></textarea></label>
         <div class="checkout-form__grid">
-          <label><span>Shipping Location *</span><select id="checkoutShippingZone" name="shippingZone" required><option value="">Select shipping area</option><option value="insideDhaka">Inside Dhaka — ৳70</option><option value="outsideDhaka">Outside Dhaka — ৳150</option></select></label>
+          <label><span>Shipping Location *</span><select id="checkoutShippingZone" name="shippingZone" required><option value="">Select shipping area</option><option value="insideDhaka">Inside Dhaka — ৳${DELIVERY_OPTIONS.insideDhaka.charge}</option><option value="outsideDhaka">Outside Dhaka — ৳${DELIVERY_OPTIONS.outsideDhaka.charge}</option></select></label>
           <label><span>Payment Method</span><select id="checkoutPayment" name="paymentMethod"><option value="Cash on Delivery">Cash on Delivery</option><option value="Bkash/Nagad before delivery">Bkash/Nagad before delivery</option><option value="Bank transfer before delivery">Bank transfer before delivery</option></select></label>
         </div>
         <div class="payment-proof" id="paymentProofBox">
           <div class="payment-proof__header"><strong>Shipping/payment proof *</strong><button class="payment-help" type="button" data-payment-help aria-label="Payment help">?</button></div>
           <p>Shipping charge is mandatory for every order. Attach your payment screenshot/image/PDF after paying the shipping charge.</p>
           <input id="paymentProofFile" type="file" accept="image/*,.pdf" required>
-          <small>Shipping charge: Inside Dhaka ৳70, Outside Dhaka ৳150. Maximum file size: 5 MB.</small>
+          <small>Shipping charge: Inside Dhaka ৳60, Outside Dhaka ৳130. Maximum file size: 5 MB.</small>
         </div>
         <label><span>Order Note</span><textarea id="checkoutNote" name="note" placeholder="Color, size, preferred delivery time, or other note"></textarea></label>
         <p class="checkout-status" id="checkoutStatus" aria-live="polite"></p>
@@ -367,7 +367,7 @@ async function handleCheckoutSubmit(event) {
 }
 
 function showPaymentHelp() {
-  alert("Payment help:\n\n1. Select your shipping location first:\n   • Inside Dhaka: ৳70\n   • Outside Dhaka: ৳150\n\n2. Shipping charge must be paid before checkout for every order, including Cash on Delivery.\n\n3. For Cash on Delivery, pay only the shipping charge now. Product price will be due on delivery.\n\n4. For Bkash/Nagad or bank transfer before delivery, pay the full total if confirmed by HB Gadget BD.\n\n5. Upload your payment screenshot/image/PDF before final checkout.\n\nFor payment details, contact WhatsApp/Hotline: +8801816569237");
+  alert("Payment help:\n\n1. Select your shipping location first:\n   • Inside Dhaka: ৳60\n   • Outside Dhaka: ৳130\n\n2. Shipping charge must be paid before checkout for every order, including Cash on Delivery.\n\n3. For Cash on Delivery, pay only the shipping charge now. Product price will be due on delivery.\n\n4. For Bkash/Nagad or bank transfer before delivery, pay the full total if confirmed by HB Gadget BD.\n\n5. Upload your payment screenshot/image/PDF before final checkout.\n\nFor payment details, contact WhatsApp/Hotline: +8801816569237");
 }
 
 function wireOrderPlacement() {

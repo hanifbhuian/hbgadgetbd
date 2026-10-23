@@ -42,7 +42,7 @@ export async function onRequestPost({request,env}){
   const response=await fetch("https://api.cloudflare.com/client/v4/accounts/"+account+"/analytics_engine/sql",{
     method:"POST",
     headers:{"Authorization":"Bearer "+token,"Content-Type":"text/plain; charset=utf-8"},
-    body:sql,redirect:"error"
+    body:sql,redirect:"manual"
   });
   if(!response.ok){
     console.warn("HB analytics SQL HTTP status",response.status);

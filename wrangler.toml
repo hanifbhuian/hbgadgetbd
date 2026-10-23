@@ -19,7 +19,3 @@ id = "f8110ef1a2a0484eb74ba14f394c7e43"
 [[env.production.analytics_engine_datasets]]
 binding = "HB_STORE_ANALYTICS"
 dataset = "hbgadgetbd_events"
-
-# Cloudflare Analytics SQL read binding. Requires Wrangler >= 4.145.0.
-[env.production.analytics]
-binding = "HB_ANALYTICS_SQL"

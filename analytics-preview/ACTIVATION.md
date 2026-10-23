@@ -1,32 +1,33 @@
-# HB Gadget BD — Activating live website analytics
+# HB Gadget BD — activating live website analytics
 
-This feature lives on a **separate pull request** until the Cloudflare production setup is verified. The existing checkout, payment settings, orders, Messenger AI binding, and Google Apps Script code must be preserved.
+**Status:** feature branch only. Do not merge/deploy to the production storefront until the exact Cloudflare account, read-only token, privacy notice, and live tests are ready. Do not change orders, payments, Google Apps Script, Messenger AI, or existing bindings.
 
-## Design
-- Free Cloudflare Workers Analytics Engine, dataset `hbgadgetbd_events`; auto-created at first real write when the Pages binding is configured.
-- Storefront tracker `/assets/js/analytics-tracker.js` sends only event type, session-scoped random UUID, optional product ID/name, page category, device class and a coarse acquisition channel.
-- Server-side geolocation uses Cloudflare's request country and Bangladesh region. No IP address is written into analytics.
-- Anonymous browser sessions are not unique people. Counters show events, not checkout revenue or delivery completion.
-- Checkout completion is detected when the website renders its successful order confirmation; order data, order IDs and customer details are not transmitted.
-- The report API responds only to authenticated POST; no data if the admin secret or Analytics SQL binding is unavailable.
-- Analytics Engine keeps approximately 3 months of data. An authenticated report fetches the latest 5,000 events in the selected 7/30/90 day range; that can truncate high-volume periods.
-- DNT and Global Privacy Control opt-outs respected. No replay recording or heatmaps in this first version.
+## Architecture
+- Free Cloudflare Pages Functions with a Workers Analytics Engine **writer** binding `HB_STORE_ANALYTICS`, dataset `hbgadgetbd_events` configured under `[[env.production.analytics_engine_datasets]]` in `wrangler.toml`.
+- **No Analytics SQL binding required.** Cloudflare's Analytics SQL runtime binding is documented for Workers and is not relied on here. The Pages reporting function calls the official Workers Analytics Engine SQL API using an account-scoped read-only API token stored as a secret.
+- Storefront tracking is anonymous, best-effort, skips DNT/GPC visitors, records session-scoped random identifier, product ID/name, rough acquisition source, device class, and coarse Bangladesh geolocation. Form values, order IDs, emails, payment details, and addresses are never transmitted.
+- Client-to-server POST report access requires a separate high-entropy team key; Cloudflare read token remains server-side.
+- Displayed visitor totals count anonymous browser sessions, not unique people; replay/heatmaps are not included.
+- 7/30/90-day filters fetch up to 5,000 most recent event rows; when the limit is hit results are incomplete and indicated in the UI. Analytics Engine data retention is approximately three months.
 
-## One-time Cloudflare administrator steps
+## One-time admin preparation (no paid subscription)
+1. **Already discussed:** In Cloudflare Workers & Pages > hbgadgetbd > Settings > Variables and Secrets, save the production secret `HB_ANALYTICS_ADMIN_KEY` as a randomly generated string of at least 32 characters. Store the value safely; it is entered in the dashboard when viewing live data.
+2. In [Cloudflare API Tokens](https://dash.cloudflare.com/profile/api-tokens), create a **custom** token named `HB_GADGET_ANALYTICS` with exactly **Account > Account Analytics > Read** permission, scoped to the account that owns hbgadgetbd. Save it as a Cloudflare Pages production **Secret** named `HB_ANALYTICS_READ_TOKEN`. Never enter the token in repository files or ChatGPT.
+3. Obtain the 32-character Cloudflare Account ID from the Cloudflare dashboard (Workers & Pages overview > Account Details or search `Copy account ID`). In the same **Variables and Secrets** screen, add it as **Secret** `HB_ANALYTICS_ACCOUNT_ID`; no extra permissions required.
+4. Review store analytics disclosure and retention in the customer-facing privacy notice. Consider a Cloudflare Access policy for the dashboard URL `https://hbgadgetbd.com/analytics-preview/*`, in addition to the dashboard's API key.
+5. Have the maintainer verify Wrangler config and the preview build for the existing Pages project, then merge the PR only after confirming the three required secrets exist in the correct production environment. Because Wrangler is source of truth, **the disabled Add binding button in the Cloudflare UI is expected**.
+6. Production test: view one page and one product, add a product to cart without placing an order, then visit `https://hbgadgetbd.com/analytics-preview/` and enter only the **admin dashboard key**. Confirm live event counts. Test that unauthorized API requests return HTTP 401.
+7. Regression test mobile/desktop checkout, Inside Dhaka ৳60/Outside Dhaka ৳130, order confirmation and duplicate avoidance, Messenger AI, order tracking and published contact details. Confirm no billing/payment change.
 
-1. Go to **Cloudflare > Workers & Pages > hbgadgetbd > Settings > Variables and Secrets** for the **production** environment. Create a strong secret named `HB_ANALYTICS_ADMIN_KEY` (at least 32 characters, randomly generated). Never paste the value into GitHub, web site code, public documents, or ChatGPT.
-2. Ensure the project uses a Wrangler release at least **4.145.0** so the new Analytics SQL binding is supported. The repository declares an **Analytics Engine writer** `HB_STORE_ANALYTICS` with dataset `hbgadgetbd_events` and an **Analytics SQL reader** `HB_ANALYTICS_SQL` in `wrangler.toml`. If the Pages build does not apply the declared writer binding, add it in **Settings > Bindings > Analytics Engine**, with the exact binding and dataset names, then redeploy. Analytics SQL is a newer binding and may not be available on every Pages build: confirm support before releasing. Do not create any paid resource.
-3. For extra protection, configure a **Cloudflare Access** policy restricting `https://hbgadgetbd.com/analytics-preview/*` to authorized team email addresses. The admin API still requires the key. Do not turn the endpoint into a public dashboard.
-4. Make sure the storefront privacy notice discloses anonymous shopping analytics and retention before enabling.
-5. After live deploy, open `https://hbgadgetbd.com/analytics-preview/`, enter the admin key and select Connect live data. Browse and open a test product and add it to cart (without placing a real order). Refresh the dashboard to confirm the visitor and product events.
-6. Verify desktop/mobile; ensure that order creation, shipping calculations and Messenger AI behave exactly as before. Production publishing happens only after the project binding/secret are configured and these checks can be run.
+## Reporting implementation
+- `POST /api/analytics/report`: requires `Authorization: Bearer <HB_ANALYTICS_ADMIN_KEY>`; accesses the official Cloudflare account endpoint `/accounts/{account_id}/analytics_engine/sql` with the read-only `HB_ANALYTICS_READ_TOKEN`.
+- The dataset is created after the first production write when the writer binding is deployed. If there is no dataset yet, the dashboard shows an unavailable/connection message; it does not fabricate visits.
+- Cloudflare Docs: https://developers.cloudflare.com/pages/functions/wrangler-configuration/#analytics-engine-datasets and https://developers.cloudflare.com/analytics/analytics-engine/sql-api/
+- The Netlify PR preview runs static HTML, not Cloudflare Functions; therefore the preview displays only demo data. A successful Netlify deployment does **not** validate Cloudflare SQL access or production bindings.
 
-## Technical acceptance tests
-- Without secret: `POST /api/analytics/report` returns 401; actual event data is never returned.
-- Missing Analytics SQL binding: authenticated reporting returns 503 with a setup message, not fabricated numbers.
-- Storefront tracking is always best effort; collection errors never block cart, checkout or order submission.
-- `POST /api/analytics/event` writes only whitelisted event types for the real production domain; no origin cross-posts; no name, phone, email, full address, payment data, invoice link or order ID.
-- Page demos remain distinctly labelled and do not get mixed into live metrics.
-
-## Troubleshooting
-Netlify/GitHub Pages **do not execute Cloudflare Pages Functions**, so the PR's Netlify preview still shows synthetic demo data. Use Cloudflare deployment for live analytics. If a reporting error appears after valid authentication, inspect Cloudflare Pages function logs for an SQL binding compatibility problem; do not weaken access control to debug it.
+## Acceptance checks
+- `HB_MESSENGER_CONTEXT` and `AI` bindings retained exactly; no existing business logic changes.
+- `wrangler.toml` uses only the supported Analytics Engine dataset writer; no speculative Analytics SQL binding.
+- All admin and API tokens are encrypted in Cloudflare secrets.
+- Report fails closed: invalid admin key -> 401, missing account/token -> 503, SQL failure -> 503.
+- Event collector never blocks the storefront and never emits personal data.

@@ -78,7 +78,7 @@
       send("product_click", productFromElement(card));
     }
     const add = clicked.closest(".add-cart, .add-detail-cart, [data-add-current]");
-    if (add) send("add_to_cart", productFromElement(add).product_id ? productFromElement(add) : currentProduct);
+    if (add) { const product=productFromElement(add.closest(".product-card") || add); send("add_to_cart", product.product_id ? product : currentProduct); }
   }, true);
   document.addEventListener("invalid", event => {
     if (event.target?.closest?.("#checkoutForm")) send("checkout_invalid", currentProduct, "checkout-invalid");

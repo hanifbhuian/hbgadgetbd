@@ -95,8 +95,28 @@ function demoMode(){rows=demo();mode="demo";el("dataTitle").textContent="DEMO MO
 el("sample").addEventListener("click",demoMode);
 period.addEventListener("change",update);
 el("csv").addEventListener("change",function(event){var file=event.target.files&&event.target.files[0];if(!file)return;var reader=new FileReader();reader.onload=function(){var parsed=normalize(String(reader.result||""));if(!parsed.length){alert("No valid events found. Required CSV headers: timestamp,event. Optional: visitor_id,product_id,product_name,region,source,device.");return}rows=parsed;mode="local";el("dataTitle").textContent="LOCAL FILE MODE — your imported event records.";el("dataNote").textContent="This data stays in this browser tab; it is not sent to GitHub or another server. Validate the CSV for customer personal information before importing.";el("sourceLabel").textContent=file.name+" ("+number(parsed.length)+" event rows, local only)";update()};reader.readAsText(file);event.target.value=""});
-demoMode();
+window.HBAnalyticsDashboard = {
+  showLive: function(events, label, warning) {
+    rows=events; mode="live";
+    el("dataTitle").textContent="LIVE DATA — privacy-safe visitor events";
+    el("dataNote").textContent="Current HB Gadget BD tracking. "+(warning||"")+" Website visitors represent anonymous browser sessions, not individual people.";
+    el("sourceLabel").textContent=label||"Cloudflare Analytics Engine";
+    update();
+  },
+  showPending: function(message) {
+    rows=[]; mode="pending"; update();
+    el("dataTitle").textContent="LIVE MODE — connect your admin access";
+    el("dataNote").textContent=message||"Dashboard access requires the admin key configured in Cloudflare.";
+    el("sourceLabel").textContent="Not connected";
+  }
+};
+if (/^(www\.)?hbgadgetbd\.com$/i.test(location.hostname)) {
+  window.HBAnalyticsDashboard.showPending("Enter the team admin key below to connect securely.");
+} else {
+  demoMode();
+}
 })();
 </script>
+<script defer src="/analytics-preview/live.js?v=20261023-1"></script>
 </body>
 </html>

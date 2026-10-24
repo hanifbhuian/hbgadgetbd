@@ -35,10 +35,18 @@ export async function onRequestPost({ request, env }) {
     return json({success:false,message:"Invalid order data. Please review your checkout details."},400);
   }
   if (!data || data.action !== "create" || typeof data.orderId !== "string" ||
-      !data.customerName || !data.phone || !(data.customerEmail || data.email) ||
-      !data.address) {
+      !data.customerName || !data.phone || !data.address) {
     return json({success:false,message:"Missing required checkout information."},400);
   }
+
+  // Email is optional. When omitted, pass an empty string to Apps Script rather
+  // than fabricating an address; no customer email will be sent.
+  const customerEmail = String(data.customerEmail || data.email || "").trim();
+  if (customerEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) {
+    return json({success:false,message:"Please enter a valid email address or leave it blank."},400);
+  }
+  data.customerEmail = customerEmail;
+  data.email = customerEmail;
 
   // Manual payment instructions are shown after order creation.
   // This endpoint NEVER marks customer funds received or verified.

@@ -172,9 +172,16 @@ function hbSafeRequestId_(value) {
   return raw.length >= 10 ? 'HB_REQ_' + raw : '';
 }
 function hbCreateOrder_(data) {
-  if (!data || !data.customerName || !data.phone || !(data.customerEmail || data.email) || !data.address) {
-    throw new Error('Customer name, mobile, email, and delivery address are required.');
+  if (!data || !data.customerName || !data.phone || !data.address) {
+    throw new Error('Customer name, mobile, and delivery address are required.');
   }
+  // Customer email is optional; never invent a contact address.
+  const customerEmail = String(data.customerEmail || data.email || '').trim();
+  if (customerEmail && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(customerEmail)) {
+    throw new Error('Invalid customer email. Please correct it or leave it blank.');
+  }
+  data.customerEmail = customerEmail;
+  data.email = customerEmail;
   const phone = hbNormalizePhone_(data.phone);
   const method = String(data.paymentMethod || 'Cash on Delivery').trim();
   if (HB_PAYMENT_METHODS.indexOf(method) < 0) throw new Error('Unsupported payment method.');
@@ -213,7 +220,7 @@ function hbCreateOrder_(data) {
         'Payment Method':method,
         'Delivery Area':String(data.deliveryArea || ''), 'Courier':'Not assigned yet',
         'Tracking Number':'Pending','Customer Note':hbCustomerNote_(data),
-        'Email':String(data.customerEmail || data.email), 'Address':String(data.address),
+        'Email':customerEmail, 'Address':String(data.address),
         'Payment Proof Link':'','Cancellation Reason':'',
         'Order Received Invoice Link':'','Order Confirmed Invoice Link':'',
         'Order Delivered Invoice Link':'',
@@ -231,6 +238,9 @@ function hbCreateOrder_(data) {
       hbSetRecognizedPaid_(master,headerInfo,target);
       rowNumber = target;
       if (clientKey) props.setProperty(clientKey, orderId);
+      // Explicit opt-out applies only to newly created blank-email orders.
+      // Historical Orders rows must not be backfilled automatically.
+      if (!customerEmail) props.setProperty('HB_NO_EMAIL_ORDER_' + orderId, '1');
       SpreadsheetApp.flush();
     }
   } finally {
@@ -247,7 +257,7 @@ function hbCreateOrder_(data) {
   }
   if (existing) return {success:true, orderId:orderId, message:'This order was already received.'};
   // A saved order is independent of later invoice/email failures.
-  let invoiceLink = '', invoiceStatus = 'Not created', emailStatus = 'Not sent';
+  let invoiceLink = '', invoiceStatus = 'Not created', emailStatus = customerEmail ? 'Not sent' : 'Not requested (no email)';
   const errors = [];
   try {
     const proofLink = hbSavePaymentProof_(orderId, data.paymentProof);
@@ -263,14 +273,17 @@ function hbCreateOrder_(data) {
     invoiceStatus = 'Failed';
     errors.push('Invoice: ' + error.message);
   }
-  // Stage-1 invoice URL is saved in Order Received Invoice Link.
-  try {
-    hbEmailInvoice_(orderId, data, invoiceLink, invoice && invoice.blob);
-    emailStatus = 'Sent';
-    hbWrite_(master, headerInfo, rowNumber, 'Order Received Email Sent', hbNow_());
-  } catch (error) {
-    emailStatus = 'Failed';
-    errors.push('Email: ' + error.message);
+  // Stage-1 invoice is created even when the customer chooses not to provide email.
+  // A missing address is not an email automation error.
+  if (customerEmail) {
+    try {
+      hbEmailInvoice_(orderId, data, invoiceLink, invoice && invoice.blob);
+      emailStatus = 'Sent';
+      hbWrite_(master, headerInfo, rowNumber, 'Order Received Email Sent', hbNow_());
+    } catch (error) {
+      emailStatus = 'Failed';
+      errors.push('Email: ' + error.message);
+    }
   }
   if(errors.length)hbWrite_(master,headerInfo,rowNumber,'Email Automation Error',errors.join(' | ').slice(0,400));
   return {success:true, orderId:orderId, invoiceLink:invoiceLink,
@@ -999,17 +1012,39 @@ function hbProcessOrderNotifications() {
     const n=Math.max(0,master.getLastRow()-1);
     if(!n)return;
     const values=master.getRange(2,1,n,h.names.length).getDisplayValues();
+    const props=PropertiesService.getScriptProperties();
     let actions=0;
     for(let i=0;i<values.length && actions<20;i++) {
       const order=hbCustomerOrder_(values[i],h),rowNum=i+2;
-      if(!order.orderId||!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(order.customerEmail))continue;
+      if(!order.orderId)continue;
+      const canEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(order.customerEmail);
+      const noEmailOrder = !String(order.customerEmail || '').trim() &&
+        props.getProperty('HB_NO_EMAIL_ORDER_' + order.orderId) === '1';
+      // Skip all historical rows with missing or invalid addresses.
+      if (!canEmail && !noEmailOrder) continue;
       try {
         if(['Confirmed','Processing','Packed','Shipped','Out for Delivery','Delivered'].indexOf(order.status)>=0 && !order.confirmedSent) {
-          hbSendConfirmedOrder_(order,h,master,rowNum);actions++;
+          if(canEmail) {
+            hbSendConfirmedOrder_(order,h,master,rowNum);actions++;
+          } else if(noEmailOrder && !order.confirmedInvoiceLink) {
+            // Generate and retain the Confirmed invoice without pretending an email was sent.
+            const invoice=hbCreateInvoice_(order.orderId,order,'confirmed');
+            hbWrite_(master,h,rowNum,'Order Confirmed Invoice Link',invoice.url);
+            order.confirmedInvoiceLink=invoice.url;
+            actions++;
+          }
         }
         if(['Delivered','Cancelled','Returned'].indexOf(order.status)>=0 &&
             order.finalSent.split('|').indexOf(order.status)<0) {
-          hbSendFinalStatus_(order,h,master,rowNum);actions++;
+          if(canEmail) {
+            hbSendFinalStatus_(order,h,master,rowNum);actions++;
+          } else if(noEmailOrder && order.status==='Delivered' && !order.deliveredInvoiceLink) {
+            // Keep the Delivered invoice lifecycle intact without email.
+            const invoice=hbCreateInvoice_(order.orderId,order,'delivered');
+            hbWrite_(master,h,rowNum,'Order Delivered Invoice Link',invoice.url);
+            order.deliveredInvoiceLink=invoice.url;
+            actions++;
+          }
         }
         hbWrite_(master,h,rowNum,'Email Automation Error','');
       }catch(e){

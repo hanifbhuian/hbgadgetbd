@@ -5,7 +5,7 @@ This branch is intentionally **not merged to production**. Your active Google Ap
 ## Code changes
 1. `assets/js/order-placement.js` — display **Email (Optional)** without HTML `required`; no email required in JavaScript; show phone-only confirmation text when omitted.
 2. `functions/api/orders/create.js` — accept blank customer email but validate an address if supplied; sends empty email to Apps Script rather than inventing one. Preserves existing order ID, shipping amounts and payment checks.
-3. `integrations/google-apps-script/HB_Gadget_BD_Code_UPDATED.gs` — no longer requires an email; writes empty Email cell; stage-1 invoice is generated even with no email; skips email sending without falsely marking it as failed. Periodic order notification job continues to generate Confirmed/Delivered invoices without an email, while sending messages to customers who provide valid addresses as before.
+3. `integrations/google-apps-script/HB_Gadget_BD_Code_UPDATED.gs` — no longer requires an email; writes empty Email cell; stage-1 invoice is generated even with no email; skips email sending without falsely marking it as failed. Periodic order notification job generates Confirmed/Delivered invoices without an email only for new opt-out orders explicitly marked on creation; historical rows with missing/invalid email are skipped, avoiding accidental backfills. Valid-email notifications are unchanged.
 4. `index.html` and `product.html` — bump checkout script cache version.
 
 ## Safe rollout — important order of operations
@@ -22,3 +22,8 @@ This branch is intentionally **not merged to production**. Your active Google Ap
 - Without email, PDFs are still generated in the same stage-specific Drive folders and their links saved in existing Sheet fields, while email-sent fields remain unset.
 - No automatic WhatsApp/SMS message is claimed or added. Staff contact via phone is unchanged.
 - Do not add invented placeholder emails to Orders.
+
+## 24 October 2026 safety review
+- A protective `HB_NO_EMAIL_ORDER_<Order ID>` script-property flag is set only for newly created no-email orders. The existing notification scanner ignores older missing/invalid-email rows, preserving their state and avoiding historical PDF backfills.
+- Cloudflare Pages preview succeeded, but the independent Workers build check failed. Neither verifies production Apps Script compatibility.
+- The live Apps Script source cannot be retrieved with the available connected tools. Back up, compare and patch the bound script before redeploying. Do not execute setup functions or create live test orders before confirming a safe testing approach.

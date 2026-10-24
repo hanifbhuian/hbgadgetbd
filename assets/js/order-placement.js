@@ -113,7 +113,7 @@ function ensureCheckoutModal() {
           <label><span>Phone Number *</span><input id="checkoutPhone" name="phone" type="tel" placeholder="01800000000" required></label>
         </div>
         <div class="checkout-form__grid">
-          <label><span>Email for invoice *</span><input id="checkoutEmail" name="customerEmail" type="email" placeholder="you@example.com" required></label>
+          <label><span>Email (Optional)</span><input id="checkoutEmail" name="customerEmail" type="email" placeholder="you@example.com" autocomplete="email"><small>Provide an email to receive invoice updates. Without email, save your Order ID and our team will contact you by phone.</small></label>
           <label><span>Delivery Area / City *</span><input id="checkoutArea" name="deliveryArea" type="text" placeholder="Mirpur, Dhaka / Sylhet / etc." required></label>
         </div>
         <label><span>Full Delivery Address *</span><textarea id="checkoutAddress" name="address" placeholder="House, road, area, district" required></textarea></label>
@@ -285,7 +285,7 @@ async function submitOrderToSheet(payload) {
   return result;
 }
 
-function renderCheckoutSuccess(orderId, invoiceLink, paymentMethod, amountDue) {
+function renderCheckoutSuccess(orderId, invoiceLink, paymentMethod, amountDue, hasEmail) {
   const modal = ensureCheckoutModal();
   const dialog = modal.querySelector(".checkout-modal__dialog");
   // iOS Safari may retain the form's scroll/focus when the tall checkout form is replaced.
@@ -297,7 +297,8 @@ function renderCheckoutSuccess(orderId, invoiceLink, paymentMethod, amountDue) {
   const isPrepayment = paymentMethod === "bKash" || paymentMethod === "Nagad";
   const message = isPrepayment ? `Hello HB Gadget BD, I placed order ${orderId} using ${paymentMethod}. Please help me confirm my payment. Transaction ID: ` : `Hello HB Gadget BD, I placed Cash on Delivery order ${orderId}. Please confirm delivery and availability.`;
   const paymentInstructions = isPrepayment ? `<div class="checkout-payment-steps"><h4>${safeText(paymentMethod)} — Payment instructions</h4><p>Order ID: <strong>${safeText(orderId)}</strong>. Amount: <strong>${formatCheckoutMoney(amountDue)}</strong>.</p><ol><li>Open ${safeText(paymentMethod)} and use Send Money to <strong>${HB_PREPAYMENT_NUMBER}</strong> using the HB Gadget BD payment number.</li><li>Enter the Order ID in the Reference/Note field if the app provides one.</li><li>Save your transaction ID and send it to our WhatsApp support team for manual verification.</li></ol><button type="button" data-copy-payment-number>Copy payment number</button><p>Once sent, WhatsApp your Transaction ID to HB Gadget BD. Your order is marked Paid only after the support team verifies the payment.</p></div>` : `<p>Payment method: Cash on Delivery. Pay the total when the order arrives.</p>`;
-  dialog.innerHTML = `<div class="checkout-success-card"><h3>Order submitted successfully!</h3><p>Your Order ID is <strong>${safeText(orderId)}</strong>.</p><p>Please save your Order ID for tracking. A support team member will call or email you soon to confirm your order. Your preliminary invoice will be emailed when processing succeeds.</p><div class="order-meta-grid"><div><small>Order ID</small><strong>${safeText(orderId)}</strong></div></div>${paymentInstructions}${invoiceLink ? `<p><a href="${safeText(invoiceLink)}" target="_blank" rel="noreferrer">View provisional invoice</a></p>` : ""}<div class="checkout-actions"><a href="https://wa.me/${ORDER_CREATE_SUPPORT_NUMBER}?text=${encodeURIComponent(message)}" target="_blank" rel="noreferrer">Contact WhatsApp Support</a><button type="button" data-checkout-close>Close</button></div></div>`;
+  const contactNotice = hasEmail ? "A support team member will call or email you soon to confirm your order. Your preliminary invoice will be emailed when processing succeeds." : "No email was provided, so email notifications will not be sent. Save your Order ID to track the order; our team will contact you by phone. If available, the invoice link appears below.";
+  dialog.innerHTML = `<div class="checkout-success-card"><h3>Order submitted successfully!</h3><p>Your Order ID is <strong>${safeText(orderId)}</strong>.</p><p>${contactNotice}</p><div class="order-meta-grid"><div><small>Order ID</small><strong>${safeText(orderId)}</strong></div></div>${paymentInstructions}${invoiceLink ? `<p><a href="${safeText(invoiceLink)}" target="_blank" rel="noreferrer">View provisional invoice</a></p>` : ""}<div class="checkout-actions"><a href="https://wa.me/${ORDER_CREATE_SUPPORT_NUMBER}?text=${encodeURIComponent(message)}" target="_blank" rel="noreferrer">Contact WhatsApp Support</a><button type="button" data-checkout-close>Close</button></div></div>`;
   // Always show Order ID and payment instructions from the beginning of the confirmation.
   // A second reset after layout addresses Safari retaining the previous form's scroll offset.
   dialog.scrollTop = 0;
@@ -315,14 +316,14 @@ async function handleCheckoutSubmit(event) {
   try {
     const payload = await buildOrderPayload();
     if (!HB_PREPAYMENT_ENABLED && payload.paymentMethod !== "Cash on Delivery") throw new Error("This payment option is currently unavailable.");
-    if (!payload.customerName || !payload.phone || !payload.customerEmail || !payload.deliveryArea || !payload.address || !payload.shippingZone) {
+    if (!payload.customerName || !payload.phone || !payload.deliveryArea || !payload.address || !payload.shippingZone) {
       throw new Error("Please fill in all required fields, including shipping location.");
     }
     const result = await submitOrderToSheet(payload);
     if (!result.success) throw new Error(result.message || "Order could not be saved.");
     document.getElementById("clearCart")?.click();
     if (!result.orderId) throw new Error("Server did not return a confirmed Order ID.");
-    renderCheckoutSuccess(result.orderId, result.invoiceLink || "", payload.paymentMethod, payload.grandTotal);
+    renderCheckoutSuccess(result.orderId, result.invoiceLink || "", payload.paymentMethod, payload.grandTotal, Boolean(payload.customerEmail));
   } catch (error) {
     console.error(error);
     if (status) status.textContent = error.message || "Order could not be submitted automatically. Please contact WhatsApp support.";

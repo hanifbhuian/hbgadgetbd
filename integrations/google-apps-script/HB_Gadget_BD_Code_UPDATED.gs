@@ -238,6 +238,9 @@ function hbCreateOrder_(data) {
       hbSetRecognizedPaid_(master,headerInfo,target);
       rowNumber = target;
       if (clientKey) props.setProperty(clientKey, orderId);
+      // Explicit opt-out applies only to newly created blank-email orders.
+      // Historical Orders rows must not be backfilled automatically.
+      if (!customerEmail) props.setProperty('HB_NO_EMAIL_ORDER_' + orderId, '1');
       SpreadsheetApp.flush();
     }
   } finally {
@@ -1009,16 +1012,21 @@ function hbProcessOrderNotifications() {
     const n=Math.max(0,master.getLastRow()-1);
     if(!n)return;
     const values=master.getRange(2,1,n,h.names.length).getDisplayValues();
+    const props=PropertiesService.getScriptProperties();
     let actions=0;
     for(let i=0;i<values.length && actions<20;i++) {
       const order=hbCustomerOrder_(values[i],h),rowNum=i+2;
       if(!order.orderId)continue;
       const canEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(order.customerEmail);
+      const noEmailOrder = !String(order.customerEmail || '').trim() &&
+        props.getProperty('HB_NO_EMAIL_ORDER_' + order.orderId) === '1';
+      // Skip all historical rows with missing or invalid addresses.
+      if (!canEmail && !noEmailOrder) continue;
       try {
         if(['Confirmed','Processing','Packed','Shipped','Out for Delivery','Delivered'].indexOf(order.status)>=0 && !order.confirmedSent) {
           if(canEmail) {
             hbSendConfirmedOrder_(order,h,master,rowNum);actions++;
-          } else if(!order.confirmedInvoiceLink) {
+          } else if(noEmailOrder && !order.confirmedInvoiceLink) {
             // Generate and retain the Confirmed invoice without pretending an email was sent.
             const invoice=hbCreateInvoice_(order.orderId,order,'confirmed');
             hbWrite_(master,h,rowNum,'Order Confirmed Invoice Link',invoice.url);
@@ -1030,7 +1038,7 @@ function hbProcessOrderNotifications() {
             order.finalSent.split('|').indexOf(order.status)<0) {
           if(canEmail) {
             hbSendFinalStatus_(order,h,master,rowNum);actions++;
-          } else if(order.status==='Delivered' && !order.deliveredInvoiceLink) {
+          } else if(noEmailOrder && order.status==='Delivered' && !order.deliveredInvoiceLink) {
             // Keep the Delivered invoice lifecycle intact without email.
             const invoice=hbCreateInvoice_(order.orderId,order,'delivered');
             hbWrite_(master,h,rowNum,'Order Delivered Invoice Link',invoice.url);

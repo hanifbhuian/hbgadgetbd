@@ -1,0 +1,197 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<meta name="theme-color" content="#16263d">
+<title>Daraz Profit Calculator | HB Gadget BD Seller Tools</title>
+<meta name="description" content="Private-in-browser planning calculator for selling products on Daraz Bangladesh.">
+<style>
+:root{font-family:Inter,system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif;color:#16253b;background:#f3f6fa;font-synthesis:none}*{box-sizing:border-box}body{margin:0;line-height:1.48}button,input,select{font:inherit}button{cursor:pointer}button:focus-visible,input:focus-visible,select:focus-visible{outline:3px solid #81b7ff;outline-offset:2px}.page{max-width:1200px;padding:22px 20px 58px;margin:auto}.top{display:flex;gap:16px;justify-content:space-between;align-items:center;margin-bottom:22px}.brand{display:flex;align-items:center;gap:10px;text-decoration:none;color:#17304f;font-weight:850;letter-spacing:-.3px}.mark{width:39px;height:39px;border-radius:12px;background:#f15b32;color:#fff;display:grid;place-items:center;font-size:15px;box-shadow:0 6px 16px #f15b3233}.tiny{font-size:12px;color:#64748b}.back{border:1px solid #d9e2ec;background:#fff;color:#32435a;padding:9px 13px;text-decoration:none;border-radius:10px;font-size:13px;font-weight:650}.hero{padding:30px;border-radius:22px;background:linear-gradient(115deg,#172c48,#223f63);color:#fff;display:flex;justify-content:space-between;align-items:center;gap:22px;position:relative;overflow:hidden;margin-bottom:24px}.hero:after{content:"৳";position:absolute;font-size:170px;font-weight:800;right:55px;bottom:-95px;color:#ffffff0a;pointer-events:none}.pill{display:inline-block;font-size:11px;text-transform:uppercase;letter-spacing:1.4px;font-weight:850;background:#ffffff21;border:1px solid #ffffff24;padding:5px 10px;border-radius:100px}.hero h1{font-size:clamp(25px,3.5vw,36px);margin:13px 0 8px;letter-spacing:-1.1px;line-height:1.13}.hero p{margin:0;color:#d4dfec;font-size:14px;max-width:670px}.local{white-space:nowrap;border:1px solid #ffffff40;background:#ffffff14;border-radius:13px;padding:10px 14px;font-size:12px;font-weight:700}.layout{display:grid;grid-template-columns:minmax(0,1.15fr) minmax(320px,.85fr);gap:22px;align-items:start}.panel{border:1px solid #e3e9f1;background:#fff;border-radius:18px;box-shadow:0 4px 20px #162e4b07}.panel-h{padding:20px 23px;border-bottom:1px solid #edf1f6}.panel-h h2{font-size:17px;letter-spacing:-.35px;margin:0 0 5px}.panel-h p{font-size:12px;color:#667589;margin:0}.form{padding:22px 23px}.group{margin:0 0 23px}.group:last-child{margin-bottom:0}.group h3{font-size:12px;font-weight:850;text-transform:uppercase;letter-spacing:1.25px;color:#f15b32;margin:0 0 14px}.fields{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.field{min-width:0}.field.wide{grid-column:1/-1}label{display:block;font-size:12px;font-weight:720;color:#465970;margin-bottom:7px}.field input,.field select{width:100%;border:1px solid #dbe3ed;border-radius:10px;background:#fff;padding:11px 12px;min-height:45px;color:#1b304b}.field input:focus,.field select:focus{border-color:#3d8bed}.hint{margin:5px 0 0;color:#7c8796;font-size:11px;line-height:1.4}.footnote{border-left:3px solid #ff8a5a;background:#fff7f3;padding:12px 13px;border-radius:8px;font-size:12px;color:#765243}.buttons{display:flex;gap:9px;flex-wrap:wrap}.btn{border:none;border-radius:10px;padding:11px 14px;font-weight:780;font-size:13px;min-height:42px}.btn.primary{background:#f15b32;color:#fff}.btn.secondary{background:#eaf1f8;color:#26415e}.btn.ghost{background:#fff;border:1px solid #d9e3ed;color:#40536a}.btn.danger{background:#fff3f2;color:#b53f34}.result{position:sticky;top:18px}.result-body{padding:22px}.profit-box{background:#edf8f2;border:1px solid #cfe9db;border-radius:14px;padding:20px;margin-bottom:16px}.profit-box.loss{background:#fff0ef;border-color:#ffd4d0}.cap{font-size:12px;font-weight:700;color:#456654;margin-bottom:8px}.profit-box.loss .cap{color:#a34c44}.moneybig{font-size:32px;font-weight:880;letter-spacing:-1px;font-variant-numeric:tabular-nums;color:#167348;line-height:1.2}.profit-box.loss .moneybig{color:#b93d32}.metricgrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-bottom:17px}.metric{border:1px solid #e5ebf2;border-radius:12px;padding:14px;min-width:0}.metric .k{color:#66788d;font-size:11px;font-weight:720}.metric .v{display:block;margin-top:5px;color:#23364e;font-weight:830;font-size:18px;word-break:break-word;font-variant-numeric:tabular-nums}.breakdown{border-top:1px solid #eaf0f5;padding-top:16px}.breakdown h3{margin:0 0 10px;font-size:14px}.line{display:flex;justify-content:space-between;align-items:baseline;gap:16px;padding:7px 0;font-size:12px}.line span:first-child{color:#536479}.line b{color:#263a52;font-variant-numeric:tabular-nums;white-space:nowrap}.line.total{border-top:1px dashed #d9e0e9;padding-top:13px;margin-top:5px;font-size:13px}.line.total b{font-size:15px}.small-note{background:#f4f7fa;border-radius:11px;color:#6b7989;font-size:11px;padding:11px 13px;line-height:1.6;margin-top:15px}.saved{margin-top:24px}.savedhead{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;padding:20px 23px;border-bottom:1px solid #e9eff5}.savedhead h2{margin:0;font-size:18px}.tablewrap{overflow-x:auto}.records{width:100%;border-collapse:collapse;font-size:12px}.records th{text-align:left;color:#768397;background:#f8fafc;padding:12px 16px;font-size:11px;white-space:nowrap}.records td{padding:12px 16px;border-top:1px solid #edf1f6;color:#33465e;vertical-align:middle;white-space:nowrap}.records button{font-size:11px;font-weight:750;padding:7px 8px;border-radius:7px;border:1px solid #dae3ed;background:white;color:#29405b}.records .delete{color:#b04237}.empty{padding:28px;color:#8490a0;text-align:center;font-size:13px}.message{min-height:20px;font-size:12px;color:#147044;padding-top:8px}.caution{color:#a3493d!important}.footer{text-align:center;font-size:11px;color:#8390a0;padding:20px}.hide{display:none!important}@media(max-width:850px){.layout{grid-template-columns:1fr}.result{position:static}.hero{padding:24px}.local{display:none}}@media(max-width:550px){.page{padding:12px 12px 36px}.top{margin:8px 0 14px}.hero{padding:21px 17px;border-radius:16px;margin-bottom:14px}.hero h1{font-size:26px}.panel{border-radius:14px}.panel-h,.savedhead{padding:18px}.form,.result-body{padding:16px}.fields{gap:11px}.field input,.field select{font-size:16px}.fields .field{grid-column:1/-1}.metricgrid{gap:8px}.metric{padding:11px}.metric .v{font-size:16px}.moneybig{font-size:29px}.back{font-size:11px}}@media print{body{background:#fff}.page{max-width:100%}.top .back,.buttons,.saved,.message{display:none}.layout{display:block}.panel{box-shadow:none;margin-bottom:16px}.result{position:static}.hero{color:#fff!important;print-color-adjust:exact;-webkit-print-color-adjust:exact}.profit-box{print-color-adjust:exact;-webkit-print-color-adjust:exact}.fields{grid-template-columns:repeat(2,1fr)}}
+</style>
+</head>
+<body>
+<div class="page">
+<header class="top">
+ <a class="brand" href="https://hbgadgetbd.com/"><span class="mark">HB</span><span>HB Gadget BD <span class="tiny" style="display:block;letter-spacing:0;font-weight:600">Seller workspace</span></span></a>
+ <a class="back" href="https://hbgadgetbd.com/">← Back to website</a>
+</header>
+<section class="hero"><div><span class="pill">Free seller tool · Bangladesh</span><h1>Daraz Profit Calculator</h1><p>Plan prices, model platform deductions, check profit margins and compare product scenarios before listing on Daraz.</p></div><span class="local">🔒 Saved only in this browser</span></section>
+<main class="layout">
+<section class="panel" aria-label="Calculator inputs">
+<div class="panel-h"><h2>Product &amp; cost details</h2><p>Preloaded HB Gadget BD products use public selling prices. Enter your own purchase and carrying costs.</p></div>
+<div class="form">
+ <div class="group"><h3>01 — Select product</h3><div class="fields">
+ <div class="field wide"><label for="preset">HB Gadget BD product</label><select id="preset"><option value="ups10">MG Mini UPS — 10000mAh</option><option value="ups16">MG Mini UPS — 16000mAh</option><option value="kettle">Miyako Electric Kettle — 2.0L</option><option value="bulb">SA 20W Emergency LED Bulb</option><option value="fan">Handheld Mini Turbo Fan — 1800mAh</option><option value="custom">Custom product</option></select></div>
+ <div class="field wide"><label for="productName">Product name / SKU</label><input id="productName" type="text" maxlength="120" value="MG Mini UPS – 10000mAh" autocomplete="off"></div>
+ <div class="field"><label for="salePrice">Selling price (৳)</label><input id="salePrice" type="number" min="0" step=".01" inputmode="decimal" value="1699"></div>
+ <div class="field"><label for="cost">Unit cost incl. carrying (৳)</label><input id="cost" type="number" min="0" step=".01" inputmode="decimal" placeholder="Enter actual cost"><p class="hint">Purchase + inbound transport/carrying per unit</p></div>
+ </div></div>
+ <div class="group"><h3>02 — Daraz fees</h3><div class="fields">
+ <div class="field"><label for="commission">Commission (%)</label><input id="commission" type="number" min="0" max="100" step=".01" value="10"><p class="hint">Example only. Verify exact Daraz category.</p></div>
+ <div class="field"><label for="vat">VAT on commission (%)</label><input id="vat" type="number" min="0" max="100" step=".01" value="0"><p class="hint">Optional model input — not VAT on sale</p></div>
+ <div class="field"><label for="otherPct">Other platform fees (%)</label><input id="otherPct" type="number" min="0" step=".01" value="0"></div>
+ <div class="field"><label for="programPct">Optional programs (%)</label><input id="programPct" type="number" min="0" step=".01" value="0"><p class="hint">Free shipping/voucher program fees if applicable</p></div>
+ <div class="field"><label for="handling">Handling fees / order (৳)</label><input id="handling" type="number" min="0" step=".01" value="0"></div>
+ <div class="field"><label for="logistics">Seller-paid delivery (৳)</label><input id="logistics" type="number" min="0" step=".01" value="0"><p class="hint">Enter only the portion paid by seller</p></div>
+ </div></div>
+ <div class="group"><h3>03 — Other costs &amp; targets</h3><div class="fields">
+ <div class="field"><label for="packaging">Packaging / unit (৳)</label><input id="packaging" type="number" min="0" step=".01" value="0"></div>
+ <div class="field"><label for="ads">Advertising / order (৳)</label><input id="ads" type="number" min="0" step=".01" value="0"></div>
+ <div class="field"><label for="discount">Seller-funded discount (৳)</label><input id="discount" type="number" min="0" step=".01" value="0"></div>
+ <div class="field"><label for="reserve">Return/loss reserve (%)</label><input id="reserve" type="number" min="0" step=".01" value="0"><p class="hint">Optional planning allowance based on sale price</p></div>
+ <div class="field"><label for="targetMargin">Target profit margin (%)</label><input id="targetMargin" type="number" min="0" max="100" step=".5" value="15"></div>
+ <div class="field"><label for="targetProfit">Target profit / unit (৳)</label><input id="targetProfit" type="number" min="0" step=".01" value="300"></div>
+ </div></div>
+ <p class="footnote"><strong>Fee assumption:</strong> Percentages apply to the listed selling price. Exact Daraz commission bases, program caps, settlement rules and applicable taxes may differ. This is an estimate, not an official Daraz invoice.</p>
+ <div class="buttons" style="margin-top:19px"><button id="save" class="btn primary" type="button">＋ Save scenario</button><button id="reset" class="btn secondary" type="button">Reset inputs</button><button id="print" class="btn ghost" type="button">Print / PDF</button></div>
+ <div id="message" class="message" role="status" aria-live="polite"></div>
+</div>
+</section>
+<aside class="panel result" aria-label="Profit results">
+ <div class="panel-h"><h2>Estimated profitability</h2><p>Updates automatically as you enter costs and fee rates.</p></div>
+ <div class="result-body">
+  <div id="profitBox" class="profit-box"><div class="cap">Estimated net profit / unit</div><div id="profit" class="moneybig">Enter unit cost</div><div id="profitSub" class="tiny" style="margin-top:8px;color:inherit">Complete the cost field for profit and margin.</div></div>
+  <div class="metricgrid"><div class="metric"><div class="k">Profit margin</div><span class="v" id="margin">—</span></div><div class="metric"><div class="k">Return on unit cost</div><span class="v" id="roi">—</span></div><div class="metric"><div class="k">Break-even selling price</div><span class="v" id="breakEven">—</span></div><div class="metric"><div class="k">Price for target margin</div><span class="v" id="targetPrice">—</span></div><div class="metric" style="grid-column:1/-1"><div class="k">Price for target profit</div><span class="v" id="targetProfitPrice">—</span></div></div>
+  <div class="breakdown"><h3>Per-order breakdown</h3>
+  <div class="line"><span>Listed selling price</span><b id="dPrice">—</b></div>
+  <div class="line"><span>Daraz commission</span><b id="dCommission">—</b></div>
+  <div class="line"><span>VAT on commission</span><b id="dVat">—</b></div>
+  <div class="line"><span>Other platform % fees</span><b id="dOther">—</b></div>
+  <div class="line"><span>Optional programs</span><b id="dProgram">—</b></div>
+  <div class="line"><span>Seller-paid delivery + handling</span><b id="dDelivery">—</b></div>
+  <div class="line"><span>Discount + packaging + advertising</span><b id="dExtra">—</b></div>
+  <div class="line"><span>Return/loss reserve</span><b id="dReserve">—</b></div>
+  <div class="line total"><span>Net after listed costs, before product cost</span><b id="dNet">—</b></div>
+  <div class="line total"><span>Product cost (incl. carrying)</span><b id="dCost">—</b></div>
+  </div>
+  <div id="warning" class="small-note">Commission rates are editable planning assumptions. Verify rates in Daraz Seller Center before using a price.</div>
+ </div>
+</aside>
+</main>
+<section class="panel saved" aria-label="Saved product scenarios">
+ <div class="savedhead"><div><h2>Saved price scenarios <span id="savedCount" class="tiny"></span></h2><p class="tiny" style="margin:5px 0 0">Stored locally on this device and browser. Export CSV for a durable backup.</p></div><div class="buttons"><button class="btn secondary" id="export" type="button">↓ Export CSV</button><button class="btn ghost" id="copyLink" type="button">Copy page link</button></div></div>
+ <div class="tablewrap"><table class="records"><thead><tr><th>Product</th><th>Price</th><th>Unit cost</th><th>Profit</th><th>Margin</th><th>Saved</th><th>Actions</th></tr></thead><tbody id="savedBody"></tbody></table><div class="empty" id="emptyState">No saved scenarios yet. Enter your actual cost and click “Save scenario”.</div></div>
+</section>
+<footer class="footer">HB Gadget BD Seller Tools · Browser-only cost data · For planning, not Daraz's official fee statement</footer>
+</div>
+<script>
+(function(){
+"use strict";
+var products={
+ups10:{name:"MG Mini UPS – 10000mAh",price:1699,rate:10},
+ups16:{name:"MG Mini UPS – 16000mAh",price:2199,rate:10},
+kettle:{name:"Miyako Electric Kettle – 2.0L",price:1399,rate:8},
+bulb:{name:"SA 20W Emergency LED Bulb",price:549,rate:10},
+fan:{name:"Handheld Mini Turbo Fan – 1800mAh",price:449,rate:null},
+custom:{name:"",price:"",rate:""}
+};
+var keys=["preset","productName","salePrice","cost","commission","vat","otherPct","programPct","handling","logistics","packaging","ads","discount","reserve","targetMargin","targetProfit"];
+var storageKey="hb-daraz-profit-calculator-v1",savedKey="hb-daraz-profit-scenarios-v1";
+var $=function(id){return document.getElementById(id);};
+var currency=function(n){return Number.isFinite(n)?"৳"+n.toLocaleString("en-BD",{minimumFractionDigits:2,maximumFractionDigits:2}):"—";};
+var percent=function(n){return Number.isFinite(n)?n.toLocaleString("en-BD",{maximumFractionDigits:2})+"%":"—";};
+var num=function(id){var value=Number($(id).value);return Number.isFinite(value)?Math.max(0,value):0;};
+var filled=function(id){return $(id).value.trim()!=="";};
+var storageOK=true;
+function readStore(k,fallback){try{var raw=localStorage.getItem(k);return raw?JSON.parse(raw):fallback;}catch(e){storageOK=false;return fallback;}}
+function writeStore(k,v){try{localStorage.setItem(k,JSON.stringify(v));}catch(e){storageOK=false;}}
+function snapshot(){var obj={};keys.forEach(function(k){obj[k]=$(k).value;});return obj;}
+function apply(obj){keys.forEach(function(k){if(obj&&Object.prototype.hasOwnProperty.call(obj,k)&&$(k))$(k).value=obj[k];});render();}
+function calc(){
+ var p=num("salePrice"),c=num("cost"),rate=num("commission"),vat=num("vat"),other=num("otherPct"),program=num("programPct"),reserve=num("reserve");
+ var handling=num("handling"),delivery=num("logistics"),packaging=num("packaging"),ads=num("ads"),discount=num("discount");
+ var commission=p*rate/100,commVat=commission*vat/100,otherFee=p*other/100,programFee=p*program/100,reserveFee=p*reserve/100;
+ var fixed=handling+delivery+packaging+ads+discount;
+ var variable=commission+commVat+otherFee+programFee+reserveFee;
+ var contribution=p-variable-fixed;
+ var net=contribution-c;
+ var take=1-(rate*(1+vat/100)+other+program+reserve)/100;
+ var minProfit=take>0?(c+fixed)/take:NaN;
+ var targetMargin=num("targetMargin")/100;
+ var forMargin=take>targetMargin?(c+fixed)/(take-targetMargin):NaN;
+ var forProfit=take>0?(c+fixed+num("targetProfit"))/take:NaN;
+ return {p:p,c:c,rate:rate,commission:commission,commVat:commVat,otherFee:otherFee,programFee:programFee,reserveFee:reserveFee,fixed:fixed,contribution:contribution,net:net,take:take,minProfit:minProfit,forMargin:forMargin,forProfit:forProfit,margin:p>0?net/p*100:NaN,roi:c>0?net/c*100:NaN};
+}
+function setText(id,value){$(id).textContent=value;}
+function render(){
+ var v=calc(),ok=filled("cost")&&filled("salePrice")&&filled("commission"),name=$("productName").value.trim();
+ $("profitBox").classList.toggle("loss",ok&&v.net<0);
+ setText("profit",ok?currency(v.net):"Enter costs & fees");
+ setText("profitSub",ok?(v.net>=0?"Estimated profit after all entered costs":"Estimated loss after all entered costs"):"Enter your actual unit cost and category commission.");
+ setText("margin",ok?percent(v.margin):"—");setText("roi",ok?percent(v.roi):"—");
+ setText("breakEven",ok?currency(v.minProfit):"—");setText("targetPrice",ok?currency(v.forMargin):"—");setText("targetProfitPrice",ok?currency(v.forProfit):"—");
+ setText("dPrice",currency(v.p));setText("dCommission","− "+currency(v.commission));setText("dVat","− "+currency(v.commVat));setText("dOther","− "+currency(v.otherFee));setText("dProgram","− "+currency(v.programFee));
+ setText("dDelivery","− "+currency(num("handling")+num("logistics")));setText("dExtra","− "+currency(num("discount")+num("packaging")+num("ads")));setText("dReserve","− "+currency(v.reserveFee));
+ setText("dNet",currency(v.contribution));setText("dCost",filled("cost")?"− "+currency(v.c):"Not entered");
+ var warning="";
+ if(!filled("commission"))warning="Set the correct Daraz category commission before relying on this estimate.";
+ else if(v.take<=0)warning="Combined percentage charges are 100% or more; a profitable price is impossible with these fee assumptions.";
+ else if(v.take<=num("targetMargin")/100)warning="The target margin is not achievable at the entered percentage fees.";
+ else warning="Planning estimate only. Actual Daraz settlement, program caps, taxes and return deductions may differ.";
+ setText("warning",warning);
+ writeStore(storageKey,snapshot());
+}
+function message(s,bad){setText("message",s);$("message").classList.toggle("caution",Boolean(bad));}
+function loadPreset(){
+ var p=products[$("preset").value];
+ if(!p)return;
+ $("productName").value=p.name;
+ $("salePrice").value=p.price;
+ $("commission").value=p.rate===null?"":p.rate;
+ $("cost").value="";
+ message(p.rate===null?"Set the correct commission for this product category.":"Product selected. Enter your actual unit cost.");
+ render();
+}
+function scenarios(){var values=readStore(savedKey,[]);return Array.isArray(values)?values:[];}
+function save(){
+ if(!filled("cost")||!filled("salePrice")||!filled("commission")){message("Please enter selling price, actual unit cost and commission before saving.",true);return;}
+ if(!$("productName").value.trim()){message("Enter a product name or SKU before saving.",true);return;}
+ var all=scenarios();all.unshift({id:String(Date.now())+"-"+Math.random().toString(36).slice(2,8),date:new Date().toISOString(),values:snapshot()});
+ if(all.length>200){message("Maximum 200 saved scenarios; export your records before adding more.",true);return;}
+ writeStore(savedKey,all);drawSaved();message(storageOK?"Scenario saved in this browser.":"Could not save in browser storage; use CSV export instead.",!storageOK);
+}
+function td(tr,value){var cell=document.createElement("td");cell.textContent=value;tr.appendChild(cell);return cell;}
+function drawSaved(){
+ var all=scenarios(),tbody=$("savedBody");tbody.textContent="";setText("savedCount","("+all.length+")");$("emptyState").classList.toggle("hide",all.length!==0);
+ all.forEach(function(item){
+  var s=item.values||{},p=Number(s.salePrice)||0,c=Number(s.cost)||0;
+  var rate=Number(s.commission)||0,vat=Number(s.vat)||0,variable=(rate*(1+vat/100)+(Number(s.otherPct)||0)+(Number(s.programPct)||0)+(Number(s.reserve)||0))/100;
+  var fixed=["handling","logistics","packaging","ads","discount"].reduce(function(total,k){return total+(Number(s[k])||0);},0);
+  var profit=p*(1-variable)-fixed-c;
+  var tr=document.createElement("tr");td(tr,s.productName||"Unnamed");td(tr,currency(p));td(tr,currency(c));td(tr,currency(profit));td(tr,p>0?percent(profit/p*100):"—");td(tr,new Date(item.date).toLocaleDateString("en-BD"));
+  var actions=document.createElement("td"),load=document.createElement("button"),del=document.createElement("button");
+  load.type="button";load.textContent="Load";load.addEventListener("click",function(){apply(s);message("Saved scenario loaded.");window.scrollTo({top:0,behavior:"smooth"});});
+  del.type="button";del.textContent="Delete";del.className="delete";del.style.marginLeft="6px";del.addEventListener("click",function(){if(!window.confirm("Delete this saved scenario?"))return;writeStore(savedKey,scenarios().filter(function(x){return x.id!==item.id;}));drawSaved();});
+  actions.appendChild(load);actions.appendChild(del);tr.appendChild(actions);tbody.appendChild(tr);
+ });
+}
+function exportCSV(){
+ var all=scenarios();
+ if(!all.length){message("No saved scenarios to export.",true);return;}
+ var cols=["date","productName","salePrice","cost","commission","vat","otherPct","programPct","handling","logistics","packaging","ads","discount","reserve","targetMargin","targetProfit","netProfit","marginPct"];
+ var rows=[cols];
+ all.forEach(function(item){var s=item.values||{},p=Number(s.salePrice)||0,c=Number(s.cost)||0,rate=Number(s.commission)||0,vat=Number(s.vat)||0;
+ var variable=(rate*(1+vat/100)+(Number(s.otherPct)||0)+(Number(s.programPct)||0)+(Number(s.reserve)||0))/100;
+ var fixed=["handling","logistics","packaging","ads","discount"].reduce(function(a,k){return a+(Number(s[k])||0);},0),profit=p*(1-variable)-fixed-c;
+ var o={date:item.date,netProfit:profit.toFixed(2),marginPct:p>0?(profit/p*100).toFixed(2):""};
+ rows.push(cols.map(function(k){return Object.prototype.hasOwnProperty.call(o,k)?o[k]:(s[k]||"");}));
+ });
+ var csv="\uFEFF"+rows.map(function(row){return row.map(function(v){return '"'+String(v).replace(/"/g,'""')+'"';}).join(",");}).join("\r\n");
+ var blob=new Blob([csv],{type:"text/csv;charset=utf-8"}),url=URL.createObjectURL(blob),a=document.createElement("a");a.href=url;a.download="hb-daraz-profit-scenarios-"+new Date().toISOString().slice(0,10)+".csv";document.body.appendChild(a);a.click();a.remove();setTimeout(function(){URL.revokeObjectURL(url);},1000);message("CSV export ready. Keep this file as a backup.");
+}
+function reset(){keys.forEach(function(k){if(k!=="preset"&&k!=="productName")$(k).value="0";});$("preset").value="ups10";$("productName").value=products.ups10.name;$("salePrice").value=1699;$("cost").value="";$("commission").value=10;$("vat").value=0;$("targetMargin").value=15;$("targetProfit").value=300;render();message("Inputs reset. Saved scenarios were kept.");}
+keys.forEach(function(k){$(k).addEventListener(k==="preset"?"change":"input",k==="preset"?loadPreset:render);});
+$("save").addEventListener("click",save);
+$("reset").addEventListener("click",reset);
+$("print").addEventListener("click",function(){window.print();});
+$("export").addEventListener("click",exportCSV);
+$("copyLink").addEventListener("click",function(){if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(location.href).then(function(){message("Calculator page link copied.");}).catch(function(){message("Copy the page URL from your address bar.",true);});}else message("Copy the page URL from your address bar.");});
+var existing=readStore(storageKey,null);if(existing)apply(existing);else render();
+drawSaved();
+if(!storageOK)message("Browser storage is disabled; values may not persist after reload.",true);
+})();
+</script>
+</body>
+</html>

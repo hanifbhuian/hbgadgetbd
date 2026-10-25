@@ -20,7 +20,7 @@
       "description": "MG-606 Mini UPS with a 10,000mAh (37Wh) battery for compatible Wi-Fi routers, modems and network devices.",
       "details": [
         "Model: MG-606",
-        "Battery: 10,000mAh / 37Wh (box label)",
+        "Battery: 10,000mAh / 37Wh",
         "Input: 12V / 2A",
         "DC outputs: 5V / 9V / 12V",
         "USB-C: 5V/3A, 9V/2A, 12V/1.67A",
@@ -28,7 +28,7 @@
         "Max power: 25W",
         "For compatible routers, modems and CCTV devices",
         "Warranty: 1-year company warranty. See the warranty policy below or contact support for coverage details.",
-        "Backup time and included cables: confirm with support"
+        "DC connector cables included; backup duration varies by device"
       ],
       "shortDescription": "Compact backup power for compatible Wi-Fi routers and modems.",
       "benefits": [
@@ -50,11 +50,12 @@
         "Users of compatible Wi-Fi routers, modems and low-power CCTV/network devices."
       ],
       "included": [
-        "Included cables/adapters: confirm with support."
+        "1 × MG MG-606 Mini DC UPS – 10000mAh",
+        "DC connector cables"
       ],
       "importantNote": [
         "Check your device's voltage, connector and polarity before ordering.",
-        "Backup time varies by device. Printed specifications and warranty terms are subject to verification."
+        "Backup duration depends on device power requirements. Warranty terms and coverage apply."
       ],
       "subCategory": "Power & Safety",
       "brand": "MG",
@@ -96,7 +97,7 @@
       "description": "Miyako MJK-2506-20 BT 2.0L cordless electric kettle with 1800W quick boiling, BPA-free construction, stainless steel interior and a 360° base.",
       "shortDescription": "Limited-time offer! Quickly boil water for tea or coffee with this 2.0L, 1800W Miyako cordless kettle.",
       "benefits": [
-        "1800W power for quick boiling; box states approximately 3–6 minutes.",
+        "1800W power for quick boiling; boiling time approximately 3–6 minutes, depending on water quantity and conditions.",
         "BPA-free, durable construction with a stainless steel interior.",
         "Convenient cordless kettle with a 360° base.",
         "Easy-fill, easy-pour spout and stylish design."
@@ -198,12 +199,12 @@
       "brand": "SA",
       "stock": "Available",
       "location": "Bangladesh",
-      "description": "SA 20W emergency LED bulb with a wide 165–265V operating range, box-rated 90 lm/W efficiency and up to 25,000-hour claimed service life.",
+      "description": "SA 20W emergency LED bulb with a wide 165–265V operating range, rated 90 lm/W efficiency and rated service life up to 25,000 hours.",
       "shortDescription": "Bright, energy-saving 20W SA LED bulb for everyday and emergency lighting, with wide-voltage operation.",
       "benefits": [
         "20W high-brightness LED bulb with energy-saving design.",
         "Wide operating voltage range: 165–265V AC.",
-        "Box-rated lifespan of up to 25,000 hours.",
+        "Rated lifespan of up to 25,000 hours.",
         "IC driver and heat-dissipation design.",
         "Moisture-resistant, corrosion-resistant and low-stroboscopic design."
       ],
@@ -221,7 +222,7 @@
         "1 × SA 20W emergency LED bulb"
       ],
       "seoTitle": "SA 20W Emergency LED Bulb Energy Saving Light | HB Gadget BD",
-      "seoDescription": "Buy SA 20W Emergency LED Bulb in Bangladesh. Wide-voltage 165–265V, 90 lm/W rated efficiency and up to 25,000-hour box-rated lifespan. Offer price ৳549.",
+      "seoDescription": "Buy SA 20W Emergency LED Bulb in Bangladesh. Wide-voltage 165–265V, 90 lm/W rated efficiency and up to 25,000-hour rated lifespan. Offer price ৳549.",
       "seoKeywords": [
         "SA 20W emergency LED bulb",
         "20 watt LED bulb Bangladesh",
@@ -256,7 +257,7 @@
       "stock": "Available",
       "location": "Bangladesh",
       "description": "MG MG-606 16000mAh (59.2Wh) multi-output Mini DC UPS with a built-in lithium battery, selectable 5V/9V/12V DC outputs, 5V USB charging output and USB Type-C output. Designed for compatible routers, modems, wireless phones and CCTV devices, with up to 25W maximum output power.",
-      "shortDescription": "16,000mAh (59.2Wh) MG-606 backup UPS for compatible routers, modems, wireless phones and CCTV; selectable 5V/9V/12V DC, USB and Type-C outputs, and a 1-year warranty mark on the box.",
+      "shortDescription": "16,000mAh (59.2Wh) MG-606 Mini DC UPS for compatible routers, modems, wireless phones and CCTV, with 5V/9V/12V DC, USB and Type-C outputs, DC connector cables, and a 1-year warranty.",
       "benefits": [
         "Backup power during mains outages; standby duration varies with the connected device's power consumption.",
         "Built-in lithium battery with microprocessor-controlled operation for reliability.",
@@ -277,21 +278,20 @@
         "Power input": "12V / 2A",
         "Selectable DC output": "5V / 9V / 12V (voltage selector)",
         "Maximum output power": "25W",
-        "USB output": "5V (output current not stated on the box)",
+        "USB output": "5V",
         "USB Type-C output": "5V/3A, 9V/2A, 12V/1.67A",
         "Control": "Microprocessor controller; automatic start when plugged in; manual power-off switch",
         "Protection": "Overload and short-circuit protection",
         "Indicators": "Multiple LED status indicators",
         "Applications": "Compatible routers, modems, wireless phones and CCTV equipment",
-        "Warranty": "1-year warranty badge on packaging; actual coverage is subject to supplier/brand warranty terms",
-        "Front packaging label": "“Premium Quality” marking (as printed on the box)"
+        "Warranty": "1-year warranty"
       },
       "included": [
-        "1 × MG MG-606 Mini DC UPS",
-        "Cables, adapters and other accessories are not listed on the box; please confirm the package contents before ordering."
+        "1 × MG MG-606 Mini DC UPS – 16000mAh",
+        "DC connector cables"
       ],
       "seoTitle": "MG Mini DC UPS 16000mAh (MG-606) 59.2Wh Router Backup | HB Gadget BD",
-      "seoDescription": "MG MG-606 16000mAh (59.2Wh) Mini UPS in Bangladesh: 12V/2A input, 5V/9V/12V selectable DC, 25W max, 5V USB, Type-C 5V/3A, 9V/2A, 12V/1.67A. 1-year warranty marking.",
+      "seoDescription": "Buy MG MG-606 16000mAh (59.2Wh) Mini UPS in Bangladesh with 12V/2A input, 5V/9V/12V DC, 25W maximum output, USB Type-C, DC connector cables and 1-year warranty.",
       "seoKeywords": [
         "MG Mini UPS 16000mAh",
         "MG-606 UPS Bangladesh",
@@ -319,10 +319,9 @@
         "Before connecting a device, match its required voltage to the selected 5V/9V/12V DC output and check the total power demand against the 25W maximum."
       ],
       "importantNote": [
-        "Actual runtime is not specified on the box and depends on the connected device and power consumption.",
-        "Verify voltage, connector size/polarity and device compatibility before use; do not exceed the 25W maximum output rating.",
-        "USB output current is not stated on the box; do not assume a particular USB charging speed.",
-        "The box bears a 1-year warranty badge; confirm supplier warranty coverage, conditions and claim process with HB Gadget BD."
+        "Backup duration depends on connected devices' total power consumption and usage conditions.",
+        "Verify voltage, connector size, polarity and device compatibility before use; do not exceed the 25W maximum output rating.",
+        "For USB charging, check compatibility and required charging current for the connected device."
       ]
     }
   ]

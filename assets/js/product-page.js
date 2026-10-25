@@ -234,6 +234,8 @@ function renderProductStructure(product) {
   const benefits = toListItems(product.benefits || product.keyBenefits);
   const specifications = product.specifications || product.specs;
   const included = toListItems(product.included || product.boxContents || product.whatIncluded);
+  const usageInstructions = toListItems(product.usageInstructions || product.careInstructions);
+  const importantNotes = toListItems(product.importantNote || product.limitations || product.warrantyNote);
   const legacyDetails = Array.isArray(product.details) ? product.details : [];
   const keywords = getProductKeywords(product);
 
@@ -270,6 +272,8 @@ function renderProductStructure(product) {
     <div class="hb-simple-product-details">
       ${intro ? `<p>${htmlEscape(intro)}</p>` : ""}
       <ul>${list.join("")}</ul>
+      ${usageInstructions.length ? `<h3>Usage & Care Instructions</h3><ul>${usageInstructions.map(item => `<li>${htmlEscape(item)}</li>`).join("")}</ul>` : ""}
+      ${importantNotes.length ? `<h3>Important Information</h3><ul>${importantNotes.map(item => `<li>${htmlEscape(item)}</li>`).join("")}</ul>` : ""}
       <p class="hb-review-help">Need help using this product? <button type="button" class="hb-review-support" data-contact-panel="support">Contact Support</button></p>
       ${keywords.length ? `<div class="hb-product-keywords"><strong>Tags:</strong> ${keywords.map(keyword => `<span>${htmlEscape(keyword)}</span>`).join("")}</div>` : ""}
     </div>

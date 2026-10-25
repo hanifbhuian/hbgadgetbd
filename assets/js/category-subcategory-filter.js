@@ -229,6 +229,7 @@ function renderProductStructure(product) {
     ${renderStructureSection("Short description", product.shortDescription || product.description, "A short 2–3 line product summary will be added soon.")}
     ${renderStructureSection("Key benefits", product.benefits || product.keyBenefits, "Key benefits will be added soon.")}
     ${renderStructureSection("Specifications", product.specifications || product.specs, details.length ? details : "Brand, model, battery/voltage, size, material, warranty, and compatibility details will be added soon.")}
+    ${product.usageInstructions || product.careInstructions ? renderStructureSection("Usage & Care Instructions", product.usageInstructions || product.careInstructions, "") : ""}
     ${renderStructureSection("Who should buy", product.whoShouldBuy || product.targetCustomer, "Target customer segment will be added soon.")}
     ${renderStructureSection("What is included", product.included || product.boxContents || product.whatIncluded, "Box contents and accessories will be added soon.")}
     ${renderStructureSection("Important note", product.importantNote || product.limitations || product.warrantyNote, "Please check limitations, compatibility, and warranty conditions before ordering.")}

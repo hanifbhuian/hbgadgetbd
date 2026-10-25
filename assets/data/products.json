@@ -248,7 +248,10 @@
       "price": 2199,
       "image": "assets/uploads/mg-mini-dc-ups-16000mah-main.webp",
       "images": [
-        "assets/uploads/mg-mini-dc-ups-16000mah-main.webp"
+        "assets/uploads/mg-mini-dc-ups-16000mah-main.webp",
+        "assets/uploads/mg-mini-dc-ups-16000mah-box-front.jpeg",
+        "assets/uploads/mg-mini-dc-ups-16000mah-technical-specifications.jpeg",
+        "assets/uploads/mg-mini-dc-ups-16000mah-features-instructions.jpeg"
       ],
       "icon": "🔋",
       "tag": "Sale",

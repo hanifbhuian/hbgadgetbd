@@ -13,71 +13,100 @@
         "assets/uploads/mg-mini-dc-ups-10000mah-gallery-1.png",
         "assets/uploads/mg-mini-dc-ups-10000mah-gallery-2.png",
         "assets/uploads/mg-mini-dc-ups-10000mah-gallery-3.png",
-        "assets/uploads/mg-mini-dc-ups-10000mah-gallery-4.png"
+        "assets/uploads/mg-mini-dc-ups-10000mah-gallery-4.png",
         "assets/uploads/mg-mini-dc-ups-10000mah-box-front.jpeg",
         "assets/uploads/mg-mini-dc-ups-10000mah-technical-specifications.jpeg",
         "assets/uploads/mg-mini-dc-ups-10000mah-features-instructions.jpeg"
       ],
       "icon": "🔋",
       "tag": "Sale",
-      "description": "MG-606 Mini UPS with a 10,000mAh (37Wh) battery for compatible Wi-Fi routers, modems and network devices.",
+      "description": "MG MG-606 Mini DC UPS with a 10,000mAh (37Wh) built-in lithium battery for backup power during electricity outages. Features 12V/2A input, selectable 5V/9V/12V DC outputs, 5V USB output, USB Type-C output and a maximum output power of 25W. Suitable for compatible Wi-Fi routers, modems, wireless phones and CCTV devices.",
       "details": [
         "Model: MG-606",
-        "Battery: 10,000mAh / 37Wh",
+        "Battery: 10,000mAh / 37Wh, built-in lithium",
         "Input: 12V / 2A",
-        "DC outputs: 5V / 9V / 12V",
-        "USB-C: 5V/3A, 9V/2A, 12V/1.67A",
-        "USB-A: 5V",
-        "Max power: 25W",
-        "For compatible routers, modems and CCTV devices",
-        "Warranty: 1-year company warranty. See the warranty policy below or contact support for coverage details.",
-        "DC connector cables included; backup duration varies by device"
+        "Selectable DC outputs: 5V / 9V / 12V",
+        "Maximum output power: 25W",
+        "USB: 5V",
+        "USB Type-C: 5V/3A, 9V/2A, 12V/1.67A",
+        "Microprocessor control and automatic start",
+        "Manual power-off switch",
+        "Overload and short-circuit protection",
+        "LED indicators for device status",
+        "Applications: routers, modems, wireless phones and CCTV",
+        "Warranty: 1-year company warranty",
+        "Included: DC connector cables"
       ],
-      "shortDescription": "Compact backup power for compatible Wi-Fi routers and modems.",
+      "shortDescription": "10,000mAh (37Wh) MG-606 Mini DC UPS with 5V/9V/12V DC outputs, USB and Type-C connections, backup power for compatible network devices, DC connector cables and a 1-year company warranty.",
       "benefits": [
-        "Helps keep compatible devices powered during outages.",
-        "Selectable 5V, 9V and 12V outputs, plus USB charging.",
-        "Automatic start, LED indicators and protection features."
+        "Provides backup power to compatible devices during mains electricity outages; actual runtime depends on power consumption.",
+        "Built-in lithium battery with microprocessor-controlled operation.",
+        "Automatically starts when connected to a power source.",
+        "Manual power-off switch for user control.",
+        "Overload and short-circuit protection.",
+        "Multiple LED indicators for power and battery status.",
+        "Selectable 5V, 9V and 12V DC outputs for compatible devices.",
+        "5V USB output and USB Type-C output for supported devices.",
+        "Supports compatible Wi-Fi routers, modems, wireless phones and CCTV devices."
       ],
-      "specifications": [
-        "Brand / Model: MG / MG-606",
-        "Battery: 10,000mAh (37Wh)",
-        "Input: 12V / 2A",
-        "DC outputs: 5V / 9V / 12V",
-        "USB-C: 5V/3A, 9V/2A, 12V/1.67A",
-        "USB-A: 5V",
-        "Max output power: 25W",
-        "Warranty: 1-year company warranty. See the warranty policy below or contact support for coverage details."
-      ],
+      "specifications": {
+        "Brand / Model": "MG / MG-606",
+        "Product type": "Multi-output Mini DC UPS / Network Portable Power Bank",
+        "Battery capacity": "10,000mAh / 37Wh",
+        "Battery type": "Built-in lithium battery",
+        "Power input": "12V / 2A",
+        "Selectable DC outputs": "5V / 9V / 12V",
+        "Maximum output power": "25W",
+        "USB output": "5V",
+        "USB Type-C output": "5V/3A, 9V/2A, 12V/1.67A",
+        "Control": "Microprocessor controller; automatic start when powered; manual power-off switch",
+        "Protection": "Overload and short-circuit protection",
+        "Indicators": "Multiple LED status indicators",
+        "Applications": "Compatible routers, modems, wireless phones and CCTV equipment",
+        "Warranty": "1-year company warranty"
+      },
       "whoShouldBuy": [
-        "Users of compatible Wi-Fi routers, modems and low-power CCTV/network devices."
+        "Users of compatible Wi-Fi routers, modems, wireless phones and low-power CCTV or network devices who need backup power during outages."
       ],
       "included": [
         "1 × MG MG-606 Mini DC UPS – 10000mAh",
         "DC connector cables"
       ],
       "importantNote": [
-        "Check your device's voltage, connector and polarity before ordering.",
-        "Backup duration depends on device power requirements. Warranty terms and coverage apply."
+        "Actual backup duration depends on the connected devices and their total power consumption.",
+        "Check voltage, connector size, polarity and total power requirements before use.",
+        "The USB output is rated 5V; verify the connected device's current requirements.",
+        "Warranty coverage follows the applicable company warranty policy."
       ],
       "subCategory": "Power & Safety",
       "brand": "MG",
       "model": "MG-606",
-      "seoTitle": "MG Mini DC UPS 10000mAh for Wi-Fi Router | HB Gadget BD",
-      "seoDescription": "Buy MG MG-606 10000mAh Mini DC UPS for compatible Wi-Fi routers, modems and network devices in Bangladesh. 5V/9V/12V outputs and 1-year company warranty.",
+      "seoTitle": "MG Mini DC UPS 10000mAh (MG-606) Router Backup | HB Gadget BD",
+      "seoDescription": "Buy MG-606 Mini DC UPS 10000mAh (37Wh) in Bangladesh. 5V/9V/12V DC outputs, 12V/2A input, 25W max, USB Type-C, connector cables and 1-year company warranty.",
       "seoKeywords": [
-        "mini UPS for router",
-        "router UPS Bangladesh",
-        "WiFi router UPS",
-        "mini DC UPS",
-        "10000mAh mini UPS",
+        "MG Mini UPS 10000mAh",
         "MG-606 mini UPS",
-        "router backup power",
-        "WiFi backup for load shedding",
-        "network power bank",
-        "12V router UPS",
-        "mini UPS price in Bangladesh",
-        "UPS for router and modem"
+        "10000mAh router UPS",
+        "37Wh mini UPS",
+        "router backup power Bangladesh",
+        "mini UPS for WiFi router",
+        "WiFi backup during load shedding",
+        "mini UPS 12V 2A",
+        "mini DC UPS 5V 9V 12V",
+        "25W mini UPS",
+        "MG-606 USB Type C UPS",
+        "mini UPS for modem",
+        "CCTV mini UPS",
+        "router UPS with DC cables",
+        "mini UPS price BD",
+        "WiFi UPS Bangladesh"
+      ],
+      "usageInstructions": [
+        "Read the user manual before using the Mini UPS.",
+        "Recharge the Mini UPS at least once every three months when it is not in use.",
+        "Some warmth during charging is normal.",
+        "Keep the device clean; do not use detergents for cleaning.",
+        "Check the connected device's required voltage, connector and polarity before choosing a 5V/9V/12V output; do not exceed the 25W maximum."
       ]
     },
     {

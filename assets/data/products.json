@@ -255,45 +255,74 @@
       "model": "MG-606",
       "stock": "Available",
       "location": "Bangladesh",
-      "description": "MG-606 Mini DC UPS with a 16000mAh (59.2Wh) built-in lithium battery for backup power to compatible Wi-Fi routers, modems and CCTV devices.",
-      "shortDescription": "16000mAh mini UPS for compatible Wi-Fi routers, modems and CCTV devices, helping keep them powered during outages.",
+      "description": "MG MG-606 16000mAh (59.2Wh) multi-output Mini DC UPS with a built-in lithium battery, selectable 5V/9V/12V DC outputs, 5V USB charging output and USB Type-C output. Designed for compatible routers, modems, wireless phones and CCTV devices, with up to 25W maximum output power.",
+      "shortDescription": "16,000mAh (59.2Wh) MG-606 backup UPS for compatible routers, modems, wireless phones and CCTV; selectable 5V/9V/12V DC, USB and Type-C outputs, and a 1-year warranty mark on the box.",
       "benefits": [
-        "Automatically provides backup power when the main power supply is interrupted.",
-        "Selectable 5V, 9V and 12V DC outputs for compatible devices.",
-        "LED status indicators and manual power switch.",
-        "Overload and short-circuit protection."
+        "Backup power during mains outages; standby duration varies with the connected device's power consumption.",
+        "Built-in lithium battery with microprocessor-controlled operation for reliability.",
+        "Automatic start when plugged into a power source.",
+        "Manual power-off switch.",
+        "Overload protection and short-circuit protection.",
+        "Multiple LED indicators for device status.",
+        "Selectable 5V, 9V or 12V DC output using the voltage selector.",
+        "5V USB charging output.",
+        "USB Type-C output with 5V/3A, 9V/2A and 12V/1.67A ratings.",
+        "Intended for compatible Wi-Fi routers, modems, wireless phones and CCTV equipment."
       ],
       "specifications": {
         "Brand / Model": "MG / MG-606",
-        "Battery": "16000mAh (59.2Wh), built-in lithium",
-        "Input": "12V / 2A",
-        "DC outputs": "5V / 9V / 12V",
+        "Product type": "Multi-Output Mini UPS / Multifunctional Network Portable Power Bank",
+        "Battery capacity": "16,000mAh / 59.2Wh",
+        "Battery type": "Built-in lithium battery",
+        "Power input": "12V / 2A",
+        "Selectable DC output": "5V / 9V / 12V (voltage selector)",
         "Maximum output power": "25W",
-        "USB output": "5V",
-        "USB-C output": "5V/3A, 9V/2A, 12V/1.67A",
-        "Applications": "Compatible Wi-Fi routers, modems and CCTV devices",
-        "Warranty": "1-year warranty. See the warranty policy below or contact support for coverage details."
+        "USB output": "5V (output current not stated on the box)",
+        "USB Type-C output": "5V/3A, 9V/2A, 12V/1.67A",
+        "Control": "Microprocessor controller; automatic start when plugged in; manual power-off switch",
+        "Protection": "Overload and short-circuit protection",
+        "Indicators": "Multiple LED status indicators",
+        "Applications": "Compatible routers, modems, wireless phones and CCTV equipment",
+        "Warranty": "1-year warranty badge on packaging; actual coverage is subject to supplier/brand warranty terms"
       },
       "included": [
-        "1 × MG Mini DC UPS"
+        "1 × MG MG-606 Mini DC UPS",
+        "Cables, adapters and other accessories are not specified on the photographed packaging; confirm package contents with support before ordering."
       ],
-      "seoTitle": "MG Mini DC UPS 16000mAh Router Backup Power Bank | HB Gadget BD",
-      "seoDescription": "Shop MG MG-606 16000mAh Mini DC UPS for compatible Wi-Fi routers, modems and CCTV in Bangladesh. 59.2Wh battery, 5V/9V/12V outputs and 1-year warranty.",
+      "seoTitle": "MG Mini DC UPS 16000mAh (MG-606) 59.2Wh Router Backup | HB Gadget BD",
+      "seoDescription": "MG MG-606 16000mAh (59.2Wh) Mini UPS in Bangladesh: 12V/2A input, 5V/9V/12V selectable DC, 25W max, 5V USB, Type-C 5V/3A, 9V/2A, 12V/1.67A. 1-year warranty marking.",
       "seoKeywords": [
         "MG Mini UPS 16000mAh",
-        "MG-606 UPS",
+        "MG-606 UPS Bangladesh",
         "16000mAh router UPS",
+        "59.2Wh mini UPS",
         "mini UPS for WiFi router",
         "router backup power Bangladesh",
-        "mini DC UPS 12V",
-        "59.2Wh mini UPS",
-        "CCTV backup power bank",
-        "MG mini UPS price Bangladesh",
+        "multi output UPS MG-606",
         "5V 9V 12V mini UPS",
-        "WiFi UPS Bangladesh",
-        "network power bank 16000mAh"
+        "25W mini UPS",
+        "12V 2A mini UPS",
+        "mini UPS Type C output",
+        "CCTV backup power bank",
+        "wireless phone UPS",
+        "MG mini UPS price BD",
+        "WiFi backup power load shedding",
+        "1 year warranty mini UPS"
       ],
-      "tutorials": []
+      "tutorials": [],
+      "usageInstructions": [
+        "Read the user manual before using the Mini UPS.",
+        "If the unit is not being used, recharge it at least once every three months.",
+        "The device may become slightly warm while charging.",
+        "Keep the device clean; do not clean it with detergents.",
+        "Before connecting a device, match its required voltage to the selected 5V/9V/12V DC output and check the total power demand against the 25W maximum."
+      ],
+      "importantNote": [
+        "Actual runtime is not specified on the box and depends on the connected device and power consumption.",
+        "Verify voltage, connector size/polarity and device compatibility before use; do not exceed the 25W maximum output rating.",
+        "USB output current is not stated on the box; do not assume a particular USB charging speed.",
+        "The box bears a 1-year warranty badge; confirm supplier warranty coverage, conditions and claim process with HB Gadget BD."
+      ]
     }
   ]
 }

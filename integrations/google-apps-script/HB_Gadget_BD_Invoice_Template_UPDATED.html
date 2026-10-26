@@ -23,6 +23,8 @@
   .totals td { padding: 8px; border-bottom: 1px solid #e3e8f1; }
   .totals td:last-child { font-weight: bold; text-align: right; }
   .total { background: #e8f0fb; font-size: 13px; color: #143d7c; }
+  .promo-discount td { color: #C63818; font-weight: bold; }
+  .discounted-subtotal td { color: #263449; }
   .status { padding: 12px 14px; background: #f0f5fc; border-left: 4px solid #ee6b35; margin-top: 20px; line-height: 1.6; }
   .foot { border-top: 1px solid #e2e8f0; margin-top: 24px; padding-top: 14px; color: #64748b; font-size: 10px; line-height: 1.6; }
   .thanks { color: #143d7c; font-weight: bold; font-size: 13px; margin-top: 18px; }
@@ -65,8 +67,41 @@
       <? } ?>
     </tbody>
   </table>
+  <? // Promotion details are stored in invoice item names by the checkout API.
+     // Use the existing net Subtotal from Orders and reconstruct the original
+     // price for display only. Do not change payment or accounting amounts.
+     var invoicePromoCode = '';
+     var invoicePromoDiscount = 0;
+     var promoEligible = true;
+     for (var pi = 0; pi < data.items.length; pi++) {
+       var promoItem = data.items[pi];
+       var promoMatch = String(promoItem.name || '').match(/\(([A-Z][A-Z0-9_-]{1,39}): BDT ([0-9]+(?:\.[0-9]+)?) off\/unit\)/);
+       if (!promoMatch) continue;
+       if (invoicePromoCode && invoicePromoCode !== promoMatch[1]) { promoEligible = false; break; }
+       var promoQty = Number(promoItem.qty);
+       var promoUnitAmount = Number(promoMatch[2]);
+       if (!Number.isInteger(promoQty) || promoQty < 1 ||
+           !Number.isFinite(promoUnitAmount) || promoUnitAmount <= 0) {
+         promoEligible = false; break;
+       }
+       invoicePromoCode = promoMatch[1];
+       invoicePromoDiscount += promoQty * promoUnitAmount;
+     }
+     if (!promoEligible || !Number.isFinite(invoicePromoDiscount) ||
+         invoicePromoDiscount <= 0 || !Number.isFinite(Number(data.subtotal))) {
+       invoicePromoCode = '';
+       invoicePromoDiscount = 0;
+     }
+     var invoiceOriginalSubtotal = Number(data.subtotal) + invoicePromoDiscount;
+  ?>
   <table class="totals">
+    <? if (invoicePromoDiscount > 0) { ?>
+    <tr><td>Product Subtotal</td><td>BDT <?= invoiceOriginalSubtotal.toLocaleString('en-US') ?></td></tr>
+    <tr class="promo-discount"><td>Promotion (<?= invoicePromoCode ?>)</td><td>- BDT <?= invoicePromoDiscount.toLocaleString('en-US') ?></td></tr>
+    <tr class="discounted-subtotal"><td>Discounted Subtotal</td><td>BDT <?= data.subtotal.toLocaleString('en-US') ?></td></tr>
+    <? } else { ?>
     <tr><td>Subtotal</td><td>BDT <?= data.subtotal.toLocaleString('en-US') ?></td></tr>
+    <? } ?>
     <tr><td>Delivery charge</td><td>BDT <?= data.shipping.toLocaleString('en-US') ?></td></tr>
     <tr class="total"><td>Total</td><td>BDT <?= data.total.toLocaleString('en-US') ?></td></tr>
     <tr><td>Paid (verified)</td><td>BDT <?= data.paid.toLocaleString('en-US') ?></td></tr>

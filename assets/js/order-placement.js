@@ -36,6 +36,7 @@ async function applyCheckoutPromotion() {
       {cache:"no-store"});
     const result = await response.json();
     if (!response.ok || !result.success) throw new Error(result.message || "Promotion unavailable.");
+    if (String(input?.value || "").trim().toUpperCase() !== entered) return;
     checkoutPromotion = result;
     const savings = calculatePromotionSavings();
     if (message) message.textContent = savings.discount ?
@@ -354,7 +355,7 @@ async function submitOrderToSheet(payload) {
   return result;
 }
 
-function renderCheckoutSuccess(orderId, invoiceLink, paymentMethod, amountDue, hasEmail) {
+function renderCheckoutSuccess(orderId, invoiceLink, paymentMethod, amountDue, hasEmail, promoCode = "", promoDiscount = 0) {
   const modal = ensureCheckoutModal();
   const dialog = modal.querySelector(".checkout-modal__dialog");
   // iOS Safari may retain the form's scroll/focus when the tall checkout form is replaced.
@@ -367,7 +368,7 @@ function renderCheckoutSuccess(orderId, invoiceLink, paymentMethod, amountDue, h
   const message = isPrepayment ? `Hello HB Gadget BD, I placed order ${orderId} using ${paymentMethod}. Please help me confirm my payment. Transaction ID: ` : `Hello HB Gadget BD, I placed Cash on Delivery order ${orderId}. Please confirm delivery and availability.`;
   const paymentInstructions = isPrepayment ? `<div class="checkout-payment-steps"><h4>${safeText(paymentMethod)} — Payment instructions</h4><p>Order ID: <strong>${safeText(orderId)}</strong>. Amount: <strong>${formatCheckoutMoney(amountDue)}</strong>.</p><ol><li>Open ${safeText(paymentMethod)} and use Send Money to <strong>${HB_PREPAYMENT_NUMBER}</strong> using the HB Gadget BD payment number.</li><li>Enter the Order ID in the Reference/Note field if the app provides one.</li><li>Save your transaction ID and send it to our WhatsApp support team for manual verification.</li></ol><button type="button" data-copy-payment-number>Copy payment number</button><p>Once sent, WhatsApp your Transaction ID to HB Gadget BD. Your order is marked Paid only after the support team verifies the payment.</p></div>` : `<p>Payment method: Cash on Delivery. Pay the total when the order arrives.</p>`;
   const contactNotice = hasEmail ? "A support team member will call or email you soon to confirm your order. Your preliminary invoice will be emailed when processing succeeds." : "No email was provided, so email notifications will not be sent. Save your Order ID to track the order; our team will contact you by phone. If available, the invoice link appears below.";
-  dialog.innerHTML = `<div class="checkout-success-card"><h3>Order submitted successfully!</h3><p>Your Order ID is <strong>${safeText(orderId)}</strong>.</p><p>${contactNotice}</p><div class="order-meta-grid"><div><small>Order ID</small><strong>${safeText(orderId)}</strong></div></div>${paymentInstructions}${invoiceLink ? `<p><a href="${safeText(invoiceLink)}" target="_blank" rel="noreferrer">View provisional invoice</a></p>` : ""}<div class="checkout-actions"><a href="https://wa.me/${ORDER_CREATE_SUPPORT_NUMBER}?text=${encodeURIComponent(message)}" target="_blank" rel="noreferrer">Contact WhatsApp Support</a><button type="button" data-checkout-close>Close</button></div></div>`;
+  dialog.innerHTML = `<div class="checkout-success-card"><h3>Order submitted successfully!</h3><p>Your Order ID is <strong>${safeText(orderId)}</strong>.</p><p>${contactNotice}</p>${promoDiscount > 0 ? `<p><strong>${safeText(promoCode)} applied:</strong> You saved ${formatCheckoutMoney(promoDiscount)} on eligible products.</p>` : ""}<div class="order-meta-grid><div><small>Order ID</small><strong>${safeText(orderId)}</strong></div></div>${paymentInstructions}${invoiceLink ? `<p><a href="${safeText(invoiceLink)}" target="_blank" rel="noreferrer">View provisional invoice</a></p>` : ""}<div class="checkout-actions"><a href="https://wa.me/${ORDER_CREATE_SUPPORT_NUMBER}?text=${encodeURIComponent(message)}" target="_blank" rel="noreferrer">Contact WhatsApp Support</a><button type="button" data-checkout-close>Close</button></div></div>`;
   // Always show Order ID and payment instructions from the beginning of the confirmation.
   // A second reset after layout addresses Safari retaining the previous form's scroll offset.
   dialog.scrollTop = 0;
@@ -384,6 +385,9 @@ async function handleCheckoutSubmit(event) {
 
   try {
     const payload = await buildOrderPayload();
+    if (document.getElementById("checkoutPromoCode")?.value.trim() && !checkoutPromotion) {
+      throw new Error("Please click Apply to validate the promotion code, or clear the code before submitting.");
+    }
     if (!HB_PREPAYMENT_ENABLED && payload.paymentMethod !== "Cash on Delivery") throw new Error("This payment option is currently unavailable.");
     if (!payload.customerName || !payload.phone || !payload.deliveryArea || !payload.address || !payload.shippingZone) {
       throw new Error("Please fill in all required fields, including shipping location.");
@@ -392,7 +396,7 @@ async function handleCheckoutSubmit(event) {
     if (!result.success) throw new Error(result.message || "Order could not be saved.");
     document.getElementById("clearCart")?.click();
     if (!result.orderId) throw new Error("Server did not return a confirmed Order ID.");
-    renderCheckoutSuccess(result.orderId, result.invoiceLink || "", payload.paymentMethod, payload.grandTotal, Boolean(payload.customerEmail));
+    renderCheckoutSuccess(result.orderId, result.invoiceLink || "", payload.paymentMethod, payload.grandTotal, Boolean(payload.customerEmail), result.promoCode || payload.promoCode, result.promoDiscount || payload.promoDiscount);
   } catch (error) {
     console.error(error);
     if (status) status.textContent = error.message || "Order could not be submitted automatically. Please contact WhatsApp support.";
@@ -437,7 +441,12 @@ function wireOrderPlacement() {
     }
   });
   document.addEventListener("submit", handleCheckoutSubmit, true);
-  document.addEventListener("keydown", event => { if (event.key === "Escape") closeCheckout(); });
+  document.addEventListener("keydown", event => {
+    if (event.target?.id === "checkoutPromoCode" && event.key === "Enter") {
+      event.preventDefault(); applyCheckoutPromotion(); return;
+    }
+    if (event.key === "Escape") closeCheckout();
+  });
   // The Checkout button exists at initialization; avoid unnecessary repeated DOM work.
 }
 

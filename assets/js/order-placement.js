@@ -8,12 +8,56 @@ const DELIVERY_OPTIONS = {
 };
 let checkoutItems = [];
 let checkoutSubtotal = 0;
+let checkoutPromotion = null; // Always reset for each newly opened checkout.
+
+function calculatePromotionSavings() {
+  if (!checkoutPromotion) return {discount:0, eligibleQty:0};
+  const validNames = new Set(checkoutPromotion.eligibleProducts || []);
+  const eligibleQty = checkoutItems.reduce((sum,item) =>
+    sum + (validNames.has(item.name) ? Number(item.qty || 0) : 0),0);
+  return { discount:eligibleQty * Number(checkoutPromotion.discountPerUnit || 0), eligibleQty };
+}
+
+async function applyCheckoutPromotion() {
+  const input = document.getElementById("checkoutPromoCode");
+  const message = document.getElementById("checkoutPromoMessage");
+  const button = document.getElementById("checkoutPromoApply");
+  const entered = String(input?.value || "").trim().toUpperCase();
+  checkoutPromotion = null;
+  if (!entered) {
+    if (message) message.textContent = "Enter a promotion code to apply a discount.";
+    refreshCheckoutAmounts();
+    return;
+  }
+  if (button) button.disabled = true;
+  if (message) message.textContent = "Checking promotion code…";
+  try {
+    const response = await fetch("/api/orders/promotion?code=" + encodeURIComponent(entered),
+      {cache:"no-store"});
+    const result = await response.json();
+    if (!response.ok || !result.success) throw new Error(result.message || "Promotion unavailable.");
+    if (String(input?.value || "").trim().toUpperCase() !== entered) return;
+    checkoutPromotion = result;
+    const savings = calculatePromotionSavings();
+    if (message) message.textContent = savings.discount ?
+      result.code + " applied: " + formatCheckoutMoney(savings.discount) +
+        " off " + savings.eligibleQty + " eligible unit(s)." :
+      result.code + " is valid, but this cart has no eligible products.";
+  } catch (error) {
+    checkoutPromotion = null;
+    if (message) message.textContent = error.message || "Promotion could not be applied.";
+  } finally {
+    if (button) button.disabled = false;
+    refreshCheckoutAmounts();
+  }
+}
+
 
 function loadCheckoutCss() {
   if (document.querySelector("link[href*='order-placement.css']")) return;
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "assets/css/order-placement.css?v=20261011-mobile-checkout-2";
+  link.href = "assets/css/order-placement.css?v=20261026-fire100-1";
   document.head.appendChild(link);
 }
 
@@ -59,18 +103,21 @@ function getPaymentMethodValue() {
 function calculateCheckoutAmounts() {
   const option = getSelectedDeliveryOption();
   const shippingCharge = option ? option.charge : 0;
-  const grandTotal = checkoutSubtotal + shippingCharge;
+  const {discount, eligibleQty} = calculatePromotionSavings();
+  const discountedSubtotal = checkoutSubtotal - discount;
+  const grandTotal = discountedSubtotal + shippingCharge;
   // Order is recorded with zero collected; manual Send Money happens after an Order ID is assigned.
   const paidAmount = 0;
   const dueAmount = grandTotal;
   const paymentStatus = getPaymentMethodValue() === "Cash on Delivery" ? "Due" : "Pending Verification";
-  return { shippingCharge, grandTotal, paidAmount, dueAmount, paymentStatus, shippingLabel: option ? option.label : "Select shipping area" };
+  return { shippingCharge, grandTotal, discountedSubtotal, promoDiscount:discount, eligibleQty, paidAmount, dueAmount, paymentStatus, shippingLabel: option ? option.label : "Select shipping area" };
 }
 
 function getCartCheckoutItems() {
   try {
     if (typeof getCartDetails === "function") {
       return getCartDetails().map(item => ({
+        id: item.id,
         name: item.name,
         qty: item.qty,
         price: Number(item.price || 0),
@@ -120,6 +167,15 @@ function ensureCheckoutModal() {
         <div class="checkout-form__grid">
           <label><span>Shipping Location *</span><select id="checkoutShippingZone" name="shippingZone" required><option value="">Select shipping area</option><option value="insideDhaka">Inside Dhaka — ৳${DELIVERY_OPTIONS.insideDhaka.charge}</option><option value="outsideDhaka">Outside Dhaka — ৳${DELIVERY_OPTIONS.outsideDhaka.charge}</option></select></label>
         </div>
+        <div class="checkout-promo" aria-label="Promotion code">
+          <label for="checkoutPromoCode"><span>Promotion Code (Optional)</span></label>
+          <div class="checkout-promo__entry">
+            <input id="checkoutPromoCode" type="text" placeholder="Enter promo code"
+              autocomplete="off" maxlength="40" spellcheck="false" aria-describedby="checkoutPromoMessage">
+            <button type="button" id="checkoutPromoApply" class="checkout-promo__apply">Apply</button>
+          </div>
+          <small id="checkoutPromoMessage" role="status" aria-live="polite">Discount applies only to eligible products.</small>
+        </div>
         <div class="checkout-summary" id="checkoutSummary"></div>
         <fieldset class="checkout-methods">
           <legend>Payment method</legend>
@@ -156,6 +212,8 @@ function renderCheckoutSummary() {
     <ul>${list}</ul>
     <div class="checkout-summary__totals">
       <div class="checkout-summary__row"><span>Product Subtotal</span><strong>${formatCheckoutMoney(checkoutSubtotal)}</strong></div>
+      ${checkoutPromotion && amounts.promoDiscount ? `<div class="checkout-summary__row checkout-summary__discount"><span>Promo ${safeText(checkoutPromotion.code)} (-${formatCheckoutMoney(checkoutPromotion.discountPerUnit)}/eligible unit)</span><strong>-${formatCheckoutMoney(amounts.promoDiscount)}</strong></div>` : ""}
+      ${amounts.promoDiscount ? `<div class="checkout-summary__row"><span>Discounted Subtotal</span><strong>${formatCheckoutMoney(amounts.discountedSubtotal)}</strong></div>` : ""}
       <div class="checkout-summary__row"><span>Shipping Charge</span><strong>${amounts.shippingCharge ? formatCheckoutMoney(amounts.shippingCharge) : amounts.shippingLabel}</strong></div>
       <div class="checkout-summary__row checkout-summary__total"><span>Grand Total</span><strong>${formatCheckoutMoney(amounts.grandTotal)}</strong></div>
       <div class="checkout-summary__row"><span>Advance Paid</span><strong>${formatCheckoutMoney(amounts.paidAmount)}</strong></div>
@@ -169,11 +227,16 @@ function openCheckout(items) {
   setCheckoutButtonLabel();
   checkoutItems = items.filter(Boolean);
   checkoutSubtotal = checkoutItems.reduce((sum, item) => sum + Number(item.lineTotal || 0), 0);
+  checkoutPromotion = null;
   if (!checkoutItems.length) {
     alert("Your cart is empty. Please add a product first.");
     return;
   }
   const modal = ensureCheckoutModal();
+  const promoInput = document.getElementById("checkoutPromoCode");
+  if (promoInput) promoInput.value = "";
+  const promoMessage = document.getElementById("checkoutPromoMessage");
+  if (promoMessage) promoMessage.textContent = "Discount applies only to eligible products.";
   renderCheckoutSummary();
   refreshCheckoutAmounts();
   const status = document.getElementById("checkoutStatus");
@@ -236,7 +299,14 @@ async function buildOrderPayload() {
     status: "Pending",
     statusBn: "অর্ডার গ্রহণ করা হয়েছে",
     items: itemsText,
-    subtotal: checkoutSubtotal,
+    subtotal: amounts.discountedSubtotal,
+    originalSubtotal: checkoutSubtotal,
+    promoCode: checkoutPromotion && amounts.promoDiscount ? checkoutPromotion.code : "",
+    promoDiscount: amounts.promoDiscount,
+    cartItems: checkoutItems.map(item => ({
+      name:item.name, qty:Number(item.qty), price:Number(item.price),
+      lineTotal:Number(item.lineTotal)
+    })),
     deliveryCharge: amounts.shippingCharge,
     shippingZone: shippingOption ? shippingOption.label : "",
     shippingZoneCode: shippingZoneValue,
@@ -285,7 +355,7 @@ async function submitOrderToSheet(payload) {
   return result;
 }
 
-function renderCheckoutSuccess(orderId, invoiceLink, paymentMethod, amountDue, hasEmail) {
+function renderCheckoutSuccess(orderId, invoiceLink, paymentMethod, amountDue, hasEmail, promoCode = "", promoDiscount = 0) {
   const modal = ensureCheckoutModal();
   const dialog = modal.querySelector(".checkout-modal__dialog");
   // iOS Safari may retain the form's scroll/focus when the tall checkout form is replaced.
@@ -298,7 +368,7 @@ function renderCheckoutSuccess(orderId, invoiceLink, paymentMethod, amountDue, h
   const message = isPrepayment ? `Hello HB Gadget BD, I placed order ${orderId} using ${paymentMethod}. Please help me confirm my payment. Transaction ID: ` : `Hello HB Gadget BD, I placed Cash on Delivery order ${orderId}. Please confirm delivery and availability.`;
   const paymentInstructions = isPrepayment ? `<div class="checkout-payment-steps"><h4>${safeText(paymentMethod)} — Payment instructions</h4><p>Order ID: <strong>${safeText(orderId)}</strong>. Amount: <strong>${formatCheckoutMoney(amountDue)}</strong>.</p><ol><li>Open ${safeText(paymentMethod)} and use Send Money to <strong>${HB_PREPAYMENT_NUMBER}</strong> using the HB Gadget BD payment number.</li><li>Enter the Order ID in the Reference/Note field if the app provides one.</li><li>Save your transaction ID and send it to our WhatsApp support team for manual verification.</li></ol><button type="button" data-copy-payment-number>Copy payment number</button><p>Once sent, WhatsApp your Transaction ID to HB Gadget BD. Your order is marked Paid only after the support team verifies the payment.</p></div>` : `<p>Payment method: Cash on Delivery. Pay the total when the order arrives.</p>`;
   const contactNotice = hasEmail ? "A support team member will call or email you soon to confirm your order. Your preliminary invoice will be emailed when processing succeeds." : "No email was provided, so email notifications will not be sent. Save your Order ID to track the order; our team will contact you by phone. If available, the invoice link appears below.";
-  dialog.innerHTML = `<div class="checkout-success-card"><h3>Order submitted successfully!</h3><p>Your Order ID is <strong>${safeText(orderId)}</strong>.</p><p>${contactNotice}</p><div class="order-meta-grid"><div><small>Order ID</small><strong>${safeText(orderId)}</strong></div></div>${paymentInstructions}${invoiceLink ? `<p><a href="${safeText(invoiceLink)}" target="_blank" rel="noreferrer">View provisional invoice</a></p>` : ""}<div class="checkout-actions"><a href="https://wa.me/${ORDER_CREATE_SUPPORT_NUMBER}?text=${encodeURIComponent(message)}" target="_blank" rel="noreferrer">Contact WhatsApp Support</a><button type="button" data-checkout-close>Close</button></div></div>`;
+  dialog.innerHTML = `<div class="checkout-success-card"><h3>Order submitted successfully!</h3><p>Your Order ID is <strong>${safeText(orderId)}</strong>.</p><p>${contactNotice}</p>${promoDiscount > 0 ? `<p><strong>${safeText(promoCode)} applied:</strong> You saved ${formatCheckoutMoney(promoDiscount)} on eligible products.</p>` : ""}<div class="order-meta-grid><div><small>Order ID</small><strong>${safeText(orderId)}</strong></div></div>${paymentInstructions}${invoiceLink ? `<p><a href="${safeText(invoiceLink)}" target="_blank" rel="noreferrer">View provisional invoice</a></p>` : ""}<div class="checkout-actions"><a href="https://wa.me/${ORDER_CREATE_SUPPORT_NUMBER}?text=${encodeURIComponent(message)}" target="_blank" rel="noreferrer">Contact WhatsApp Support</a><button type="button" data-checkout-close>Close</button></div></div>`;
   // Always show Order ID and payment instructions from the beginning of the confirmation.
   // A second reset after layout addresses Safari retaining the previous form's scroll offset.
   dialog.scrollTop = 0;
@@ -315,6 +385,9 @@ async function handleCheckoutSubmit(event) {
 
   try {
     const payload = await buildOrderPayload();
+    if (document.getElementById("checkoutPromoCode")?.value.trim() && !checkoutPromotion) {
+      throw new Error("Please click Apply to validate the promotion code, or clear the code before submitting.");
+    }
     if (!HB_PREPAYMENT_ENABLED && payload.paymentMethod !== "Cash on Delivery") throw new Error("This payment option is currently unavailable.");
     if (!payload.customerName || !payload.phone || !payload.deliveryArea || !payload.address || !payload.shippingZone) {
       throw new Error("Please fill in all required fields, including shipping location.");
@@ -323,7 +396,7 @@ async function handleCheckoutSubmit(event) {
     if (!result.success) throw new Error(result.message || "Order could not be saved.");
     document.getElementById("clearCart")?.click();
     if (!result.orderId) throw new Error("Server did not return a confirmed Order ID.");
-    renderCheckoutSuccess(result.orderId, result.invoiceLink || "", payload.paymentMethod, payload.grandTotal, Boolean(payload.customerEmail));
+    renderCheckoutSuccess(result.orderId, result.invoiceLink || "", payload.paymentMethod, payload.grandTotal, Boolean(payload.customerEmail), result.promoCode || payload.promoCode, result.promoDiscount || payload.promoDiscount);
   } catch (error) {
     console.error(error);
     if (status) status.textContent = error.message || "Order could not be submitted automatically. Please contact WhatsApp support.";
@@ -347,6 +420,9 @@ function wireOrderPlacement() {
       else alert(HB_PREPAYMENT_NUMBER);
       return;
     }
+    if (event.target.closest("#checkoutPromoApply")) {
+      event.preventDefault(); applyCheckoutPromotion(); return;
+    }
     if (event.target.closest("[data-checkout-close]")) { closeCheckout(); return; }
     const cartCheckout = event.target.closest("#whatsappOrder");
     if (cartCheckout) { event.preventDefault(); openCheckout(getCartCheckoutItems()); return; }
@@ -355,8 +431,22 @@ function wireOrderPlacement() {
     const orderNow = event.target.closest(".product-card .order-now");
     if (orderNow) { event.preventDefault(); event.stopImmediatePropagation(); const item = getDirectCheckoutItem(orderNow); openCheckout(item ? [item] : getCartCheckoutItems()); }
   }, true);
+  document.addEventListener("input", event => {
+    if (event.target?.id !== "checkoutPromoCode") return;
+    if (checkoutPromotion) {
+      checkoutPromotion = null;
+      const status = document.getElementById("checkoutPromoMessage");
+      if (status) status.textContent = "Code changed. Click Apply to check it.";
+      refreshCheckoutAmounts();
+    }
+  });
   document.addEventListener("submit", handleCheckoutSubmit, true);
-  document.addEventListener("keydown", event => { if (event.key === "Escape") closeCheckout(); });
+  document.addEventListener("keydown", event => {
+    if (event.target?.id === "checkoutPromoCode" && event.key === "Enter") {
+      event.preventDefault(); applyCheckoutPromotion(); return;
+    }
+    if (event.key === "Escape") closeCheckout();
+  });
   // The Checkout button exists at initialization; avoid unnecessary repeated DOM work.
 }
 

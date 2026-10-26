@@ -331,3 +331,26 @@
     }
   }
 }
+
+
+/* Always-visible promotion entry, also on narrow/mobile checkout. */
+.checkout-promo {
+  padding: 12px 14px;
+  background: #fff8f4;
+  border: 1px solid rgba(198, 56, 24, 0.23);
+  border-radius: 14px;
+}
+.checkout-promo > label { display: block; margin-bottom: 7px; }
+.checkout-promo__entry { display:flex; gap:8px; align-items:stretch; }
+.checkout-promo__entry input { flex:1; min-width:0; }
+.checkout-promo__apply {
+  flex:0 0 auto; background:#c63818; color:#fff; border:0;
+  border-radius:12px; padding:10px 18px; font-weight:800; cursor:pointer;
+}
+.checkout-promo__apply:disabled { opacity:.55; cursor:wait; }
+#checkoutPromoMessage { display:block; margin-top:7px; font-size:12px; color:#49546a; }
+.checkout-summary__discount span, .checkout-summary__discount strong { color:#a62a13; }
+@media(max-width:420px) {
+  .checkout-promo { padding:10px; }
+  .checkout-promo__apply { padding:9px 13px; }
+}

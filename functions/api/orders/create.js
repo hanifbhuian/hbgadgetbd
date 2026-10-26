@@ -1,3 +1,5 @@
+import { pricePromotion } from "../../lib/promotions.js";
+
 // Same-origin order submission proxy for HB Gadget BD.
 // Provides one confirmed server-generated Order ID rather than trusting a browser
 // timestamp, and avoids retrying a POST when Google blocks cross-origin reads.
@@ -62,6 +64,34 @@ export async function onRequestPost({ request, env }) {
       subtotal <= 0 || deliveryCharge < 0 || grandTotal !== subtotal + deliveryCharge) {
     return json({success:false,message:"Invalid order totals. Please refresh and try again."},400);
   }
+  // A promotional amount must be calculated and verified here, never trusted
+  // from the browser. No-code checkouts retain their existing price workflow.
+  const promotionCode = String(data.promoCode || "").trim().toUpperCase();
+  const claimedDiscount = Number(data.promoDiscount || 0);
+  if (promotionCode) {
+    let quote;
+    try {
+      quote = pricePromotion(promotionCode, data.cartItems,
+        data.originalSubtotal, subtotal, claimedDiscount);
+    } catch (error) {
+      return json({success:false,message:error.message},400);
+    }
+    // The recorded Items field is also used in every invoice stage.
+    // Show code and per-unit reduction beside each discounted product.
+    // Line AMOUNT and saved Subtotal are NET of the discount.
+    data.items = quote.pricedLines.map(item =>
+      item.name + (item.savings ? " (" + quote.promotion.code +
+      ": BDT " + quote.promotion.discountPerUnit + " off/unit)" : "") +
+      " x " + item.qty + " = ৳" + item.discountedLineTotal.toLocaleString("en-BD")
+    ).join(", ");
+    data.promoCode = quote.promotion.code;
+    data.promoDiscount = quote.discount;
+    data.note = String(data.note || "") +
+      " | Promotion: " + quote.promotion.code + " (BDT " + quote.discount + " discount)";
+  } else if (claimedDiscount !== 0 ||
+      (data.originalSubtotal != null && Number(data.originalSubtotal) !== subtotal)) {
+    return json({success:false,message:"Invalid discount. Refresh checkout."},400);
+  }
   data.paidAmount = 0;
   data.dueAmount = grandTotal;
   data.paymentStatus = prepayMethod ? "Pending Verification" : "Due";
@@ -99,6 +129,8 @@ export async function onRequestPost({ request, env }) {
       invoiceLink:/^https:\/\/drive\.google\.com\//.test(String(result.invoiceLink || "")) ? result.invoiceLink : "",
       invoiceStatus:String(result.invoiceStatus || ""),
       emailStatus:String(result.emailStatus || ""),
+      promoCode:promotionCode,
+      promoDiscount:promotionCode ? claimedDiscount : 0,
       message:String(result.message || "Order saved successfully.")
     });
   } catch (ignored) {

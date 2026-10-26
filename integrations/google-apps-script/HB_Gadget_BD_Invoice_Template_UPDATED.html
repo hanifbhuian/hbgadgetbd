@@ -97,10 +97,11 @@
   <table class="totals">
     <? if (invoicePromoDiscount > 0) { ?>
     <tr><td>Product Subtotal</td><td>BDT <?= invoiceOriginalSubtotal.toLocaleString('en-US') ?></td></tr>
-    <tr class="promo-discount"><td>Promotion (<?= invoicePromoCode ?>)</td><td>- BDT <?= invoicePromoDiscount.toLocaleString('en-US') ?></td></tr>
+    <tr class="promo-discount"><td>Promotion</td><td>- BDT <?= invoicePromoDiscount.toLocaleString('en-US') ?></td></tr>
     <tr class="discounted-subtotal"><td>Discounted Subtotal</td><td>BDT <?= data.subtotal.toLocaleString('en-US') ?></td></tr>
     <? } else { ?>
     <tr><td>Subtotal</td><td>BDT <?= data.subtotal.toLocaleString('en-US') ?></td></tr>
+    <tr class="promo-discount"><td>Promotion</td><td>BDT 0</td></tr>
     <? } ?>
     <tr><td>Delivery charge</td><td>BDT <?= data.shipping.toLocaleString('en-US') ?></td></tr>
     <tr class="total"><td>Total</td><td>BDT <?= data.total.toLocaleString('en-US') ?></td></tr>
